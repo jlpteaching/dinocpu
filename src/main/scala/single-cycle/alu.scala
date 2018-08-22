@@ -1,15 +1,18 @@
 // This file contains the ALU logic and the ALU control logic.
+// NOTE: This would be a good file to modify for different classes. With the ALU control different,
+//       the students would have to think about how it's implemented.
 
 package edu.darchr.codcpu
 
 import chisel3._
+import chisel3.util._
 
 /**
  * The ALU control unit
  * 
  * Here we should describe the I/O
  *
- * For more information, see Section 4.4 of Patterson and Hennessy
+ * For more information, see Section 4.4 and A.5 of Patterson and Hennessy
  */
 class ALUControl extends Module {
   val io = IO(new Bundle {
@@ -31,7 +34,8 @@ class ALUControl extends Module {
  *
  * Here we should describe the I/O
  *
- * For more information, see Section 4.3 of Patterson and Hennessy
+ * For more information, see Section 4.3 and A.5 of Patterson and Hennessy
+ * Specifically, the control lines come from figure 1.5.13
  */
 class ALU extends Module {
   val io = IO(new Bundle {
@@ -43,8 +47,36 @@ class ALU extends Module {
     val zero      = Output(Bool())
   })
 
-  // The logic goes here. You'll likely want to use a switch statement.
+  val AND_OP = 0.U
+  val OR_OP  = 1.U
+  val ADD_OP = 2.U
+  val SUB_OP = 6.U
+  val SLT_OP = 7.U
+  val NOR_OP = 12.U
 
+  // Default to 0 output
   io.result := 0.U
-  io.zero := Bool(false)
+
+  switch (io.operation) {
+    is (AND_OP) {
+      io.result := io.inputx & io.inputy
+    }
+    is (OR_OP) {
+      io.result := io.inputx | io.inputy
+    }
+    is (ADD_OP) {
+      io.result := io.inputx + io.inputy
+    }
+    is (SUB_OP) {
+      io.result := io.inputx - io.inputy
+    }
+    is (SLT_OP) {
+      io.result := (io.inputx < io.inputy)
+    }
+    is (NOR_OP) {
+      io.result := ~(io.inputx | io.inputy)
+    }
+  }
+
+  io.zero := (io.result === 0.U)
 }
