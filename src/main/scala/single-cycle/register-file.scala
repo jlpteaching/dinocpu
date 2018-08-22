@@ -15,14 +15,23 @@ class RegisterFile extends Module {
   val io = IO(new Bundle {
     val readreg1  = Input(UInt(5.W))
     val readreg2  = Input(UInt(5.W))
-    val writereg1 = Input(UInt(5.W))
+    val writereg  = Input(UInt(5.W))
     val writedata = Input(UInt(32.W))
-    val wen       = Input(UInt(32.W))
+    val wen       = Input(Bool())
 
     val readdata1 = Output(UInt(32.W))
     val readdata2 = Output(UInt(32.W))
   })
 
-  io.readdata1 := 0.U
-  io.readdata2 := 0.U
+  val regs = Reg(Vec(32, UInt(32.W)))
+
+  // When the write enable is high, write the data
+  when (io.wen) {
+    regs(io.writereg) := io.writedata
+  }
+
+  // *Always* read the data. This is required for the single cycle CPU since in a single cycle it
+  // might both read and write the registers (e.g., an add)
+  io.readdata1 := regs(io.readreg1)
+  io.readdata2 := regs(io.readreg2)
 }
