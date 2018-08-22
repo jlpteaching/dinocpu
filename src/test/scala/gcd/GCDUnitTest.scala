@@ -52,16 +52,16 @@ class GCDUnitTester(c: GCD) extends PeekPokeTester(c) {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly example.test.GCDTester
+  * testOnly gcd.GCDTester
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly example.test.GCDTester'
+  * sbt 'testOnly gcd.GCDTester'
   * }}}
   */
 class GCDTester extends ChiselFlatSpec {
   // Disable this until we fix isCommandAvailable to swallow stderr along with stdout
-  private val backendNames = if(false && firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
+  private val backendNames = if(firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
     Array("firrtl", "verilator")
   }
   else {
