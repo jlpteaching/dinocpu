@@ -28,16 +28,16 @@ class Control extends Module {
 
   val signals =
     ListLookup(io.opcode,
-      /*default*/           List(0.U,    0.U,     0.U,       0.U,   0.U,     0.U,     0.U),
-      Array(                 /* branch, memread, memtoreg, aluop, memwrite, alusrc, regwrite */
+      /*default*/           List(false.B, false.B, false.B, 0.U,    false.B,  false.B, false.B),
+      Array(                 /* branch,   memread, memtoreg, aluop, memwrite, alusrc,  regwrite */
       // R-format
-      BitPat("b0110011") -> List(0.U,    0.U,     0.U,       2.U,   0.U,     0.U,     1.U),
+      BitPat("b0110011") -> List(false.B, false.B, false.B, 2.U,    false.B,  false.B, true.B) ,
       // load
-      BitPat("b0000011") -> List(0.U,    1.U,     1.U,       0.U,   0.U,     1.U,     1.U),
+      BitPat("b0000011") -> List(false.B, true.B,  true.B,  0.U,    false.B,  true.B,  true.B) ,
       // store
-      BitPat("b0100011") -> List(0.U,    0.U,     0.U,       0.U,   1.U,     1.U,     0.U),
+      BitPat("b0100011") -> List(false.B, false.B, false.B, 0.U,    true.B,   true.B,  false.B),
       // beq
-      BitPat("b1100011") -> List(1.U,    0.U,     0.U,       1.U,   0.U,     0.U,     0.U)  
+      BitPat("b1100011") -> List(true.B,  false.B, false.B, 1.U,    false.B,  false.B, false.B)
       ) // Array
     ) // ListLookup
 
