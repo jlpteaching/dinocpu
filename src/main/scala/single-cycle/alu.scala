@@ -7,6 +7,8 @@ package edu.darchr.codcpu
 import chisel3._
 import chisel3.util._
 
+import Constants._
+
 /**
  * The ALU control unit
  * 
@@ -46,13 +48,6 @@ class ALU extends Module {
     val result    = Output(UInt(32.W))
     val zero      = Output(Bool())
   })
-
-  val AND_OP = 0.U
-  val OR_OP  = 1.U
-  val ADD_OP = 2.U
-  val SUB_OP = 6.U
-  val SLT_OP = 7.U
-  val NOR_OP = 12.U
 
   // Default to 0 output
   io.result := 0.U
