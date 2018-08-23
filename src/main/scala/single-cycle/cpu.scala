@@ -12,60 +12,67 @@ import chisel3._
  */
 class CPU extends Module {
 
-    // All of the structures required
-    val pc         = Reg(UInt(32.W))
-    val instMem    = Module(new InstructionMemory())
-    val control    = Module(new Control())
-    val registers  = Module(new RegisterFile())
-    val aluControl = Module(new ALUControl())
-    val alu        = Module(new ALU())
-    val immGen     = Module(new ImmediateGenerator())
-    val dataMem    = Module(new DataMemory())
-    val pcPlusFour = Module(new Adder())
-    val branchAdd  = Module(new Adder())
+  val io = IO(new Bundle{
+    val success = Output(Bool())
+  })
 
-    instMem.io.address := pc
+  // For now so this compiles
+  io.success := true.B
 
-    pcPlusFour.io.inputx := pc
-    pcPlusFour.io.inputy := 4.U
+  // All of the structures required
+  val pc         = Reg(UInt(32.W))
+  val instMem    = Module(new InstructionMemory())
+  val control    = Module(new Control())
+  val registers  = Module(new RegisterFile())
+  val aluControl = Module(new ALUControl())
+  val alu        = Module(new ALU())
+  val immGen     = Module(new ImmediateGenerator())
+  val dataMem    = Module(new DataMemory())
+  val pcPlusFour = Module(new Adder())
+  val branchAdd  = Module(new Adder())
 
-    val instruction = instMem.io.instruction
-    val opcode = instruction(0,6)
+  instMem.io.address := pc
 
-    control.io.opcode := opcode
+  pcPlusFour.io.inputx := pc
+  pcPlusFour.io.inputy := 4.U
 
-    registers.io.readreg1 := instruction(19,15)
-    registers.io.readreg2 := instruction(24,20)
+  val instruction = instMem.io.instruction
+  val opcode = instruction(0,6)
 
-    registers.io.writereg := instruction(11,7)
-    registers.io.wen      := control.io.regwrite
+  control.io.opcode := opcode
 
-    aluControl.io.aluop  := control.io.aluop
-    aluControl.io.funct7 := instruction(25,31)
-    aluControl.io.funct3 := instruction(12,14)
+  registers.io.readreg1 := instruction(19,15)
+  registers.io.readreg2 := instruction(24,20)
 
-    immGen.io.instruction := instruction
-    val imm = immGen.io.sextImm
+  registers.io.writereg := instruction(11,7)
+  registers.io.wen      := control.io.regwrite
 
-    val alu_inputy = Mux(control.io.alusrc, imm, registers.io.readdata2)
-    alu.io.inputx := registers.io.readdata1
-    alu.io.inputy := alu_inputy
-    alu.io.operation := aluControl.io.operation
+  aluControl.io.aluop  := control.io.aluop
+  aluControl.io.funct7 := instruction(25,31)
+  aluControl.io.funct3 := instruction(12,14)
 
-    dataMem.io.address   := alu.io.result
-    dataMem.io.writedata := registers.io.readdata2
-    dataMem.io.memread   := control.io.memread
-    dataMem.io.memwrite  := control.io.memwrite
+  immGen.io.instruction := instruction
+  val imm = immGen.io.sextImm
 
-    val write_data = Mux(control.io.memtoreg, dataMem.io.readdata, alu.io.result)
-    registers.io.writedata := write_data
+  val alu_inputy = Mux(control.io.alusrc, imm, registers.io.readdata2)
+  alu.io.inputx := registers.io.readdata1
+  alu.io.inputy := alu_inputy
+  alu.io.operation := aluControl.io.operation
 
-    branchAdd.io.inputx := pc
-    branchAdd.io.inputy := imm
-    val next_pc = Mux(control.io.branch & alu.io.zero,
-                      branchAdd.io.result,
-                      pcPlusFour.io.result)
+  dataMem.io.address   := alu.io.result
+  dataMem.io.writedata := registers.io.readdata2
+  dataMem.io.memread   := control.io.memread
+  dataMem.io.memwrite  := control.io.memwrite
 
-    pc := next_pc
+  val write_data = Mux(control.io.memtoreg, dataMem.io.readdata, alu.io.result)
+  registers.io.writedata := write_data
+
+  branchAdd.io.inputx := pc
+  branchAdd.io.inputy := imm
+  val next_pc = Mux(control.io.branch & alu.io.zero,
+                    branchAdd.io.result,
+                    pcPlusFour.io.result)
+
+  pc := next_pc
 
 }
