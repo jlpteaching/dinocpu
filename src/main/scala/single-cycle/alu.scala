@@ -15,6 +15,7 @@ import Constants._
  * Here we should describe the I/O
  *
  * For more information, see Section 4.4 and A.5 of Patterson and Hennessy
+ * This follows figure 4.12
  */
 class ALUControl extends Module {
   val io = IO(new Bundle {
@@ -25,9 +26,32 @@ class ALUControl extends Module {
     val operation = Output(UInt(4.W))
   })
 
-  // The logic goes here.
+  io.operation := 15.U // invalid operation
 
-  io.operation := 0.U
+  switch (io.aluop) {
+    is (0.U) { // load or store
+      io.operation := ADD_OP
+    }
+    is (1.U) { // beq
+      io.operation := SUB_OP
+    }
+    is (2.U) { // R-type, use funct fields
+      switch (io.funct7) {
+        is ("b0100000".U) { // sub and sra
+          switch (io.funct3) {
+            is ("b000".U) { io.operation := SUB_OP }
+          }
+        }
+        is ("b0000000".U) {
+          switch (io.funct3) {
+            is ("b000".U) { io.operation := ADD_OP }
+            is ("b110".U) { io.operation := OR_OP }
+            is ("b111".U) { io.operation := AND_OP }
+          }
+        }
+      }
+    }
+  }
 
 }
 
