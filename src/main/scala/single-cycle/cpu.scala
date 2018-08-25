@@ -4,6 +4,17 @@ package CODCPU
 
 import chisel3._
 
+import Common.MemPortIo
+
+/**
+ * From Sodor for hooking up memory to the core.
+ */
+class CoreIo extends Bundle
+{
+  val imem = new MemPortIo(32)
+  val dmem = new MemPortIo(32)
+}
+
 /**
  * The main CPU definition that hooks up all of the other components.
  *
@@ -11,13 +22,8 @@ import chisel3._
  * This follows figure 4.21
  */
 class CPU extends Module {
-
-  val io = IO(new Bundle{
-    val success = Output(Bool())
-  })
-
-  // For now so this compiles
-  io.success := true.B
+  val io = IO(new CoreIo())
+  io := DontCare
 
   // All of the structures required
   val pc         = Reg(UInt(32.W))
@@ -30,6 +36,9 @@ class CPU extends Module {
   val dataMem    = Module(new DataMemory())
   val pcPlusFour = Module(new Adder())
   val branchAdd  = Module(new Adder())
+
+  io.imem <> instMem.io.memport
+  io.dmem <> dataMem.io.memport
 
   instMem.io.address := pc
 

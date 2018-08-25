@@ -4,6 +4,10 @@ package CODCPU
 
 import chisel3._
 
+import Common.{MemPortIo}
+
+import Constants._
+
 /**
  * Contains the instructions.
  * This might be automatically loaded, or we'll have to load it with special debugging statements
@@ -13,12 +17,22 @@ import chisel3._
  */
 class InstructionMemory extends Module {
   val io = IO(new Bundle {
+    // For interfacing with Sodor/black box
+    val memport = new MemPortIo(32)
+
+    // For the pipeline
     val address     = Input(UInt(32.W))
 
     val instruction = Output(UInt(32.W))
   })
 
-  io.instruction := 0.U
+  io.memport.req.bits.addr := io.address
+  io.memport.req.bits.fcn  := M_XRD
+  io.memport.req.bits.typ  := MT_WU
+  io.memport.req.valid := true.B
+
+  io.instruction := io.memport.resp.bits.data
+  assert(io.memport.resp.valid)
 }
 
 /**
@@ -30,6 +44,10 @@ class InstructionMemory extends Module {
  */
 class DataMemory extends Module {
   val io = IO(new Bundle {
+    // For interfacing with Sodor/black box
+    val memport = new MemPortIo(32)
+
+    // For the pipeline
     val address   = Input(UInt(32.W))
     val writedata = Input(UInt(32.W))
     val memread   = Input(Bool())
@@ -38,5 +56,20 @@ class DataMemory extends Module {
     val readdata  = Output(UInt(32.W))
   })
 
-  io.readdata := 0.U
+
+  io.memport.req.bits.addr := io.address
+  io.memport.req.bits.data := io.writedata
+
+  when (io.memread) {
+    io.memport.req.bits.fcn  := M_XRD
+    io.memport.req.bits.typ  := MT_W
+  }
+  when (io.memwrite) {
+    io.memport.req.bits.fcn  := M_XWR
+    io.memport.req.bits.typ  := MT_W
+  }
+  io.memport.req.valid := io.memread || io.memwrite
+
+  io.readdata := io.memport.resp.bits.data
+
 }
