@@ -2,7 +2,7 @@
 // NOTE: This would be a good file to modify for different classes. With the ALU control different,
 //       the students would have to think about how it's implemented.
 
-package edu.darchr.codcpu
+package CODCPU
 
 import chisel3._
 import chisel3.util._
@@ -11,7 +11,7 @@ import Constants._
 
 /**
  * The ALU control unit
- * 
+ *
  * Here we should describe the I/O
  *
  * For more information, see Section 4.4 and A.5 of Patterson and Hennessy
@@ -22,7 +22,7 @@ class ALUControl extends Module {
     val aluop     = Input(UInt(2.W))
     val funct7    = Input(UInt(7.W))
     val funct3    = Input(UInt(3.W))
-    
+
     val operation = Output(UInt(4.W))
   })
 
@@ -55,7 +55,7 @@ class ALUControl extends Module {
 
 }
 
-/** 
+/**
  * The ALU
  *
  * Here we should describe the I/O

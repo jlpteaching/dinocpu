@@ -1,6 +1,6 @@
 // Where we put constant definitions
 
-package edu.darchr.codcpu
+package CODCPU
 
 import chisel3._
 

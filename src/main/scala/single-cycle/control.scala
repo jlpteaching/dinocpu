@@ -1,6 +1,6 @@
 // Control logic for the processor
 
-package edu.darchr.codcpu
+package CODCPU
 
 import chisel3._
 import chisel3.util.{BitPat, ListLookup}
@@ -16,7 +16,7 @@ import chisel3.util.{BitPat, ListLookup}
 class Control extends Module {
   val io = IO(new Bundle {
     val opcode = Input(UInt(7.W))
-    
+
     val branch = Output(Bool())
     val memread = Output(Bool())
     val memtoreg = Output(Bool())

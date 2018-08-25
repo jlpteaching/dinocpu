@@ -1,6 +1,6 @@
 // Unit tests for the register file.
 
-package edu.darchr.codcpu
+package CODCPU
 
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
@@ -31,11 +31,11 @@ class RegisterFileUnitTester(c: RegisterFile) extends PeekPokeTester(c) {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly edu.darchr.codcpu.RegisterFileTester
+  * testOnly CODCPU.RegisterFileTester
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly edu.darchr.codcpu.RegisterFileTester'
+  * sbt 'testOnly CODCPU.RegisterFileTester'
   * }}}
   */
 class RegisterFileTester extends ChiselFlatSpec {

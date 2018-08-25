@@ -1,6 +1,6 @@
 // Unit tests for the ALU control logic
 
-package edu.darchr.codcpu
+package CODCPU
 
 import chisel3._
 
@@ -13,7 +13,7 @@ class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
   private val ctl = c
 
   // Copied from Patterson and Hennessy table 4.12
-  val tests = List( 
+  val tests = List(
     // ALUop,  Funct7,       Func3,    Control Input
     ( "b00".U, "b0000000".U, "b000".U, "b0010".U),
     ( "b00".U, "b0000000".U, "b000".U, "b0010".U),
@@ -37,11 +37,11 @@ class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly edu.darchr.codcpu.ALUControlTester
+  * testOnly CODCPU.ALUControlTester
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly edu.darchr.codcpu.ALUControlTester'
+  * sbt 'testOnly CODCPU.ALUControlTester'
   * }}}
   */
 class ALUControlTester extends ChiselFlatSpec {

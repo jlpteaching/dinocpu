@@ -1,6 +1,6 @@
 // Describes a 32 entry two read port one write port register file
 
-package edu.darchr.codcpu
+package CODCPU
 
 import chisel3._
 

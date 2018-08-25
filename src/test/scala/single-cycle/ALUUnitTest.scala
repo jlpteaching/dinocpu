@@ -1,6 +1,6 @@
 // Unit tests for the ALU
 
-package edu.darchr.codcpu
+package CODCPU
 
 import chisel3._
 
@@ -90,11 +90,11 @@ class ALUUnitTester(c: ALU) extends PeekPokeTester(c) {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly edu.darchr.codcpu.ALUTester
+  * testOnly CODCPU.ALUTester
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly edu.darchr.codcpu.ALUTester'
+  * sbt 'testOnly CODCPU.ALUTester'
   * }}}
   */
 class ALUTester extends ChiselFlatSpec {
