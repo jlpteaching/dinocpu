@@ -30,6 +30,7 @@ class InstructionMemory extends Module {
   io.memport.req.bits.fcn  := M_XRD
   io.memport.req.bits.typ  := MT_WU
   io.memport.req.valid := true.B
+  io.memport.req.bits.data := 0.U
 
   io.instruction := io.memport.resp.bits.data
   assert(io.memport.resp.valid)
@@ -59,6 +60,8 @@ class DataMemory extends Module {
 
   io.memport.req.bits.addr := io.address
   io.memport.req.bits.data := io.writedata
+  io.memport.req.bits.fcn  := M_X
+  io.memport.req.bits.typ  := MT_X
 
   when (io.memread) {
     io.memport.req.bits.fcn  := M_XRD
@@ -68,6 +71,7 @@ class DataMemory extends Module {
     io.memport.req.bits.fcn  := M_XWR
     io.memport.req.bits.typ  := MT_W
   }
+
   io.memport.req.valid := io.memread || io.memwrite
 
   io.readdata := io.memport.resp.bits.data

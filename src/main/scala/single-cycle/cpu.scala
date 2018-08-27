@@ -3,6 +3,7 @@
 package CODCPU
 
 import chisel3._
+import chisel3.util.Counter
 
 import Common.MemPortIo
 
@@ -26,7 +27,7 @@ class CPU extends Module {
   io := DontCare
 
   // All of the structures required
-  val pc         = Reg(UInt(32.W))
+  val pc         = RegInit("h80000000".U)
   val instMem    = Module(new InstructionMemory())
   val control    = Module(new Control())
   val registers  = Module(new RegisterFile())
@@ -36,6 +37,7 @@ class CPU extends Module {
   val dataMem    = Module(new DataMemory())
   val pcPlusFour = Module(new Adder())
   val branchAdd  = Module(new Adder())
+  val (cycleCount, _) = Counter(true.B, 1 << 30)
 
   io.imem <> instMem.io.memport
   io.dmem <> dataMem.io.memport
@@ -46,7 +48,7 @@ class CPU extends Module {
   pcPlusFour.io.inputy := 4.U
 
   val instruction = instMem.io.instruction
-  val opcode = instruction(0,6)
+  val opcode = instruction(6,0)
 
   control.io.opcode := opcode
 
@@ -57,8 +59,8 @@ class CPU extends Module {
   registers.io.wen      := control.io.regwrite
 
   aluControl.io.aluop  := control.io.aluop
-  aluControl.io.funct7 := instruction(25,31)
-  aluControl.io.funct3 := instruction(12,14)
+  aluControl.io.funct7 := instruction(31,25)
+  aluControl.io.funct3 := instruction(14,12)
 
   immGen.io.instruction := instruction
   val imm = immGen.io.sextImm
@@ -81,6 +83,25 @@ class CPU extends Module {
   val next_pc = Mux(control.io.branch & alu.io.zero,
                     branchAdd.io.result,
                     pcPlusFour.io.result)
+
+  printf("DASM(%x)\n", instruction)
+  printf("Cycle=%d pc=0x%x, r1=%d, r2=%d, rw=%d, daddr=%x, npc=0x%x\n",
+         cycleCount,
+         pc,
+         registers.io.readreg1,
+         registers.io.readreg2,
+         registers.io.writereg,
+         dataMem.io.address,
+         next_pc
+         )
+  printf("                 r1=%x, r2=%x, imm=%x, alu=%x, data=%x, write=%x\n",
+         registers.io.readdata1,
+         registers.io.readdata2,
+         imm,
+         alu.io.result,
+         dataMem.io.readdata,
+         registers.io.writedata
+         )
 
   pc := next_pc
 

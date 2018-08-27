@@ -3,7 +3,7 @@ package CODCPU
 
 import chisel3._
 
-import Common.{SodorConfiguration, SimDTM}
+import Common.SimDTM
 
 class Top extends Module
 {

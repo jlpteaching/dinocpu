@@ -39,6 +39,8 @@ class ImmediateGenerator extends Module {
     val sextImm     = Output(UInt(32.W))
   })
 
+  io.sextImm := 0.U
+
   val opcode = io.instruction(6,0)
   switch(opcode) {
     is("b0110111".U) { // U-type (lui)
