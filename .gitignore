@@ -338,3 +338,8 @@ project/plugins/project/
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 
+# Emulator and output files
+*Top.v
+*Top.fir
+*Top.anno.json
+emulator/obj_dir
