@@ -1,0 +1,8 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    lw t0, 0x100(zero)
+
+  .data
+.byte 0xFF,0xFF,0xFF,0xFF
