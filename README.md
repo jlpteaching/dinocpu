@@ -195,11 +195,3 @@ To run a test you simply need to use the `tester` binary and specify one paramet
 Note: Right now, the test script uses a relative path to the binary.
 This means that *you must run the `tester` from the base directory*.
 You can also override all of the script details by specifying the same parameters as what the emulator in `emulator/` uses.
-
-
-# Next steps
-
-[x] Figure out how to run tests with the emulator. Can we check to see if the register values are correct?
-[x] Write more instruction tests.
-[ ] Package better for students.
-[ ] Add better way to exit from my emulator. I think we need to call a syscall (ecall?) to get the SimDTM to pick up on it and exit cleanly. See `RVTEST_PASS` `in riscv-tools/riscv-tests/env/p/riscv_test.h`
