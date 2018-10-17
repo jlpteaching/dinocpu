@@ -1,0 +1,6 @@
+src/test/emulator/risc-v/sw
+1
+5 1234
+run 100
+1
+6 1234

@@ -174,8 +174,32 @@ Also, after the 0th cycle, nothing is valid since there are no instructions afte
 The `DASM()` statement can be fed into other RISC-V tool to get a trace of the instructions executed.
 Remember, these verbose statements came from the `printf`s in `cpu.scala`.
 
+## Running instruction tests
+
+The tests for instructions are in `src/test/emulator` since they are using the emulator.
+
+There are tiny RISC-V programs in `src/test/emulator/risc-v`.
+These programs can be built with **the 32-bit GCC tools** by running `make` in that directory.
+
+There are also scripts to be used with the `tester` program in `src/tests/emulator/tests`.
+These scripts have a special format as specified in [the readme in that directory](src/test/emulator/tests/README.md).
+These scripts specify the binary to run, the initial register file state, how many cycles to run, and the ending register file state.
+Right now, the test only checks to make sure the register file is in the right state.
+
+Note: If you want to set an initial memory state, you have to include the `.data` section in the binary.
+
+Finally, there is the `tester` code which is a verilator wrapper.
+Right now, you can build the `tester` by running `make` in `src/tests/emulator`.
+
+To run a test you simply need to use the `tester` binary and specify one parameter: the test script.
+Note: Right now, the test script uses a relative path to the binary.
+This means that *you must run the `tester` from the base directory*.
+You can also override all of the script details by specifying the same parameters as what the emulator in `emulator/` uses.
+
+
 # Next steps
 
-[ ] Figure out how to run tests with the emulator. Can we check to see if the register values are correct?
-[ ] Write more instruction tests.
+[x] Figure out how to run tests with the emulator. Can we check to see if the register values are correct?
+[x] Write more instruction tests.
 [ ] Package better for students.
+[ ] Add better way to exit from my emulator. I think we need to call a syscall (ecall?) to get the SimDTM to pick up on it and exit cleanly. See `RVTEST_PASS` `in riscv-tools/riscv-tests/env/p/riscv_test.h`

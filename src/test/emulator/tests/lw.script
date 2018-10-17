@@ -1,0 +1,5 @@
+src/test/emulator/risc-v/lw1
+0
+run 48
+1
+5 -1
