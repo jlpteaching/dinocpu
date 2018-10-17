@@ -7,7 +7,7 @@ common      := .
 
 ELF         := elf2hex
 
-# pipe processor output through the spike-dasm program to turn 
+# pipe processor output through the spike-dasm program to turn
 # raw instruction bits into pretty, readable diassembly
 disasm_exe := 2>
 which_disasm := $(shell which spike-dasm)
@@ -16,7 +16,7 @@ ifneq ($(which_disasm),)
 endif
 
 MK_TARGET_PROC?=single-stage
- 
+
 ifneq ($(shell which pkg-config),)
 	ifneq ($(shell pkg-config --variable=includedir verilator),)
 		VERILATOR_INCLUDE=$(shell pkg-config --variable=includedir verilator)
@@ -34,7 +34,7 @@ else
 		$(error VERILATOR_ROOT is set to $(VERILATOR_ROOT) but not finding expected_file in there.)
 	endif
 endif
- 
+
 CXXFLAGS := $(CXXFLAGS) -O1 -std=c++11  -g
 
 CXXSRCS := SimDTM
@@ -46,7 +46,7 @@ OBJS := $(addsuffix .o,$(CXXSRCS))
 DEBUG_OBJS := $(addsuffix -debug.o,$(CXXSRCS))
 
 CHISEL_ARGS := -td emulator/${MK_TARGET_PROC}/generated-src
-CHISEL_ARGS_DEBUG := 
+CHISEL_ARGS_DEBUG :=
 
 $(addsuffix .o,$(CXXSRCS)): %.o: %.cc
 	$(CXX) $(CXXFLAGS) -I${VERILATOR_INCLUDE} -c -o $@ $<
@@ -54,8 +54,8 @@ $(addsuffix .o,$(CXXSRCS)): %.o: %.cc
 generated_dir = .
 
 # Run Verilator to produce a fast binary to emulate this circuit.
-VERILATOR := verilator --cc --exe 
-VERILATOR_FLAGS := --top-module Top \
+VERILATOR := verilator --cc --exe
+VERILATOR_FLAGS := --top-module Top --trace \
   +define+PRINTF_COND=\$$c\(\"verbose\"\) \
   --assert \
   --output-split 20000 \
@@ -72,7 +72,7 @@ emulator-debug: generated-src/Top.v $(srcDir)/emulator/common/emulator.cpp SimDT
 	$(VERILATOR) $(VERILATOR_FLAGS) --trace \
 	-o $(generated_dir)/$@ $< $(srcDir)/vsrc/SimDTM.v -LDFLAGS "$(LDFLAGS)" $(srcDir)/emulator/common/emulator.cpp $(srcDir)/riscv-fesvr/build/libfesvr.so $(generated_dir)/SimDTM.o
 	$(MAKE) -C $(generated_dir)/obj_dir -f VTop.mk
- 
+
 clean:
 	rm -rf *.o *.a emulator obj_dir emulator-debug generated-src generated-src-debug DVEfiles output
 

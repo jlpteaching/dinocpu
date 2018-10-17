@@ -118,6 +118,40 @@ int main(int argc, char** argv)
       }
    }
 
+   printf("Registers at the end of simulation: \n");
+   printf("[ 0] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_0);
+   printf("[ 1] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_1);
+   printf("[ 2] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_2);
+   printf("[ 3] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_3);
+   printf("[ 4] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_4);
+   printf("[ 5] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_5);
+   printf("[ 6] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_6);
+   printf("[ 7] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_7);
+   printf("[ 8] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_8);
+   printf("[ 9] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_9);
+   printf("[10] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_10);
+   printf("[11] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_11);
+   printf("[12] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_12);
+   printf("[13] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_13);
+   printf("[14] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_14);
+   printf("[15] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_15);
+   printf("[16] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_16);
+   printf("[17] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_17);
+   printf("[18] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_18);
+   printf("[19] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_19);
+   printf("[20] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_20);
+   printf("[21] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_21);
+   printf("[22] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_22);
+   printf("[23] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_23);
+   printf("[24] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_24);
+   printf("[25] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_25);
+   printf("[26] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_26);
+   printf("[27] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_27);
+   printf("[28] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_28);
+   printf("[29] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_29);
+   printf("[30] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_30);
+   printf("[31] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_31);
+
 #if VM_TRACE
   if (tfp)
     tfp->close();
