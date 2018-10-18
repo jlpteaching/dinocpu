@@ -195,3 +195,19 @@ To run a test you simply need to use the `tester` binary and specify one paramet
 Note: Right now, the test script uses a relative path to the binary.
 This means that *you must run the `tester` from the base directory*.
 You can also override all of the script details by specifying the same parameters as what the emulator in `emulator/` uses.
+
+# Helpful hints
+
+The `spike-dsm` program will convert the `DASM(<instruction>)` strings into RISC-V instructions.
+You can use this by adding the `+verbose`option to the emulator (or the tester) and then storing the output into a file (e.g., `2> trace`).
+Then, you can send that trace to `spike-dsm`.
+
+```
+$RISCV/bin/spike-dsm < trace
+```
+
+Or, you can use pipe to automatically convert the `DASM` statements as the emulator is running.
+
+```
+./emulator +verbose 2>&1 | $RISV/bin/spike-dsm
+```

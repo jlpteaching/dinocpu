@@ -1,0 +1,7 @@
+src/test/emulator/risc-v/sub
+2
+5 1234
+6 5678
+run 41
+1
+7 -4444

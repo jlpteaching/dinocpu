@@ -1,0 +1,5 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    add x0, t0, t1 # (reg[0] = reg[5] + reg[6])
