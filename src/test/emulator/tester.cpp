@@ -153,13 +153,6 @@ int main(int argc, char** argv)
      }
    }
 
-   if (failed) {
-     printf("Test FAILED!\n");
-     return 1;
-   } else {
-     printf("Test PASSED!\n");
-   }
-
    if (verbose) {
       printf("Registers at the end of simulation: \n");
       printf("[ 0] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_0);
@@ -194,6 +187,13 @@ int main(int argc, char** argv)
       printf("[29] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_29);
       printf("[30] %08x", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_30);
       printf("[31] %08x\n", dut.Top__DOT__tile__DOT__cpu__DOT__registers__DOT__regs_31);
+   }
+
+   if (failed) {
+     printf("Test FAILED!\n");
+     return 1;
+   } else {
+     printf("Test PASSED!\n");
    }
 
    delete dtm;
