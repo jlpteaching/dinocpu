@@ -56,7 +56,7 @@ class CPU extends Module {
   registers.io.readreg2 := instruction(24,20)
 
   registers.io.writereg := instruction(11,7)
-  registers.io.wen      := control.io.regwrite
+  registers.io.wen      := control.io.regwrite && (registers.io.writereg =/= 0.U)
 
   aluControl.io.aluop  := control.io.aluop
   aluControl.io.funct7 := instruction(31,25)
