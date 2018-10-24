@@ -30,7 +30,7 @@ RUN \
   cd riscv-fesvr && \
   git checkout f9754d8db7d8c1bd659f223017873fb6a25f1257 && \
   mkdir build && cd build && \
-  ../configure --prefix=/usr/local && \
+  ../configure --prefix=/usr && \
   make install && \
   cd ../../ && rm -rf riscv-fesvr
 
