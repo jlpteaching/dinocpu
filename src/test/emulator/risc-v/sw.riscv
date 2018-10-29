@@ -3,6 +3,10 @@
   .globl _start
 _start:
     sw t0, 0x100(zero)
+    nop
+    nop
+    nop
+    nop
     lw t1, 0x100(zero)
 
   .data

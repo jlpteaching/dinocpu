@@ -1,0 +1,42 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+
+sort:
+
+
+# Checks to see if the array is sorted in ascending order.
+#
+# parameters:
+#  a0: Size of the array
+#  a1: Location of the array relative to data start (0x100)
+# return value:
+#  a0: if 0, array is not sorted, if 1, array is sorted
+check:
+  lw t0, 0x100(a0)      # load earlier value into t0
+  addi a0, a0, 1        # add 4 to pointer
+  lw t1, 0x100(a1)      # load next value into t1
+  sub t0, t1, t0        # t0 should be <= 0
+  bgt t0, zero, fail    # The list isn't sorted!
+  beq a0, a1, success   # We've checked all values in the list
+  beq zero, zero, check # Go on to next location
+fail:
+  add a0, zero, zero    # Set a0 to 0 if fail
+success:
+  addi a0, zero, 1      # Set a0 to 1 if success
+
+
+
+###############################################################
+# Data segment (loaded at 0x100)
+###############################################################
+  .data
+array:
+  .word 0x4d0b,0x741e,0x1ecd,0xf780
+  .word 0x3d58,0x203c,0x3a4b,0xfae6
+  .word 0x2c96,0x33a4,0xdc53,0xa942
+  .word 0x6cd1,0xa36,0x11f0,0x9ac3
+  .word 0x2b0a,0xaca,0xca4e,0xf3aa
+size:
+  .word 20

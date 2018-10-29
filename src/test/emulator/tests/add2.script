@@ -2,7 +2,7 @@ src/test/emulator/risc-v/add2
 2
 5 1234
 20 5678
-run 41
+run 46
 2
 0 0
 10 6912

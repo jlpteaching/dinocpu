@@ -4,7 +4,7 @@ src/test/emulator/risc-v/beq
 6 1
 7 5678
 8 9012
-run 48
+run 92
 4
 5 0
 6 1

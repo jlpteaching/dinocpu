@@ -4,5 +4,17 @@
 _start:
     beq t2, t3, label  # if reg[7] == reg[28], go to label.
     add t0, zero, zero # else reg[5] = 0 + 0
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
 label:
     add t0, t0, t1     # reg[5] = reg[5] + reg[6]
