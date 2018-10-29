@@ -84,29 +84,34 @@ class FiveCycleCPU extends Module {
   val branchAdd  = Module(new Adder())
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
-  val if_id      = Reg(new IFIDBundle)
-  val id_ex      = Reg(new IDEXBundle)
-  val ex_mem     = Reg(new EXMEMBundle)
-  val mem_wb     = Reg(new MEMWBBundle)
+  val if_id      = RegInit(0.U.asTypeOf(new IFIDBundle))
+  val id_ex      = RegInit(0.U.asTypeOf(new IDEXBundle))
+  val ex_mem     = RegInit(0.U.asTypeOf(new EXMEMBundle))
+  val mem_wb     = RegInit(0.U.asTypeOf(new MEMWBBundle))
 
   io.imem <> instMem.io.memport
   io.dmem <> dataMem.io.memport
 
   printf("Cycle=%d ", cycleCount)
 
+  // Forward declaration of wires that connect different stages
+
+  // From memory back to fetch
+  val next_pc      = Wire(UInt())
+  val branch_taken = Wire(Bool())
+
+  // For flushing stages.
+  val flush_idex  = Wire(Bool())
+  val flush_exmem = Wire(Bool())
+
   /////////////////////////////////////////////////////////////////////////////
   // FETCH STAGE
   /////////////////////////////////////////////////////////////////////////////
 
   // Note: This comes from the memory stage!
-  pc := Mux(ex_mem.mcontrol.branch & ex_mem.zero,
-            branchAdd.io.result,
-            ex_mem.nextpc)
-
-  pc := RegNext(Mux(ex_mem.mcontrol.branch & ex_mem.zero,
-                    branchAdd.io.result,
-                    ex_mem.nextpc),
-                (cycleCount % 5.U) === 0.U) // for now only enable PC every 5 cycles
+  pc := Mux(branch_taken,
+            next_pc,
+            pcPlusFour.io.result)
 
   instMem.io.address := pc
 
@@ -139,15 +144,21 @@ class FiveCycleCPU extends Module {
   id_ex.readdata1 := registers.io.readdata1
   id_ex.pc        := if_id.pc
 
-  id_ex.excontrol.aluop  := control.io.aluop
-  id_ex.excontrol.alusrc := control.io.alusrc
+  when (flush_idex) {
+    id_ex.excontrol := 0.U.asTypeOf(new EXControl)
+    id_ex.mcontrol  := 0.U.asTypeOf(new MControl)
+    id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
+  } .otherwise {
+    id_ex.excontrol.aluop  := control.io.aluop
+    id_ex.excontrol.alusrc := control.io.alusrc
 
-  id_ex.mcontrol.memread  := control.io.memread
-  id_ex.mcontrol.memwrite := control.io.memwrite
-  id_ex.mcontrol.branch   := control.io.branch
+    id_ex.mcontrol.memread  := control.io.memread
+    id_ex.mcontrol.memwrite := control.io.memwrite
+    id_ex.mcontrol.branch   := control.io.branch
 
-  id_ex.wbcontrol.memtoreg := control.io.memtoreg
-  id_ex.wbcontrol.regwrite := control.io.regwrite
+    id_ex.wbcontrol.memtoreg := control.io.memtoreg
+    id_ex.wbcontrol.regwrite := control.io.regwrite
+  }
 
   printf("DASM(%x)\n", if_id.instruction)
   printf(p"ID/EX: $id_ex\n")
@@ -171,8 +182,17 @@ class FiveCycleCPU extends Module {
   ex_mem.aluresult := alu.io.result
   ex_mem.zero      := alu.io.zero
 
-  ex_mem.mcontrol := id_ex.mcontrol
-  ex_mem.wbcontrol := id_ex.wbcontrol
+  ex_mem.nextpc := branchAdd.io.result
+
+  ex_mem.writereg := id_ex.writereg
+
+  when (flush_exmem) {
+    ex_mem.mcontrol  := 0.U.asTypeOf(new MControl)
+    ex_mem.wbcontrol := 0.U.asTypeOf(new WBControl)
+  } .otherwise {
+    ex_mem.mcontrol := id_ex.mcontrol
+    ex_mem.wbcontrol := id_ex.wbcontrol
+  }
 
   printf(p"EX/MEM: $ex_mem\n")
 
@@ -185,10 +205,24 @@ class FiveCycleCPU extends Module {
   dataMem.io.memread   := ex_mem.mcontrol.memread
   dataMem.io.memwrite  := ex_mem.mcontrol.memwrite
 
+  // Send this back to the fetch stage
+  next_pc      := ex_mem.nextpc
+  branch_taken := ex_mem.mcontrol.branch & ex_mem.zero
+
   mem_wb.writereg  := ex_mem.writereg
   mem_wb.aluresult := ex_mem.aluresult
   mem_wb.readdata  := dataMem.io.readdata
   mem_wb.wbcontrol := ex_mem.wbcontrol
+
+  // Now we know the direction of the branch. If it's taken, clear the control
+  // for the previous stages.
+  when (branch_taken) {
+    flush_exmem := true.B
+    flush_idex  := true.B
+  } .otherwise {
+    flush_exmem := false.B
+    flush_idex  := false.B
+  }
 
   printf(p"MEM/WB: $mem_wb\n")
 
@@ -199,4 +233,6 @@ class FiveCycleCPU extends Module {
   registers.io.writedata := Mux(mem_wb.wbcontrol.memtoreg, mem_wb.readdata, mem_wb.aluresult)
   registers.io.writereg  := mem_wb.writereg
   registers.io.wen       := mem_wb.wbcontrol.regwrite && (registers.io.writereg =/= 0.U)
+
+  printf("---------------------------------------------\n")
 }
