@@ -62,8 +62,13 @@ class MEMWBBundle extends Bundle {
 /**
  * The main CPU definition that hooks up all of the other components.
  *
- * For more information, see section 4.4 of Patterson and Hennessy
- * This follows figure 4.21
+ * For more information, see section 4.6 of Patterson and Hennessy
+ * This follows figure 4.49
+ *
+ * This CPU has no hazard detection, so any data hazards require explicit
+ * nops in the application. For control hazards, this CPU assumes the branch
+ * is not taken and will squash any incorrectly fetched instructions after the
+ * branch is resolved in the memory stage.
  */
 class FiveCycleCPU extends Module {
   val io = IO(new Bundle {
