@@ -1,0 +1,8 @@
+src/test/emulator/risc-v/lwfwd
+2
+5 -1
+10 5
+run 58
+2
+5 1
+10 6

@@ -1,0 +1,9 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    lw  t0, 0x100(zero) # (reg[5] = mem[0x100])
+    add a0, a0, t0      # (reg[10] = reg[10] + reg[5])
+
+  .data
+.word 1
