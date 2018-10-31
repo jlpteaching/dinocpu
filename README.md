@@ -198,6 +198,8 @@ You can also override all of the script details by specifying the same parameter
 
 # Helpful hints
 
+## Getting DASM to work
+
 The `spike-dsm` program will convert the `DASM(<instruction>)` strings into RISC-V instructions.
 You can use this by adding the `+verbose`option to the emulator (or the tester) and then storing the output into a file (e.g., `2> trace`).
 Then, you can send that trace to `spike-dsm`.
@@ -211,3 +213,15 @@ Or, you can use pipe to automatically convert the `DASM` statements as the emula
 ```
 ./emulator +verbose 2>&1 | $RISV/bin/spike-dsm
 ```
+
+## sbt hints
+
+If you want to pass an option to `sbt run`, you need to enclose `run` + your options in `"`.
+For instance,
+
+```
+sbt "run --help"
+```
+
+Will show you the help for chisel and firrtl.
+
