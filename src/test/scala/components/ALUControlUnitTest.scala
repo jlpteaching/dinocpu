@@ -55,33 +55,7 @@ class ALUControlTester extends ChiselFlatSpec {
     "ALUControl" should s"save written values (with $backendName)" in {
       Driver(() => new ALUControl, backendName) {
         c => new ALUControlUnitTester(c)
-      } should be (true)
-    }
-  }
-
-  "Basic test using Driver.execute" should "be used as an alternative way to run specification" in {
-    iotesters.Driver.execute(Array(), () => new ALUControl) {
-      c => new ALUControlUnitTester(c)
-    } should be (true)
-  }
-
-  "using --backend-name verilator" should "be an alternative way to run using verilator" in {
-    if(backendNames.contains("verilator")) {
-      iotesters.Driver.execute(Array("--backend-name", "verilator"), () => new ALUControl) {
-        c => new ALUControlUnitTester(c)
       } should be(true)
     }
-  }
-
-  "running with --is-verbose" should "show more about what's going on in your tester" in {
-    iotesters.Driver.execute(Array("--is-verbose"), () => new ALUControl) {
-      c => new ALUControlUnitTester(c)
-    } should be(true)
-  }
-
-  "running with --fint-write-vcd" should "create a vcd file from your test" in {
-    iotesters.Driver.execute(Array("--fint-write-vcd"), () => new ALUControl) {
-      c => new ALUControlUnitTester(c)
-    } should be(true)
   }
 }

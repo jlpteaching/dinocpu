@@ -52,30 +52,4 @@ class RegisterFileTester extends ChiselFlatSpec {
       } should be (true)
     }
   }
-
-  "Basic test using Driver.execute" should "be used as an alternative way to run specification" in {
-    iotesters.Driver.execute(Array(), () => new RegisterFile) {
-      c => new RegisterFileUnitTester(c)
-    } should be (true)
-  }
-
-  "using --backend-name verilator" should "be an alternative way to run using verilator" in {
-    if(backendNames.contains("verilator")) {
-      iotesters.Driver.execute(Array("--backend-name", "verilator"), () => new RegisterFile) {
-        c => new RegisterFileUnitTester(c)
-      } should be(true)
-    }
-  }
-
-  "running with --is-verbose" should "show more about what's going on in your tester" in {
-    iotesters.Driver.execute(Array("--is-verbose"), () => new RegisterFile) {
-      c => new RegisterFileUnitTester(c)
-    } should be(true)
-  }
-
-  "running with --fint-write-vcd" should "create a vcd file from your test" in {
-    iotesters.Driver.execute(Array("--fint-write-vcd"), () => new RegisterFile) {
-      c => new RegisterFileUnitTester(c)
-    } should be(true)
-  }
 }
