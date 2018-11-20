@@ -59,3 +59,10 @@ Then, I can "reset" the CPU by setting the PC back to 0 and then running.
 Ok, so, the above won't work because it seems like you can't peek/poke things that are not the top level.
 I think you would have to use something like the `BoringUtils` to get it to work.
 However, that's 1) a huge pain and really awkward and 2) it's not in master right now, so I don't want to use it.
+
+There's a couple of other options.
+It may be possible to use the testers2 interface to do what I want.
+Overall, it seems better and it allows you to factor things out, so it may work.
+
+The other option is to poke instructions and then check all of the control signals (e.g., the writeback) to make sure they are correct.
+This will also be easier with testers2 since it allows you to do pipelined things easily.
