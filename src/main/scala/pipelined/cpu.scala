@@ -13,7 +13,7 @@ import Common.MemPortIo
  * For more information, see section 4.6 of Patterson and Hennessy
  * This follows figure 4.49
  */
-class PipelinedCPU extends Module {
+class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   val io = IO(new Bundle {
     val imem = new MemPortIo(32)
     val dmem = new MemPortIo(32)

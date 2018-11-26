@@ -11,7 +11,7 @@ import chisel3._
  *
  * For more information, see section 4.3 of Patterson and Hennessy
  */
-class RegisterFile extends Module {
+class RegisterFile(implicit val conf: CPUConfig) extends Module {
   val io = IO(new Bundle {
     val readreg1  = Input(UInt(5.W))
     val readreg2  = Input(UInt(5.W))

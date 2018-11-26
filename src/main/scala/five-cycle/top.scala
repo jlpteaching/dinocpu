@@ -10,6 +10,8 @@ class FiveCycleTile extends Module
       val dmi = Flipped(new DMIIO())
    })
 
+   implicit val conf = new CPUConfig()
+
    // notice that while the core is put into reset, the scratchpad needs to be
    // alive so that the Debug Module can load in the program.
    val debug = Module(new DebugModule())

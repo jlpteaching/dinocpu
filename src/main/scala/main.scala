@@ -14,6 +14,8 @@ class Tile extends Module
 
    // notice that while the core is put into reset, the scratchpad needs to be
    // alive so that the Debug Module can load in the program.
+  implicit val conf = new CPUConfig()
+
    val debug = Module(new DebugModule())
    val cpu   = Module(new CPU)
    cpu.io := DontCare
