@@ -48,7 +48,6 @@ class RegisterFileTester extends ChiselFlatSpec {
   for ( backendName <- backendNames ) {
     "RegisterFile" should s"save written values (with $backendName)" in {
       implicit val conf = new CPUConfig()
-      conf.setTesting()
       Driver(() => new RegisterFile, backendName) {
         c => new RegisterFileUnitTester(c)
       } should be (true)

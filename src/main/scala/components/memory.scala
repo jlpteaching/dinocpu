@@ -25,6 +25,7 @@ class InstructionMemory extends Module {
 
     val instruction = Output(UInt(32.W))
   })
+  io := DontCare
 
   io.memport.req.bits.addr := io.address
   io.memport.req.bits.fcn  := M_XRD
@@ -56,7 +57,7 @@ class DataMemory extends Module {
 
     val readdata  = Output(UInt(32.W))
   })
-
+  io := DontCare
 
   io.memport.req.bits.addr := io.address
   io.memport.req.bits.data := io.writedata
