@@ -1,0 +1,27 @@
+An example of what gradescope wants:
+
+{ "score": 44.0, // optional, but required if not on each test case below
+  "execution_time": 136, // optional, seconds
+  "output": "Text relevant to the entire submission", // optional
+  "tests": {
+    [
+        {
+            "score": 2.0, // optional, but required if not on top level submission
+            "max_score": 2.0, // optional
+            "name": "Your name here", // optional
+            "number": "1.1", // optional (will just be numbered in order of array if no number given)
+            "output": "Giant multiline string that will be placed in a <pre> tag and collapsed by default", // optional
+            "tags": ["tag1", "tag2", "tag3"], // optional
+            visibility: "always" // can be "always", "published", or "never" -- default "always"
+        },
+        {
+            "score": 1.0, // optional, but required if not on top level submission
+            "max_score": 2.0, // optional
+            "name": "Another name here", // optional
+            "number": "1.2", // optional (will just be numbered in order of array if no number given)
+            "output": "Giant multiline string that will be placed in a <pre> tag and collapsed by default", // optional
+            "tags": ["tag1", "tag2", "tag3"], // optional
+        }
+    ]
+  },
+}
