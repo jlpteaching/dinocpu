@@ -47,11 +47,24 @@ libraryDependencies ++= (Seq("chisel3","chisel-iotesters").map {
   dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep)) })
 
 // https://mvnrepository.com/artifact/junit/junit
+// For running the gradescope tests
 libraryDependencies += "junit" % "junit" % "4.12" % Test
 
 scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
 
 javacOptions ++= javacOptionsVersion(scalaVersion.value)
 
-// To make scala test output juint xml files
-testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-u", "junit-out")
+lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
+lazy val Grader = config("grader") extend(Test)
+
+def graderFilter(name: String): Boolean = name endsWith "Grader"
+def unitFilter(name: String): Boolean = (name endsWith "Tester") && !graderFilter(name)
+
+lazy val root = (project in file("."))
+  .configs(Grader)
+  .settings(
+    inConfig(Grader)(Defaults.testTasks),
+    libraryDependencies += scalatest % Grader,
+    testOptions in Test := Seq(Tests.Filter(unitFilter)),
+    testOptions in Grader := Seq(Tests.Filter(graderFilter))
+  )

@@ -11,6 +11,8 @@ import org.junit.runner.notification.RunListener;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 import java.util.Collection;
 
@@ -34,12 +36,12 @@ public class GradedTestListenerJSON extends RunListener {
     private static TestResult currentTestResult;
 
     /* All test results. */
-    private static List<TestResult> allTestResults;
+    private static List<TestResult> allTestResults = new ArrayList<TestResult>();
 
     /* Test run start time. */
     private static long startTime;
 
-    /** Returns the name of a test as stored in an annotation. 
+    /** Returns the name of a test as stored in an annotation.
       * TODO: Is there a more elegant way to do this? */
     private static String getAnnotationString(Annotation x, String annotationStringName) throws
         IllegalAccessException, InvocationTargetException {
@@ -55,9 +57,9 @@ public class GradedTestListenerJSON extends RunListener {
             }
         }
         return "Uh-oh, getAnnotationString failed to get test String. This should never happen!";
-    }    
+    }
 
-    /** Returns the name of a test as stored in an annotation. 
+    /** Returns the name of a test as stored in an annotation.
       * TODO: Is there a more elegant way to do this? */
     private static double getAnnotationDouble(Annotation x, String annotationDoubleName) throws
         IllegalAccessException, InvocationTargetException {
@@ -73,7 +75,7 @@ public class GradedTestListenerJSON extends RunListener {
             }
         }
         return -31337;
-    }    
+    }
 
     /** Gets test name of the given test. */
     private static String getTestName(GradedTest x) throws
@@ -84,13 +86,13 @@ public class GradedTestListenerJSON extends RunListener {
     /** Gets test number of the given test. */
     private static String getTestNumber(GradedTest x) throws
         IllegalAccessException, InvocationTargetException {
-        return getAnnotationString(x, "number");        
+        return getAnnotationString(x, "number");
     }
 
     /** Gets test weight of the given test. */
     private static double getTestMaxScore(GradedTest x) throws
         IllegalAccessException, InvocationTargetException {
-        return getAnnotationDouble(x, "max_score");        
+        return getAnnotationDouble(x, "max_score");
     }
 
     private static String getTestVisibility(GradedTest x) throws
@@ -99,13 +101,12 @@ public class GradedTestListenerJSON extends RunListener {
     }
 
 
-    /** Returns the name of a test as stored in an annotation. 
+    /** Returns the name of a test as stored in an annotation.
       * TODO: Is there a more elegant way to do this? */
 
 
     /* Code to run at the beginning of a test run. */
     public void testRunStarted(Description description) throws Exception {
-        allTestResults = new ArrayList<TestResult>();
         startTime = System.currentTimeMillis();
     }
 
@@ -119,11 +120,16 @@ public class GradedTestListenerJSON extends RunListener {
             objects.add(tr.toJSON());
         }
         String testsJSON = String.join(",", objects);
-
-        System.out.println("{" + String.join(",", new String[] {
-            String.format("\"execution_time\": %d", elapsed),
-            String.format("\"tests\": [%s]", testsJSON)
-        }) + "}");
+        try {
+            PrintWriter writer = new PrintWriter("/autograder/results/results.json", "UTF-8");
+            writer.println("{" + String.join(",", new String[] {
+                String.format("\"execution_time\": %d", elapsed),
+                String.format("\"tests\": [%s]", testsJSON)
+            }) + "}");
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("WARNING: Not running in gradescope container. No json output!");
+        }
     }
 
     public void testStarted(Description description) throws Exception {
@@ -167,7 +173,7 @@ public class GradedTestListenerJSON extends RunListener {
             currentTestResult.addOutput(capturedDataString);
         }
         System.setOut(STDOUT);
-        
+
         /* For Debugging. */
         if (false) {
             System.out.println(currentTestResult);
