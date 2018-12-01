@@ -10,5 +10,6 @@ cd /codcpu
 sbt "Grader / test"
 
 # Remove all of the colors from the json
-cat results/results.json | perl -pe 's/\e\[?.*?[\@-~]//g' > tmp.json
-mv tmp.json results/results.json
+cd /autograder/results
+cat results.json | perl -pe 's/\e\[?.*?[\@-~]//g' > tmp.json
+mv tmp.json results.json
