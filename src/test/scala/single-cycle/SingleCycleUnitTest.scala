@@ -24,7 +24,7 @@ class CPUWrapper extends Module {
     io := DontCare
 
     implicit val conf = new CPUConfig()
-    conf.setTesting()
+    conf.setTesting() // Required for BoringUtils in reg file
 
     val debug = Module(new DebugModule())
     val cpu   = Module(new CPU)
