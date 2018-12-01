@@ -225,3 +225,26 @@ sbt "run --help"
 
 Will show you the help for chisel and firrtl.
 
+
+# Testing for grading
+
+You can run the test and have it output a junit compatible xml file by appending the following after `sbt test` or `sbt testOnly <test>`
+
+```
+-- -u <directory>
+```
+
+## How to do it
+
+If you run the test under the "Grader" config, you can run just the grading scripts.
+This assumes that you are running inside the gradescope docker container.
+
+```
+sbt "Grader / test"
+```
+
+### Updating the docker image
+
+```
+docker build -f Dockerfile.gradescope -t jlpteaching/codcpu-grading .
+```
