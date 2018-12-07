@@ -1,27 +1,12 @@
 package CODCPU
 
-import chisel3.iotesters
-import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import chisel3.iotesters.Driver
 
 import com.gradescope.jh61b.grader.{GradedTest,GradedTestRunnerJSON}
 import org.junit.Test;
 import org.scalatest.junit.JUnitSuite
 import org.junit.runner.RunWith
 
-import org.scalatest.Tag
-object GradescopeTag extends Tag("Gradescope")
-
-/**
-  * This is a trivial example of how to run this Specification
-  * From within sbt use:
-  * {{{
-  * testOnly CODCPU.RegisterFileTester
-  * }}}
-  * From a terminal shell use:
-  * {{{
-  * sbt 'testOnly CODCPU.RegisterFileTester'
-  * }}}
-  */
 @RunWith(classOf[GradedTestRunnerJSON])
 class RegisterFileGrader extends JUnitSuite {
 
