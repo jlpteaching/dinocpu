@@ -46,14 +46,16 @@ val defaultVersions = Map(
 libraryDependencies ++= (Seq("chisel3","chisel-iotesters").map {
   dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep)) })
 
-// https://mvnrepository.com/artifact/junit/junit
-// For running the gradescope tests
-libraryDependencies += "junit" % "junit" % "4.12" % Test
-
 scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
 
 javacOptions ++= javacOptionsVersion(scalaVersion.value)
 
+// https://mvnrepository.com/artifact/junit/junit
+// For running the gradescope tests
+libraryDependencies += "junit" % "junit" % "4.12" % Test
+
+// This sets it up so all tests that end in "Tester" will be run when you run sbt test
+// and all tests that end in "Grader" will run when you run stb Grader / test
 lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
 lazy val Grader = config("grader") extend(Test)
 
