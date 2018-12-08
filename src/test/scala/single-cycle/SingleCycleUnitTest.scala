@@ -27,7 +27,7 @@ class CPUWrapper extends Module {
     conf.setTesting() // Required for BoringUtils in reg file
 
     val debug = Module(new DebugModule())
-    val cpu   = Module(new CPU)
+    val cpu   = Module(new SingleCycleCPU)
     cpu.io := DontCare
     val memory = Module(new AsyncScratchPadMemory(num_core_ports = 2))
     cpu.io.dmem <> memory.io.core_ports(0)

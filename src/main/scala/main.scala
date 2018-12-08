@@ -6,7 +6,7 @@ import chisel3._
 import Common.{SimDTM, DMIIO, AsyncScratchPadMemory, DebugModule}
 
 
-class Tile extends Module
+class Tile(implicit val conf: CPUConfig) extends Module
 {
    val io = IO(new Bundle {
       val dmi = Flipped(new DMIIO())
@@ -14,10 +14,9 @@ class Tile extends Module
 
    // notice that while the core is put into reset, the scratchpad needs to be
    // alive so that the Debug Module can load in the program.
-  implicit val conf = new CPUConfig()
 
    val debug = Module(new DebugModule())
-   val cpu   = Module(new CPU)
+   val cpu   = Module(conf.getCPU())
    cpu.io := DontCare
    val memory = Module(new AsyncScratchPadMemory(num_core_ports = 2))
    cpu.io.dmem <> memory.io.core_ports(0)
@@ -27,7 +26,7 @@ class Tile extends Module
    debug.io.dmi <> io.dmi
 }
 
-class Top extends Module
+class Top(implicit val conf: CPUConfig) extends Module
 {
   val io = IO(new Bundle{
       val success = Output(Bool())
@@ -39,12 +38,10 @@ class Top extends Module
 
 object elaborate {
   def main(args: Array[String]): Unit = {
-    if (args(0) == "single-cycle") {
-      chisel3.Driver.execute(args, () => new Top)
-    } else if (args(0) == "multi-cycle") {
-      chisel3.Driver.execute(args, () => new Top)
-    } else {
-      println("Error: Expected first argument to be CPU type.")
-    }
+    require(args.length == 1, "Error: Expected exactly one argument: CPU type.")
+
+    implicit val conf = new CPUConfig()
+    conf.cpuType = args(0)
+    chisel3.Driver.execute(args, () => new Top)
   }
 }

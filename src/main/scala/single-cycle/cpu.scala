@@ -22,7 +22,7 @@ class CoreIo extends Bundle
  * For more information, see section 4.4 of Patterson and Hennessy
  * This follows figure 4.21
  */
-class CPU(implicit val conf: CPUConfig) extends Module {
+class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val io = IO(new CoreIo())
   io := DontCare
 

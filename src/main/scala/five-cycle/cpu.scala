@@ -19,7 +19,7 @@ import Common.MemPortIo
  * is not taken and will squash any incorrectly fetched instructions after the
  * branch is resolved in the memory stage.
  */
-class FiveCycleCPU(implicit val conf: CPUConfig)extends Module {
+class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   val io = IO(new Bundle {
     val imem = new MemPortIo(32)
     val dmem = new MemPortIo(32)
