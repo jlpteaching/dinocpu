@@ -4,8 +4,6 @@ package CODCPU
 
 import chisel3._
 
-import Common.MemoryOpConstants
-
 trait ALUConstants
 {
   val AND_OP = 0.U
@@ -17,7 +15,6 @@ trait ALUConstants
 }
 
 object Constants extends
-    ALUConstants with
-    Common.MemoryOpConstants
+    ALUConstants
 {
 }

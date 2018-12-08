@@ -4,77 +4,71 @@ package CODCPU
 
 import chisel3._
 
-import Common.{MemPortIo}
+import chisel3.util.experimental.loadMemoryFromFile
 
-import Constants._
+/**
+ * Describe this
+ */
+class IMemIO extends Bundle {
+  val address     = Input(UInt(32.W))
+
+  val instruction = Output(UInt(32.W))
+}
+
+/**
+ * Describe this
+ */
+class DMemIO extends Bundle {
+  val address   = Input(UInt(32.W))
+  val writedata = Input(UInt(32.W))
+  val memread   = Input(Bool())
+  val memwrite  = Input(Bool())
+
+  val readdata  = Output(UInt(32.W))
+}
 
 /**
  * Contains the instructions.
- * This might be automatically loaded, or we'll have to load it with special debugging statements
- * like how they do it Sodor
+ * @param size the size of the memory in bytes.
+ * @param memory file to load data from
  *
  * Here we describe the I/O
  */
-class InstructionMemory extends Module {
-  val io = IO(new Bundle {
-    // For interfacing with Sodor/black box
-    val memport = new MemPortIo(32)
+class InstructionMemory(size: Int, memfile: String) extends Module {
+  val io = IO(new IMemIO)
 
-    // For the pipeline
-    val address     = Input(UInt(32.W))
+  // Make a memory that is the size
+  val memory = Mem(size/4, UInt(32.W))
+  loadMemoryFromFile(memory, memfile)
 
-    val instruction = Output(UInt(32.W))
-  })
-  io := DontCare
+  assert(io.address < size.U, "Cannot access outside of memory bounds")
+  assert(!(io.address & 3.U), "Cannot do unaligned accesses to memory")
 
-  io.memport.req.bits.addr := io.address
-  io.memport.req.bits.fcn  := M_XRD
-  io.memport.req.bits.typ  := MT_WU
-  io.memport.req.valid := true.B
-  io.memport.req.bits.data := 0.U
-
-  io.instruction := io.memport.resp.bits.data
-  assert(io.memport.resp.valid)
+  io.instruction := memory(io.address)
 }
 
 /**
  * Contains the data.
- * This might be automatically loaded, or we'll have to load it with special debugging statements
- * like how they do it Sodor. Initializing to zero might be good enough.
+ * @param size the size of the memory in bytes.
  *
  * Here we describe the I/O
  */
-class DataMemory extends Module {
-  val io = IO(new Bundle {
-    // For interfacing with Sodor/black box
-    val memport = new MemPortIo(32)
-
-    // For the pipeline
-    val address   = Input(UInt(32.W))
-    val writedata = Input(UInt(32.W))
-    val memread   = Input(Bool())
-    val memwrite  = Input(Bool())
-
-    val readdata  = Output(UInt(32.W))
-  })
+class DataMemory(size: Int, memfile: String) extends Module {
+  val io = IO(new DMemIO)
   io := DontCare
 
-  io.memport.req.bits.addr := io.address
-  io.memport.req.bits.data := io.writedata
-  io.memport.req.bits.fcn  := M_X
-  io.memport.req.bits.typ  := MT_X
+   // Make a memory that is the size
+  val memory = Mem(size/4, UInt(32.W))
+  loadMemoryFromFile(memory, memfile)
+
+  assert(io.address < size.U, "Cannot access outside of memory bounds")
+  assert(!(io.address & 3.U), "Cannot do unaligned accesses to memory")
 
   when (io.memread) {
-    io.memport.req.bits.fcn  := M_XRD
-    io.memport.req.bits.typ  := MT_W
+    io.readdata := memory(io.address)
   }
+
   when (io.memwrite) {
-    io.memport.req.bits.fcn  := M_XWR
-    io.memport.req.bits.typ  := MT_W
+    memory(io.address) := io.writedata
   }
-
-  io.memport.req.valid := io.memread || io.memwrite
-
-  io.readdata := io.memport.resp.bits.data
-
 }

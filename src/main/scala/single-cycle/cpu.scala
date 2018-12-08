@@ -5,17 +5,6 @@ package CODCPU
 import chisel3._
 import chisel3.util.Counter
 
-import Common.MemPortIo
-
-/**
- * From Sodor for hooking up memory to the core.
- */
-class CoreIo extends Bundle
-{
-  val imem = new MemPortIo(32)
-  val dmem = new MemPortIo(32)
-}
-
 /**
  * The main CPU definition that hooks up all of the other components.
  *
@@ -23,31 +12,26 @@ class CoreIo extends Bundle
  * This follows figure 4.21
  */
 class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
-  val io = IO(new CoreIo())
+  val io = IO(new CoreIO())
   io := DontCare
 
   // All of the structures required
-  val pc         = RegInit("h80000000".U)
-  val instMem    = Module(new InstructionMemory())
+  val pc         = RegInit(0.U)
   val control    = Module(new Control())
   val registers  = Module(new RegisterFile())
   val aluControl = Module(new ALUControl())
   val alu        = Module(new ALU())
   val immGen     = Module(new ImmediateGenerator())
-  val dataMem    = Module(new DataMemory())
   val pcPlusFour = Module(new Adder())
   val branchAdd  = Module(new Adder())
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
-  io.imem <> instMem.io.memport
-  io.dmem <> dataMem.io.memport
-
-  instMem.io.address := pc
+  io.imem.address := pc
 
   pcPlusFour.io.inputx := pc
   pcPlusFour.io.inputy := 4.U
 
-  val instruction = instMem.io.instruction
+  val instruction = io.imem.instruction
   val opcode = instruction(6,0)
 
   control.io.opcode := opcode
@@ -70,12 +54,12 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   alu.io.inputy := alu_inputy
   alu.io.operation := aluControl.io.operation
 
-  dataMem.io.address   := alu.io.result
-  dataMem.io.writedata := registers.io.readdata2
-  dataMem.io.memread   := control.io.memread
-  dataMem.io.memwrite  := control.io.memwrite
+  io.dmem.address   := alu.io.result
+  io.dmem.writedata := registers.io.readdata2
+  io.dmem.memread   := control.io.memread
+  io.dmem.memwrite  := control.io.memwrite
 
-  val write_data = Mux(control.io.memtoreg, dataMem.io.readdata, alu.io.result)
+  val write_data = Mux(control.io.memtoreg,io.dmem.readdata, alu.io.result)
   registers.io.writedata := write_data
 
   branchAdd.io.inputx := pc
@@ -91,7 +75,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
          registers.io.readreg1,
          registers.io.readreg2,
          registers.io.writereg,
-         dataMem.io.address,
+         io.dmem.address,
          next_pc
          )
   printf("                 r1=%x, r2=%x, imm=%x, alu=%x, data=%x, write=%x\n",
@@ -99,7 +83,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
          registers.io.readdata2,
          imm,
          alu.io.result,
-         dataMem.io.readdata,
+         io.dmem.readdata,
          registers.io.writedata
          )
 

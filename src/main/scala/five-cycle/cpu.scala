@@ -5,8 +5,6 @@ package CODCPU
 import chisel3._
 import chisel3.util.Counter
 
-import Common.MemPortIo
-
 
 /**
  * The main CPU definition that hooks up all of the other components.
@@ -20,10 +18,7 @@ import Common.MemPortIo
  * branch is resolved in the memory stage.
  */
 class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
-  val io = IO(new Bundle {
-    val imem = new MemPortIo(32)
-    val dmem = new MemPortIo(32)
-  })
+  val io = IO(new CoreIO)
 
   // Bundles defining the pipeline registers and control structures
   class IFIDBundle extends Bundle {
@@ -79,13 +74,11 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
 
   // All of the structures required
   val pc         = RegInit("h80000000".U)
-  val instMem    = Module(new InstructionMemory())
   val control    = Module(new Control())
   val registers  = Module(new RegisterFile())
   val aluControl = Module(new ALUControl())
   val alu        = Module(new ALU())
   val immGen     = Module(new ImmediateGenerator())
-  val dataMem    = Module(new DataMemory())
   val pcPlusFour = Module(new Adder())
   val branchAdd  = Module(new Adder())
   val (cycleCount, _) = Counter(true.B, 1 << 30)
@@ -94,9 +87,6 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   val id_ex      = RegInit(0.U.asTypeOf(new IDEXBundle))
   val ex_mem     = RegInit(0.U.asTypeOf(new EXMEMBundle))
   val mem_wb     = RegInit(0.U.asTypeOf(new MEMWBBundle))
-
-  io.imem <> instMem.io.memport
-  io.dmem <> dataMem.io.memport
 
   printf("Cycle=%d ", cycleCount)
 
@@ -119,12 +109,12 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
             next_pc,
             pcPlusFour.io.result)
 
-  instMem.io.address := pc
+  io.imem.address := pc
 
   pcPlusFour.io.inputx := pc
   pcPlusFour.io.inputy := 4.U
 
-  if_id.instruction := instMem.io.instruction
+  if_id.instruction := io.imem.instruction
   if_id.pc := pc
 
   printf("pc=0x%x\n", pc)
@@ -206,10 +196,10 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   // MEM STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  dataMem.io.address   := ex_mem.aluresult
-  dataMem.io.writedata := ex_mem.readdata2
-  dataMem.io.memread   := ex_mem.mcontrol.memread
-  dataMem.io.memwrite  := ex_mem.mcontrol.memwrite
+  io.dmem.address   := ex_mem.aluresult
+  io.dmem.writedata := ex_mem.readdata2
+  io.dmem.memread   := ex_mem.mcontrol.memread
+  io.dmem.memwrite  := ex_mem.mcontrol.memwrite
 
   // Send this back to the fetch stage
   next_pc      := ex_mem.nextpc
@@ -217,7 +207,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
 
   mem_wb.writereg  := ex_mem.writereg
   mem_wb.aluresult := ex_mem.aluresult
-  mem_wb.readdata  := dataMem.io.readdata
+  mem_wb.readdata  := io.dmem.readdata
   mem_wb.wbcontrol := ex_mem.wbcontrol
 
   // Now we know the direction of the branch. If it's taken, clear the control
