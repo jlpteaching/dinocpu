@@ -10,6 +10,14 @@
 ## Very important things!
 [ ] Fix everything so it is loaded at 0x80000000 instead of 0x8000000. Oops!
 
+## Re-writing the emulator
+
+Things we want from the emulator
+ - Cycle counts for executing a program
+ - Bubble counts
+ - Instruction mix?
+ - Run full workloads
+
 ## Ideas for restructuring for assignments
 
 - [ ] Start with just the hazard detection unit and detect all hazards instead of forwarding
@@ -66,3 +74,7 @@ Overall, it seems better and it allows you to factor things out, so it may work.
 
 The other option is to poke instructions and then check all of the control signals (e.g., the writeback) to make sure they are correct.
 This will also be easier with testers2 since it allows you to do pipelined things easily.
+
+# Long term to do
+
+- I'd like to replace the gradescope java files with scala. There's no need for them to be as complicated as they are. All we need to do is output a simple json file.
