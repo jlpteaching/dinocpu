@@ -18,13 +18,3 @@ class Top(val conf: CPUConfig) extends Module
   cpu.io.imem <> imem.io
   cpu.io.dmem <> dmem.io
 }
-
-object elaborate {
-  def main(args: Array[String]): Unit = {
-    require(args.length == 1, "Error: Expected exactly one argument: CPU type.")
-
-    val conf = new CPUConfig()
-    conf.cpuType = args(0)
-    chisel3.Driver.execute(args, () => new Top(conf))
-  }
-}
