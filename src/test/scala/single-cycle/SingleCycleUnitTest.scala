@@ -43,10 +43,6 @@ class CPUUnitTester(c: CPUWrapper) extends PeekPokeTester(c) {
     var value = peek(c.io.regdata)
     value
   }
-
-  for (i <- 0 to 31) {
-    expect (readReg(i, c) == i+100, s"Error on register $i")
-  }
 }
 
 /**
