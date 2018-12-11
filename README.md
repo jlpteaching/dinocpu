@@ -217,13 +217,13 @@ Or, you can use pipe to automatically convert the `DASM` statements as the emula
 ## sbt hints
 
 If you want to pass an option to `sbt run`, you need to enclose `run` + your options in `"`.
-For instance,
+For instance the below will show you the help for chisel and firrtl.
 
 ```
 sbt "run --help"
 ```
 
-Will show you the help for chisel and firrtl.
+Another hint: If you're having strange java problems and you've been mucking with the build.sbt or installing different version of java, you can try to blow away the target directory and start over.
 
 
 # Testing for grading
@@ -233,6 +233,8 @@ You can run the test and have it output a junit compatible xml file by appending
 ```
 -- -u <directory>
 ```
+
+However, we now have Gradescope support built in, so there's no need to do the above.
 
 ## How to do it
 
