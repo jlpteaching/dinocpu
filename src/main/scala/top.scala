@@ -12,9 +12,8 @@ class Top(val conf: CPUConfig) extends Module
   io.success := DontCare
 
   val cpu   = Module(conf.getCPU())
-  val dmem  = Module(conf.getDataMem())
-  val imem  = Module(conf.getInstMem())
+  val mem  = Module(conf.getMem())
 
-  cpu.io.imem <> imem.io
-  cpu.io.dmem <> dmem.io
+  cpu.io.imem <> mem.io.imem
+  cpu.io.dmem <> mem.io.dmem
 }

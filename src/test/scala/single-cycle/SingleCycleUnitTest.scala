@@ -21,13 +21,13 @@ class CPUWrapper extends Module {
 
   implicit val conf = new CPUConfig()
   conf.setTesting() // Required for BoringUtils in reg file
+  conf.memFile = "src/test/resources/risc-v/lw1.raw"
 
   val cpu   = Module(new SingleCycleCPU)
-  val dmem  = Module(new DataMemory(1024, "/home/jlp/test1.txt"))
-  val imem  = Module(new InstructionMemory(4096, "/home/jlp/test2.txt"))
+  val mem   = Module(conf.getMem())
 
-  cpu.io.imem <> imem.io
-  cpu.io.dmem <> dmem.io
+  cpu.io.imem <> mem.io.imem
+  cpu.io.dmem <> mem.io.dmem
 
   BoringUtils.addSource(io.regnum, "regNum")
   BoringUtils.addSink(io.regdata, "regData")
@@ -57,17 +57,9 @@ class CPUUnitTester(c: CPUWrapper) extends PeekPokeTester(c) {
   * }}}
   */
 class CPUTester extends ChiselFlatSpec {
-  private val backendNames = if(firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
-    Array("treadle")
-  }
-  else {
-    Array("treadle")
-  }
-  for ( backendName <- backendNames ) {
-    "CPU" should s"save written values (with $backendName)" in {
-      Driver(() => new CPUWrapper, backendName) {
-        c => new CPUUnitTester(c)
-      } should be (true)
-    }
+  "CPU" should "save written values" in {
+    Driver(() => new CPUWrapper, "firrtl") {
+      c => new CPUUnitTester(c)
+    } should be (true)
   }
 }

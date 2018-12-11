@@ -18,11 +18,8 @@ class CPUConfig
     /** The type of CPU to elaborate */
     var cpuType = "single-cycle"
 
-    /** The instruction memory file location */
-    var instMemFile = "test"
-
-    /** The data memory file location */
-    var dataMemFile = "test"
+    /** The memory file location */
+    var memFile = "test"
 
     /**
      * Set the CPU to testing mode.
@@ -50,33 +47,18 @@ class CPUConfig
     }
 
     /**
-     * Create an instruction memory with data from a file.
-     * Note: If the file doesn't exist, then no file will be loaded.
-     *
-     * @param filename to load the instruction memory with. Should be a binary file.
-     * @return [[CODCPU.InstructionMemory]] object
-     */
-    def getInstMem() = {
-        val f = new File(instMemFile)
-        if (f.length == 0) {
-            println("WARNING: No file will be loaded for instruction memory")
-        }
-        new InstructionMemory(max(f.length.toInt, 1024), instMemFile)
-    }
-
-    /**
-     * Create an data memory with data from a file
+     * Create a memory with data from a file
      *
      * @param filename to load the data memory with. Should be a binary file.
      * @param minSize is the minimum size for the memory. If the binary file is
      *        smaller than this, create a memory that is this size.
      * @return [[CODCPU.DataMemory]] object
      */
-    def getDataMem(minSize: Int = 4096) = {
-        val f = new File(dataMemFile)
+    def getMem(minSize: Int = 4096) = {
+        val f = new File(memFile)
         if (f.length == 0) {
             println("WARNING: No file will be loaded for data memory")
         }
-        new DataMemory(max(f.length.toInt, minSize), dataMemFile)
+        new DualPortedMemory(max(f.length.toInt, minSize), memFile)
     }
 }

@@ -27,48 +27,31 @@ class DMemIO extends Bundle {
   val readdata  = Output(UInt(32.W))
 }
 
-/**
- * Contains the instructions.
- * @param size the size of the memory in bytes.
- * @param memory file to load data from
- *
- * Here we describe the I/O
- */
-class InstructionMemory(size: Int, memfile: String) extends Module {
-  val io = IO(new IMemIO)
+class DualPortedMemory(size: Int, memfile: String) extends Module {
+  val io = IO(new Bundle {
+    val imem = new IMemIO
+    val dmem = new DMemIO
+  })
+  io := DontCare
 
-  // Make a memory that is the size given (round up to nearest word)
   val memory = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
 
-  assert(io.address < size.U, "Cannot access outside of memory bounds")
-  assert(!(io.address & 3.U), "Cannot do unaligned accesses to memory")
+  // The instruction memory side
+  assert(io.imem.address < size.U, "Cannot access outside of memory bounds")
+  assert(!(io.imem.address & 3.U), "Cannot do unaligned accesses to memory")
 
-  io.instruction := memory(io.address)
-}
+  io.imem.instruction := memory(io.imem.address)
 
-/**
- * Contains the data.
- * @param size the size of the memory in bytes.
- *
- * Here we describe the I/O
- */
-class DataMemory(size: Int, memfile: String) extends Module {
-  val io = IO(new DMemIO)
-  io := DontCare
+  // The data memory side
+  assert(io.dmem.address < size.U, "Cannot access outside of memory bounds")
+  assert(!(io.dmem.address & 3.U), "Cannot do unaligned accesses to memory")
 
-   // Make a memory that is the size
-  val memory = Mem(size/4, UInt(32.W))
-  loadMemoryFromFile(memory, memfile)
-
-  assert(io.address < size.U, "Cannot access outside of memory bounds")
-  assert(!(io.address & 3.U), "Cannot do unaligned accesses to memory")
-
-  when (io.memread) {
-    io.readdata := memory(io.address)
+  when (io.dmem.memread) {
+    io.dmem.readdata := memory(io.dmem.address)
   }
 
-  when (io.memwrite) {
-    memory(io.address) := io.writedata
+  when (io.dmem.memwrite) {
+    memory(io.dmem.address) := io.dmem.writedata
   }
 }
