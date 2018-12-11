@@ -37,6 +37,9 @@ resolvers ++= Seq(
   Resolver.sonatypeRepo("releases")
 )
 
+// For the elf loader
+resolvers += "Spring Plugins Repository" at "http://repo.spring.io/plugins-release/"
+
 // Provide a managed dependency on X if -DXVersion="" is supplied on the command line.
 val defaultVersions = Map(
   "chisel3" -> "3.2-SNAPSHOT",
@@ -53,6 +56,10 @@ javacOptions ++= javacOptionsVersion(scalaVersion.value)
 // https://mvnrepository.com/artifact/junit/junit
 // For running the gradescope tests
 libraryDependencies += "junit" % "junit" % "4.12" % Test
+
+// https://mvnrepository.com/artifact/net.fornwall.jelf/jelf
+// For understanding elfs and directly running binary files
+libraryDependencies += "net.fornwall.jelf" % "jelf" % "0.2"
 
 // This sets it up so all tests that end in "Tester" will be run when you run sbt test
 // and all tests that end in "Grader" will run when you run stb Grader / test
