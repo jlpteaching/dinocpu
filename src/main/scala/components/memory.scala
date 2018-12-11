@@ -37,8 +37,8 @@ class DMemIO extends Bundle {
 class InstructionMemory(size: Int, memfile: String) extends Module {
   val io = IO(new IMemIO)
 
-  // Make a memory that is the size
-  val memory = Mem(size/4, UInt(32.W))
+  // Make a memory that is the size given (round up to nearest word)
+  val memory = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
 
   assert(io.address < size.U, "Cannot access outside of memory bounds")
