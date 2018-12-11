@@ -248,3 +248,9 @@ sbt "Grader / test"
 ```
 docker build -f Dockerfile.gradescope -t jlpteaching/codcpu-grading .
 ```
+
+
+# Getting started
+
+- I suggest install intellj with the scala plug in. On Ubuntu, you can install this as a snap so you don't have to fight java versions.
+  - To set this up you have to point it to a jvm. Mine was /usr/lib/jvm/<jvm version>
