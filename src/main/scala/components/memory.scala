@@ -5,6 +5,7 @@ package CODCPU
 import chisel3._
 
 import chisel3.util.experimental.loadMemoryFromFile
+import firrtl.annotations.MemoryLoadFileType
 
 /**
  * Describe this
@@ -37,21 +38,13 @@ class DualPortedMemory(size: Int, memfile: String) extends Module {
   val memory = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
 
-  // The instruction memory side
-  assert(io.imem.address < size.U, "Cannot access outside of memory bounds")
-  assert(!(io.imem.address & 3.U), "Cannot do unaligned accesses to memory")
-
-  io.imem.instruction := memory(io.imem.address)
-
-  // The data memory side
-  assert(io.dmem.address < size.U, "Cannot access outside of memory bounds")
-  assert(!(io.dmem.address & 3.U), "Cannot do unaligned accesses to memory")
+  io.imem.instruction := memory(io.imem.address >> 2)
 
   when (io.dmem.memread) {
-    io.dmem.readdata := memory(io.dmem.address)
+    io.dmem.readdata := memory(io.dmem.address >> 2)
   }
 
   when (io.dmem.memwrite) {
-    memory(io.dmem.address) := io.dmem.writedata
+    memory(io.dmem.address >> 2) := io.dmem.writedata
   }
 }
