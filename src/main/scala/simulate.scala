@@ -4,8 +4,10 @@ package CODCPU
 import firrtl.{ExecutionOptionsManager, HasFirrtlOptions}
 import treadle.{HasTreadleOptions, TreadleOptionsManager, TreadleTester}
 
-import java.io.{RandomAccessFile,FileOutputStream}
+import java.io.{RandomAccessFile,PrintWriter,File}
 import net.fornwall.jelf.ElfFile
+
+import scala.collection.SortedMap
 
 /**
  * Simple object with only a main function to run the treadle simulation.
@@ -18,34 +20,46 @@ import net.fornwall.jelf.ElfFile
 object simulate {
   var helptext = "usage: simulate <riscv binary> <CPU type> [max cycles]"
 
-  def elfToRaw(filename: String, outfile: String) = {
-    val elf = ElfFile.fromFile(new java.io.File(filename))
-    val sections = Seq(".text", ".data") // These are the sections we want to pull out
-    var info : Seq[(Long, Long, Long)] = Seq() // address to put the data, offset into the binary, size of section
-    // Search for these section names
-    for (i <- 1 to elf.num_sh - 1) {
-      val section =  elf.getSection(i)
-      if (sections.contains(section.getName)) {
-        println("Found "+section.address + " " + section.section_offset + " " + section.size)
-        info = info :+ (section.address, section.section_offset, section.size)
-      }
-    }
-    require(info.length == sections.length, "Couldn't find all of the sections in the binary!")
+    def elfToHex(filename: String, outfile: String) = {
+        val elf = ElfFile.fromFile(new java.io.File(filename))
+        val sections = Seq(".text", ".data") // These are the sections we want to pull out
+        // address to put the data -> offset into the binary, size of section
+        var info : SortedMap[Long, (Long, Long)] = SortedMap()
+        // Search for these section names
+        for (i <- 1 to elf.num_sh - 1) {
+            val section =  elf.getSection(i)
+            if (sections.contains(section.getName)) {
+                println("Found "+section.address + " " + section.section_offset + " " + section.size)
+                info += section.address -> (section.section_offset, section.size)
+            }
+        }
+        require(info.size == sections.length, "Couldn't find all of the sections in the binary!")
 
-    // Now, we want to create a new file to load into our memory
-    val output = new FileOutputStream(outfile)
-    val ch = output.getChannel()
-    val f = new RandomAccessFile(filename, "r")
-    println("Length: "+ f.length)
-    for ((address, offset, size) <- info) {
-      f.seek(offset)
-      val data = new Array[Byte](size.toInt)
-      f.read(data)
-      ch.position(address)
-      output.write(data)
+        // Now, we want to create a new file to load into our memory
+        val output = new PrintWriter(new File(outfile))
+        val f = new RandomAccessFile(filename, "r")
+        println("Length: "+ f.length)
+        var location = 0
+        for ((address, (offset, size)) <- info) {
+            println(s"Skipping until $address")
+            while (location < address) {
+                require(location + 3 < address, "Assuming addresses aligned to 4 bytes")
+                output.write("00000000\n")
+                location += 4
+            }
+            println(s"Writing $size bytes")
+            val data = new Array[Byte](size.toInt)
+            f.read(data)
+            for (byte <- data) {
+                println(s"Writing ${String.format("%02X", new java.lang.Integer(byte))}")
+                output.write(String.format("%02X", new java.lang.Integer(byte)))
+                location += 1
+                if (location % 4 == 0) output.write('\n')
+            }
+            println(s"Wrote until $location")
+        }
+        output.close
     }
-    output.close
-  }
 
   def main(args: Array[String]): Unit = {
     require(args.length >= 2, "Error: Expected at least two argument\n" + helptext)
@@ -58,10 +72,10 @@ object simulate {
         None
     }
 
-    val rawName = optionsManager.targetDirName + "/executable.raw"
+    val rawName = optionsManager.targetDirName + "/executable.hex"
     println(s"Want to load $rawName")
 
-    elfToRaw(args(0), rawName)
+    elfToHex(args(0), rawName)
 
     val conf = new CPUConfig()
     conf.cpuType = args(1)
