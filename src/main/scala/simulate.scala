@@ -3,8 +3,9 @@ package CODCPU
 
 import firrtl.{ExecutionOptionsManager, HasFirrtlOptions}
 import treadle.{HasTreadleOptions, TreadleOptionsManager, TreadleTester}
+import java.io.{File, PrintWriter, RandomAccessFile}
 
-import java.io.{RandomAccessFile,PrintWriter,File}
+import chisel3.{ChiselExecutionFailure, ChiselExecutionSuccess, HasChiselExecutionOptions}
 import net.fornwall.jelf.ElfFile
 
 import scala.collection.SortedMap
@@ -49,10 +50,10 @@ object simulate {
             }
             println(s"Writing $size bytes")
             val data = new Array[Byte](size.toInt)
+            f.seek(offset)
             f.read(data)
             for (byte <- data) {
-                println(s"Writing ${String.format("%02X", new java.lang.Integer(byte))}")
-                output.write(String.format("%02X", new java.lang.Integer(byte)))
+                output.write("%02X" format byte)
                 location += 1
                 if (location % 4 == 0) output.write('\n')
             }
@@ -82,9 +83,23 @@ object simulate {
     // It would be nice to put this in the "simulator_run_dir", but fighting these options isn't worth my time, right now.
     conf.memFile = rawName
 
-    val system = chisel3.Driver.emit(() => new Top(conf))
+    optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(compilerName = "low")
+    val annos = firrtl.Driver.getAnnotations(optionsManager)
+    optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(annotations = annos.toList)
 
-    val simulator = new TreadleTester(system, optionsManager)
+    val simulator = chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
+      case ChiselExecutionSuccess(Some(circuit), _, Some(firrtlExecutionResult)) =>
+        firrtlExecutionResult match {
+          case firrtl.FirrtlExecutionSuccess(_, compiledFirrtl) =>
+            new TreadleTester(compiledFirrtl, optionsManager)
+          case firrtl.FirrtlExecutionFailure(message) =>
+            throw new Exception(s"FirrtlBackend: Compile failed. Message: $message")
+        }
+      case _ =>
+        throw new Exception("Problem with compilation")
+    }
+
+    simulator.reset(1)
     simulator.step(10)
   }
 }
@@ -113,7 +128,7 @@ trait HasSimulatorOptions {
 
 class SimulatorOptionsManager extends TreadleOptionsManager with HasSimulatorSuite
 
-trait HasSimulatorSuite extends TreadleOptionsManager with HasFirrtlOptions with HasTreadleOptions with HasSimulatorOptions {
+trait HasSimulatorSuite extends TreadleOptionsManager with HasChiselExecutionOptions with HasFirrtlOptions with HasTreadleOptions with HasSimulatorOptions {
     self : ExecutionOptionsManager =>
 }
 
