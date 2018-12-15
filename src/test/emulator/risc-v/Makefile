@@ -13,3 +13,6 @@ $(OBJECTS): %.o: %.riscv
 
 $(TESTS): %: %.o
 	$(RISCVBIN)/riscv32-unknown-elf-ld -Ttext 0x0 -Tdata 0x400 $< -o $@
+
+clean:
+	rm -f *.o $(TESTS)

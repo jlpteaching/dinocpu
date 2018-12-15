@@ -12,3 +12,10 @@ _start:
     add a0, a0, t0 # (reg[10] = reg[10] + reg[5])
     add a0, a0, t0 # (reg[10] = reg[10] + reg[5])
     add a0, a0, t0 # (reg[10] = reg[10] + reg[5])
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:

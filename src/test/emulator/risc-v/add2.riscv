@@ -3,3 +3,10 @@
   .globl _start
 _start:
     add a0, s4, t0 # (reg[10] = reg[20] + reg[5])
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:

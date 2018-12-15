@@ -3,3 +3,10 @@
   .globl _start
 _start:
     and t2, t0, t1 # (reg[7] = reg[5] & reg[6])
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
