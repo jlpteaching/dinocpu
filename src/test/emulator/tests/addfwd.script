@@ -1,8 +1,0 @@
-src/test/emulator/risc-v/addfwd
-2
-5 1
-10 0
-run 82
-2
-5 1
-10 10

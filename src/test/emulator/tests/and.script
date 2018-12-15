@@ -1,7 +1,0 @@
-src/test/emulator/risc-v/and
-2
-5 1234
-6 5678
-run 46
-1
-7 1026

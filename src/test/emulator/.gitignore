@@ -1,3 +1,0 @@
-obj_dir/
-risc-v/*
-!risc-v/*.riscv

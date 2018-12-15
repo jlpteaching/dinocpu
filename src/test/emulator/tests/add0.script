@@ -1,9 +1,0 @@
-src/test/emulator/risc-v/add0
-2
-5 1234
-6 3456
-run 46
-3
-0 0
-5 1234
-6 3456
