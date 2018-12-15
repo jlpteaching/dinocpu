@@ -69,7 +69,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   }
 
   // All of the structures required
-  val pc         = RegInit("h80000000".U)
+  val pc         = RegInit(0.U)
   val control    = Module(new Control())
   val registers  = Module(new RegisterFile())
   val aluControl = Module(new ALUControl())
