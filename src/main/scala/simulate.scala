@@ -30,7 +30,7 @@ object simulate {
         for (i <- 1 to elf.num_sh - 1) {
             val section =  elf.getSection(i)
             if (sections.contains(section.getName)) {
-                println("Found "+section.address + " " + section.section_offset + " " + section.size)
+                //println("Found "+section.address + " " + section.section_offset + " " + section.size)
                 info += section.address -> (section.section_offset, section.size)
             }
         }
@@ -39,27 +39,35 @@ object simulate {
         // Now, we want to create a new file to load into our memory
         val output = new PrintWriter(new File(outfile))
         val f = new RandomAccessFile(filename, "r")
-        println("Length: "+ f.length)
+        // println("Length: "+ f.length)
         var location = 0
         for ((address, (offset, size)) <- info) {
-            println(s"Skipping until $address")
+            //println(s"Skipping until $address")
             while (location < address) {
                 require(location + 3 < address, "Assuming addresses aligned to 4 bytes")
                 output.write("00000000\n")
                 location += 4
             }
-            println(s"Writing $size bytes")
+            //println(s"Writing $size bytes")
             val data = new Array[Byte](size.toInt)
             f.seek(offset)
             f.read(data)
+            var s = List[String]()
             for (byte <- data) {
-                output.write("%02X" format byte)
+                s = s :+ ("%02X" format byte)
                 location += 1
-                if (location % 4 == 0) output.write('\n')
+                if (location % 4 == 0) {
+                    // Once we've read 4 bytes, swap endianness
+                    output.write(s(3)+s(2)+s(1)+s(0)+"\n")
+                    s = List[String]()
+                }
             }
-            println(s"Wrote until $location")
+            //println(s"Wrote until $location")
         }
         output.close
+
+        // Return the final PC value we're looking for
+        elf.getELFSymbol("_last").value
     }
 
   def main(args: Array[String]): Unit = {
@@ -74,9 +82,8 @@ object simulate {
     }
 
     val rawName = optionsManager.targetDirName + "/executable.hex"
-    println(s"Want to load $rawName")
 
-    elfToHex(args(0), rawName)
+    val endPC = elfToHex(args(0), rawName)
 
     val conf = new CPUConfig()
     conf.cpuType = args(1)
@@ -99,13 +106,18 @@ object simulate {
         throw new Exception("Problem with compilation")
     }
 
-    simulator.reset(1)
-    simulator.step(10)
+    simulator.reset(5)
+    var cycles = 0
+    val maxCycles = if (optionsManager.simulatorOptions.maxCycles > 0) optionsManager.simulatorOptions.maxCycles else 100000
+    while (simulator.peek("cpu.pc") != endPC && cycles < maxCycles) {
+        simulator.step(1)
+        cycles += 1
+    }
   }
 }
 
 case class SimulatorOptions(
-                                                        maxCycles           : Long              = 0
+                            maxCycles           : Int              = 0
     )
     extends firrtl.ComposableOptions {
 }
@@ -117,7 +129,7 @@ trait HasSimulatorOptions {
 
     parser.note("simulator-options")
 
-    parser.opt[Long]("max-cycles")
+    parser.opt[Int]("max-cycles")
         .abbr("mx")
         .valueName("<long-value>")
         .foreach {x =>

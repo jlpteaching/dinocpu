@@ -12,4 +12,4 @@ $(OBJECTS): %.o: %.riscv
 	$(RISCVBIN)/riscv32-unknown-elf-as -march=rv32i $< -o $@
 
 $(TESTS): %: %.o
-	$(RISCVBIN)/riscv32-unknown-elf-ld -Ttext 0x0 -Tdata 0x1000 $< -o $@
+	$(RISCVBIN)/riscv32-unknown-elf-ld -Ttext 0x0 -Tdata 0x400 $< -o $@
