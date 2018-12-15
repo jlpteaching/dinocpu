@@ -342,3 +342,5 @@ hs_err_pid*
 *Top.fir
 *Top.anno.json
 emulator/obj_dir
+
+simulator_run_dir
