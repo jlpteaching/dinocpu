@@ -70,23 +70,22 @@ object simulate {
         elf.getELFSymbol("_last").value
     }
 
-    def buildSimulator(optionsManager: SimulatorOptionsManager, conf: CPUConfig): TreadleTester = {
+    def build(optionsManager: SimulatorOptionsManager, conf: CPUConfig): String = {
         optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(compilerName = "low")
         val annos = firrtl.Driver.getAnnotations(optionsManager)
         optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(annotations = annos.toList)
 
-        val simulator = chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
+        chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
         case ChiselExecutionSuccess(Some(circuit), _, Some(firrtlExecutionResult)) =>
             firrtlExecutionResult match {
             case firrtl.FirrtlExecutionSuccess(_, compiledFirrtl) =>
-                new TreadleTester(compiledFirrtl, optionsManager)
+                compiledFirrtl
             case firrtl.FirrtlExecutionFailure(message) =>
                 throw new Exception(s"FirrtlBackend: Compile failed. Message: $message")
             }
             case _ =>
                 throw new Exception("Problem with compilation")
         }
-        simulator
     }
 
   def main(args: Array[String]): Unit = {
@@ -108,11 +107,15 @@ object simulate {
         conf.cpuType = args(1)
         conf.memFile = hexName
 
-        // Build the simulator (Tester). This compiles the chisel to firrtl
-        val simulator = buildSimulator(optionsManager, conf)
+        // This compiles the chisel to firrtl
+        val compiledFirrtl = build(optionsManager, conf)
 
         // Convert the binary to a hex file that can be loaded by treadle
+        // (Do this after compiling the firrtl so the directory is created)
         val endPC = elfToHex(args(0), hexName)
+
+        // Instantiate the simulator
+        val simulator = TreadleTester(compiledFirrtl, optionsManager)
 
         // Make sure the system is in the reset state (5 cycles)
         simulator.reset(5)
