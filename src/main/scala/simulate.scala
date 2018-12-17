@@ -5,7 +5,7 @@ import firrtl.{ExecutionOptionsManager, HasFirrtlOptions}
 import treadle.{HasTreadleOptions, TreadleOptionsManager, TreadleTester}
 import java.io.{File, PrintWriter, RandomAccessFile}
 
-import chisel3.{ChiselExecutionFailure, ChiselExecutionSuccess, HasChiselExecutionOptions}
+import chisel3.{ChiselExecutionFailure,ChiselExecutionSuccess,HasChiselExecutionOptions}
 import net.fornwall.jelf.ElfFile
 
 import scala.collection.SortedMap
@@ -70,50 +70,62 @@ object simulate {
         elf.getELFSymbol("_last").value
     }
 
-  def main(args: Array[String]): Unit = {
-    require(args.length >= 2, "Error: Expected at least two argument\n" + helptext)
+    def buildSimulator(optionsManager: SimulatorOptionsManager, conf: CPUConfig): TreadleTester = {
+        optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(compilerName = "low")
+        val annos = firrtl.Driver.getAnnotations(optionsManager)
+        optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(annotations = annos.toList)
 
-    val optionsManager = new SimulatorOptionsManager
-
-    if (optionsManager.parser.parse(args)) {
-        optionsManager.setTargetDirName("simulator_run_dir")
-    } else {
-        None
-    }
-
-    val rawName = optionsManager.targetDirName + "/executable.hex"
-
-    val endPC = elfToHex(args(0), rawName)
-
-    val conf = new CPUConfig()
-    conf.cpuType = args(1)
-    // It would be nice to put this in the "simulator_run_dir", but fighting these options isn't worth my time, right now.
-    conf.memFile = rawName
-
-    optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(compilerName = "low")
-    val annos = firrtl.Driver.getAnnotations(optionsManager)
-    optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(annotations = annos.toList)
-
-    val simulator = chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
-      case ChiselExecutionSuccess(Some(circuit), _, Some(firrtlExecutionResult)) =>
-        firrtlExecutionResult match {
-          case firrtl.FirrtlExecutionSuccess(_, compiledFirrtl) =>
-            new TreadleTester(compiledFirrtl, optionsManager)
-          case firrtl.FirrtlExecutionFailure(message) =>
-            throw new Exception(s"FirrtlBackend: Compile failed. Message: $message")
+        val simulator = chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
+        case ChiselExecutionSuccess(Some(circuit), _, Some(firrtlExecutionResult)) =>
+            firrtlExecutionResult match {
+            case firrtl.FirrtlExecutionSuccess(_, compiledFirrtl) =>
+                new TreadleTester(compiledFirrtl, optionsManager)
+            case firrtl.FirrtlExecutionFailure(message) =>
+                throw new Exception(s"FirrtlBackend: Compile failed. Message: $message")
+            }
+            case _ =>
+                throw new Exception("Problem with compilation")
         }
-      case _ =>
-        throw new Exception("Problem with compilation")
+        simulator
     }
 
-    simulator.reset(5)
-    var cycles = 0
-    val maxCycles = if (optionsManager.simulatorOptions.maxCycles > 0) optionsManager.simulatorOptions.maxCycles else 100000
-    while (simulator.peek("cpu.pc") != endPC && cycles < maxCycles) {
-        simulator.step(1)
-        cycles += 1
+  def main(args: Array[String]): Unit = {
+        require(args.length >= 2, "Error: Expected at least two argument\n" + helptext)
+
+        val optionsManager = new SimulatorOptionsManager
+
+        if (optionsManager.parser.parse(args)) {
+            optionsManager.setTargetDirName("simulator_run_dir")
+        } else {
+            None
+        }
+
+        // Get the name for the hex file
+        val hexName = optionsManager.targetDirName + "/executable.hex"
+
+        // Create the CPU config. This sets the type of CPU and the binary to load
+        val conf = new CPUConfig()
+        conf.cpuType = args(1)
+        conf.memFile = hexName
+
+        // Build the simulator (Tester). This compiles the chisel to firrtl
+        val simulator = buildSimulator(optionsManager, conf)
+
+        // Convert the binary to a hex file that can be loaded by treadle
+        val endPC = elfToHex(args(0), hexName)
+
+        // Make sure the system is in the reset state (5 cycles)
+        simulator.reset(5)
+
+        // This is the actual simulation
+        var cycles = 0
+        val maxCycles = if (optionsManager.simulatorOptions.maxCycles > 0) optionsManager.simulatorOptions.maxCycles else 100000
+        // Simulate until the pc is the "endPC" or until max cycles has been reached
+        while (simulator.peek("cpu.pc") != endPC && cycles < maxCycles) {
+            simulator.step(1)
+            cycles += 1
+        }
     }
-  }
 }
 
 case class SimulatorOptions(
