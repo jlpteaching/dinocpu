@@ -24,20 +24,25 @@ class Control extends Module {
     val memwrite = Output(Bool())
     val regwrite = Output(Bool())
     val alusrc = Output(Bool())
+    val alusrc1 = Output(UInt(2.W))
   })
 
   val signals =
     ListLookup(io.opcode,
-      /*default*/           List(false.B, false.B, false.B, 0.U,    false.B,  false.B, false.B),
-      Array(                 /* branch,   memread, memtoreg, aluop, memwrite, alusrc,  regwrite */
+      /*default*/           List(false.B, false.B, false.B, 0.U,    false.B,  false.B, false.B,   0.U),
+      Array(                 /* branch,   memread, memtoreg, aluop, memwrite, alusrc,  regwrite, alusrc1 */
       // R-format
-      BitPat("b0110011") -> List(false.B, false.B, false.B, 2.U,    false.B,  false.B, true.B) ,
+      BitPat("b0110011") -> List(false.B, false.B, false.B, 2.U,    false.B,  false.B, true.B,     0.U),
       // load
-      BitPat("b0000011") -> List(false.B, true.B,  true.B,  0.U,    false.B,  true.B,  true.B) ,
+      BitPat("b0000011") -> List(false.B, true.B,  true.B,  0.U,    false.B,  true.B,  true.B,     0.U),
       // store
-      BitPat("b0100011") -> List(false.B, false.B, false.B, 0.U,    true.B,   true.B,  false.B),
+      BitPat("b0100011") -> List(false.B, false.B, false.B, 0.U,    true.B,   true.B,  false.B,    0.U),
       // beq
-      BitPat("b1100011") -> List(true.B,  false.B, false.B, 1.U,    false.B,  false.B, false.B)
+      BitPat("b1100011") -> List(true.B,  false.B, false.B, 1.U,    false.B,  false.B, false.B,    0.U),
+      // lui
+      BitPat("b1100011") -> List(true.B,  false.B, false.B, 1.U,    false.B,  false.B, false.B,    1.U),
+      // auipc
+      BitPat("b1100011") -> List(true.B,  false.B, false.B, 1.U,    false.B,  false.B, false.B,    2.U)
       ) // Array
     ) // ListLookup
 
@@ -49,4 +54,5 @@ class Control extends Module {
   io.alusrc := signals(5)
   io.regwrite := signals(6)
 
+  io.alusrc1 := signals(7)
 }
