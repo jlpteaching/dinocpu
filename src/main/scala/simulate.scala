@@ -12,20 +12,21 @@ import scala.collection.SortedMap
 
 /**
  * Simple object with only a main function to run the treadle simulation.
- * When run, this will begin execution and continue until something happens...
+ * When run, this will begin execution and continue until the PC reaches the
+ * "_last" symbol in the elf file or the max cycle parameter is reached
  *
  * {{{
- *  sbt> runMain CODCPU.simulate <riscv binary> <CPU type> [max cycles]
+ *  sbt> runMain CODCPU.simulate [options] <riscv binary> <CPU type>
  * }}}
  */
 object simulate {
-  var helptext = "usage: simulate <riscv binary> <CPU type> [max cycles]"
+    var helptext = "usage: simulate <riscv binary> <CPU type>"
 
     def elfToHex(filename: String, outfile: String) = {
         val elf = ElfFile.fromFile(new java.io.File(filename))
         val sections = Seq(".text", ".data") // These are the sections we want to pull out
         // address to put the data -> offset into the binary, size of section
-        var info : SortedMap[Long, (Long, Long)] = SortedMap()
+        var info = SortedMap[Long, (Long, Long)]()
         // Search for these section names
         for (i <- 1 to elf.num_sh - 1) {
             val section =  elf.getSection(i)
@@ -34,7 +35,6 @@ object simulate {
                 info += section.address -> (section.section_offset, section.size)
             }
         }
-        require(info.size == sections.length, "Couldn't find all of the sections in the binary!")
 
         // Now, we want to create a new file to load into our memory
         val output = new PrintWriter(new File(outfile))
