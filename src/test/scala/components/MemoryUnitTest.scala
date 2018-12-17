@@ -7,54 +7,54 @@ import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
 class MemoryUnitZeroTester(m: DualPortedMemory, size: Int) extends PeekPokeTester(m) {
 
-    // Expect 0's on the instruction port and data port
-    for (i <- 0 to size/4 - 1) {
-        poke(m.io.dmem.address, i*4)
-        poke(m.io.dmem.memread, 1)
-        poke(m.io.imem.address, i*4)
-        step(1)
-        expect(m.io.imem.instruction, 0)
-        expect(m.io.dmem.readdata, 0)
-    }
+  // Expect 0's on the instruction port and data port
+  for (i <- 0 to size/4 - 1) {
+    poke(m.io.dmem.address, i*4)
+    poke(m.io.dmem.memread, 1)
+    poke(m.io.imem.address, i*4)
+    step(1)
+    expect(m.io.imem.instruction, 0)
+    expect(m.io.dmem.readdata, 0)
+  }
 }
 
 class MemoryUnitReadTester(m: DualPortedMemory, size: Int) extends PeekPokeTester(m) {
 
-    // Expect ascending bytes on instruction port and data port
-    for (i <- 0 to size/4 - 1) {
-        poke(m.io.dmem.address, i*4)
-        poke(m.io.dmem.memread, 1)
-        poke(m.io.imem.address, i*4)
-        step(1)
-        expect(m.io.imem.instruction, i)
-        expect(m.io.dmem.readdata, i)
-    }
+  // Expect ascending bytes on instruction port and data port
+  for (i <- 0 to size/4 - 1) {
+    poke(m.io.dmem.address, i*4)
+    poke(m.io.dmem.memread, 1)
+    poke(m.io.imem.address, i*4)
+    step(1)
+    expect(m.io.imem.instruction, i)
+    expect(m.io.dmem.readdata, i)
+  }
 }
 
 class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTester(m) {
 
-    // Expect ascending bytes on instruction port
-    for (i <- 0 to size/4/2 - 1) {
-        poke(m.io.dmem.address, i*4)
-        poke(m.io.dmem.memwrite, 1)
-        poke(m.io.dmem.writedata, i+100)
-        step(1)
-    }
+  // Expect ascending bytes on instruction port
+  for (i <- 0 to size/4/2 - 1) {
+    poke(m.io.dmem.address, i*4)
+    poke(m.io.dmem.memwrite, 1)
+    poke(m.io.dmem.writedata, i+100)
+    step(1)
+  }
 
-    // Expect ascending bytes on instruction port and data port
-    for (i <- 0 to size/4 - 1) {
-        poke(m.io.dmem.address, i*4)
-        poke(m.io.dmem.memread, 1)
-        poke(m.io.imem.address, i*4)
-        step(1)
-        if (i < size/2) {
-            expect(m.io.imem.instruction, i+100)
-            expect(m.io.dmem.readdata, i+100)
-        } else {
-            expect(m.io.imem.instruction, i)
-            expect(m.io.dmem.readdata, i)
-        }
+  // Expect ascending bytes on instruction port and data port
+  for (i <- 0 to size/4 - 1) {
+    poke(m.io.dmem.address, i*4)
+    poke(m.io.dmem.memread, 1)
+    poke(m.io.imem.address, i*4)
+    step(1)
+    if (i < size/2) {
+      expect(m.io.imem.instruction, i+100)
+      expect(m.io.dmem.readdata, i+100)
+    } else {
+      expect(m.io.imem.instruction, i)
+      expect(m.io.dmem.readdata, i)
     }
+  }
 }
 
 /**

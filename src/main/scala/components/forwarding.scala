@@ -15,15 +15,15 @@ import chisel3._
 
 class ForwardingUnit extends Module {
   val io = IO(new Bundle {
-      val rs1     = Input(UInt(5.W))
-      val rs2     = Input(UInt(5.W))
-      val exmemrd = Input(UInt(5.W))
-      val exmemrw = Input(Bool())
-      val memwbrd = Input(UInt(5.W))
-      val memwbrw = Input(Bool())
+    val rs1     = Input(UInt(5.W))
+    val rs2     = Input(UInt(5.W))
+    val exmemrd = Input(UInt(5.W))
+    val exmemrw = Input(Bool())
+    val memwbrd = Input(UInt(5.W))
+    val memwbrw = Input(Bool())
 
-      val forwardA = Output(UInt(2.W))
-      val forwardB = Output(UInt(2.W))
+    val forwardA = Output(UInt(2.W))
+    val forwardB = Output(UInt(2.W))
   })
 
   when (io.rs1 === io.exmemrd && io.exmemrd =/= 0.U && io.exmemrw) {

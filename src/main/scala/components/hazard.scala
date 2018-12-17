@@ -14,14 +14,14 @@ import chisel3._
  */
 class HazardUnit extends Module {
   val io = IO(new Bundle {
-      val rs1          = Input(UInt(5.W))
-      val rs2          = Input(UInt(5.W))
-      val idex_memread = Input(Bool())
-      val idex_rd      = Input(UInt(5.W))
+    val rs1          = Input(UInt(5.W))
+    val rs2          = Input(UInt(5.W))
+    val idex_memread = Input(Bool())
+    val idex_rd      = Input(UInt(5.W))
 
-      val pcwrite     = Output(Bool())
-      val ifid_write  = Output(Bool())
-      val idex_bubble = Output(Bool())
+    val pcwrite     = Output(Bool())
+    val ifid_write  = Output(Bool())
+    val idex_bubble = Output(Bool())
   })
 
   io.pcwrite     := true.B
