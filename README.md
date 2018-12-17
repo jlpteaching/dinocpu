@@ -256,3 +256,49 @@ docker build -f Dockerfile.gradescope -t jlpteaching/codcpu-grading .
 
 - I suggest install intellj with the scala plug in. On Ubuntu, you can install this as a snap so you don't have to fight java versions.
   - To set this up you have to point it to a jvm. Mine was /usr/lib/jvm/<jvm version>
+
+# Using this with singularity
+
+[Singularity](https://www.sylabs.io/singularity/) is yet another container (LXC) wrapper.
+It's somewhat like docker, but it's built for scientific computing instead of microservices.
+The biggest benefit is that you can "lock" an image instead of depending on docker's layers which can constantly change.
+This allows you to have much more reproducible containers.
+
+However, this reproducibility comes at a cost of disk space.
+Each image is stored in full in the current working directory.
+This is compared to docker which only stores unique layers and stores them in /var instead of the local directory.
+
+The other benefit of singularity is that it's "safer" than docker.
+Instead of having to run everything with root privileges like in docker, with singularity you still run with your user permissions.
+Also, singularity does a better job at automatically binding local directories than docker.
+[By default](https://singularity.lbl.gov/docs-mount#system-defined-bind-points) it binds `$HOME`, the current working directory, and a few others (e.g., `/tmp`, etc.)
+
+## Building a singularity image
+
+To build the singularity image
+
+```
+sudo singularity build chisel.sif chisel.def
+```
+
+## To run chisel with singularity
+
+The `chisel.def` file specifies `sbt` as the runscript (entrypoint in docker parlance).
+Thus, you can simply `run` the image and you'll be dropped into the `sbt` shell.
+
+Currently, the image is stored in the [singularity cloud](https://cloud.sylabs.io/library) under `jlowepower/default/codcpu`.
+This might change in the future.
+
+To run this image directly from the cloud, you can use the following command.
+
+```
+singularity run library://jlowepower/default/codcpu
+```
+
+This will drop you directly into `sbt` and you will be able to run the tests, simulator, compile, etc.
+
+Note: This stores the image in `~/.singularity/cache/library/`.
+
+If, instead, you use `singularity pull library://jlowepower/default/codcpu`, then the image is downloaded to the current working directory.
+
+**Important:** We should discourage students from using `singularity pull` in case we need to update the image!

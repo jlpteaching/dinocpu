@@ -343,4 +343,8 @@ hs_err_pid*
 *Top.anno.json
 emulator/obj_dir
 
+# For the simulator
 simulator_run_dir
+
+# For containers
+*.sif
