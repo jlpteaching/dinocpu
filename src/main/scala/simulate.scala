@@ -65,9 +65,11 @@ object simulate {
       //println(s"Wrote until $location")
     }
     output.close
-
     // Return the final PC value we're looking for
-    elf.getELFSymbol("_last").value
+    val symbol = elf.getELFSymbol("_last")
+
+    if (symbol != null) symbol.value
+    else 0x400L
   }
 
   def build(optionsManager: SimulatorOptionsManager, conf: CPUConfig): String = {
