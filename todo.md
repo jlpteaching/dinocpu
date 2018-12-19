@@ -3,12 +3,13 @@
 ## General to do
 
 [ ] Package better for students.
-[ ] Add better way to exit from my emulator. I think we need to call a syscall (ecall?) to get the SimDTM to pick up on it and exit cleanly. See `RVTEST_PASS` `in riscv-tools/riscv-tests/env/p/riscv_test.h`
+[x] Add better way to exit from my emulator. I think we need to call a syscall (ecall?) to get the SimDTM to pick up on it and exit cleanly. See `RVTEST_PASS` `in riscv-tools/riscv-tests/env/p/riscv_test.h`
 [ ] Add an option to the emulator and tester to output the tracefile. Make it a command line option instead of build time.
 [ ] A better pipeline viewer
 
 ## Very important things!
-[ ] Fix everything so it is loaded at 0x80000000 instead of 0x8000000. Oops!
+[x] Fix everything so it is loaded at 0x80000000 instead of 0x8000000. Oops!
+  - Note: Actually just made it 0 instead of 8000 something.
 
 ## Re-writing the emulator
 
@@ -18,9 +19,13 @@ Things we want from the emulator
  - Instruction mix?
  - Run full workloads
 
+So, I've re-written the emulator, but I still need to do the above.
+
 ## Ideas for restructuring for assignments
 
 - [ ] Start with just the hazard detection unit and detect all hazards instead of forwarding
+- [ ] The first assignment should have something that takes a diagram and then the students will convert that into chisel code
+- [ ] We need to re-do the diagrams from the book to better match the design that we have
 
 ## Minor modification
 
@@ -30,8 +35,10 @@ Things we want from the emulator
 ## Testing
 
 - I'd like to have a less hacky way to read and write the registers
+  - DONE!
 - Related, improving the debug interface would be nice.
 - Add a way to check memory values
+  - DONE!
 
 ### Tests to add
 
