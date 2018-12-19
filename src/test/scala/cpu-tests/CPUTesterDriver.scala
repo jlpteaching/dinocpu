@@ -5,8 +5,6 @@ import org.scalatest.{FlatSpec, Matchers}
 import treadle.TreadleTester
 import treadle.executable.TreadleException
 
-import scala.collection.mutable
-
 class CPUFlatSpec extends FlatSpec with Matchers
 
 class CPUTesterDriver(cpuType: String, binary: String) {

@@ -20,7 +20,7 @@ import scala.collection.SortedMap
  * }}}
  */
 object simulate {
-  var helptext = "usage: simulate <riscv binary> <CPU type>"
+  val helptext = "usage: simulate <riscv binary> <CPU type>"
 
   def elfToHex(filename: String, outfile: String) = {
     val elf = ElfFile.fromFile(new java.io.File(filename))
@@ -28,7 +28,7 @@ object simulate {
     // address to put the data -> offset into the binary, size of section
     var info = SortedMap[Long, (Long, Long)]()
     // Search for these section names
-    for (i <- 1 to elf.num_sh - 1) {
+    for (i <- 1 until elf.num_sh) {
       val section =  elf.getSection(i)
       if (sections.contains(section.getName)) {
         //println("Found "+section.address + " " + section.section_offset + " " + section.size)
@@ -64,7 +64,7 @@ object simulate {
       }
       //println(s"Wrote until $location")
     }
-    output.close
+    output.close()
     // Return the final PC value we're looking for
     val symbol = elf.getELFSymbol("_last")
 
@@ -78,7 +78,7 @@ object simulate {
     optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(annotations = annos.toList)
 
     chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
-    case ChiselExecutionSuccess(Some(circuit), _, Some(firrtlExecutionResult)) =>
+    case ChiselExecutionSuccess(Some(_), _, Some(firrtlExecutionResult)) =>
       firrtlExecutionResult match {
       case firrtl.FirrtlExecutionSuccess(_, compiledFirrtl) =>
         compiledFirrtl
@@ -142,7 +142,7 @@ case class SimulatorOptions(
 trait HasSimulatorOptions {
   self: ExecutionOptionsManager =>
 
-  var simulatorOptions = SimulatorOptions()
+  val simulatorOptions = SimulatorOptions()
 
   parser.note("simulator-options")
 

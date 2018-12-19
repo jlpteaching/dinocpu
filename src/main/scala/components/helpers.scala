@@ -8,9 +8,9 @@ import chisel3.util._
 /**
  * A simple adder which takes two inputs and returns the sum
  *
- * @inputx the first input operand
- * @inputy the second input operand
- * @result first + second
+ * Input:  inputx the first input operand
+ * Input:  inputy the second input operand
+ * Output: result first + second
  */
 class Adder extends Module {
   val io = IO(new Bundle{
@@ -29,8 +29,8 @@ class Adder extends Module {
  * Also,for the B type and j-type instruction the values are *already* shifted left on the
  * output.
  *
- * @instruction the input full encoded RISC-V instruction
- * @sextImm the output sign-extended immediate value encoded in the instruction
+ * Input:  instruction the input full encoded RISC-V instruction
+ * Output: sextImm the output sign-extended immediate value encoded in the instruction
  */
 class ImmediateGenerator extends Module {
   val io = IO(new Bundle{

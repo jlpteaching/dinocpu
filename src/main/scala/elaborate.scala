@@ -1,8 +1,6 @@
 // Main entry point for elaboration
 package CODCPU
 
-import chisel3._
-
 /**
  * Simple object with only a main function to run the chisel elaboration.
  * When run, this will output Top.v, Top.fir, and other files.

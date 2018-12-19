@@ -3,7 +3,8 @@
 package CODCPU
 
 // For file length
-import java.io.{File,FileNotFoundException}
+import java.io.{File, FileNotFoundException}
+
 import scala.math.max
 
 /**
@@ -49,10 +50,9 @@ class CPUConfig
   /**
    * Create a memory with data from a file
    *
-   * @param filename to load the data memory with. Should be a binary file.
    * @param minSize is the minimum size for the memory. If the binary file is
    *        smaller than this, create a memory that is this size.
-   * @return [[CODCPU.DataMemory]] object
+   * @return [[CODCPU.DualPortedMemory]] object
    */
   def getMem(minSize: Int = 4096) = {
     val f = new File(memFile)
