@@ -3,7 +3,7 @@
 package CODCPU
 
 import chisel3._
-import chisel3.util.Counter
+import chisel3.util._
 
 /**
  * The main CPU definition that hooks up all of the other components.
@@ -22,6 +22,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val aluControl = Module(new ALUControl())
   val alu        = Module(new ALU())
   val immGen     = Module(new ImmediateGenerator())
+  val branchCtrl = Module(new BranchControl())
   val pcPlusFour = Module(new Adder())
   val branchAdd  = Module(new Adder())
   val (cycleCount, _) = Counter(true.B, 1 << 30)
@@ -49,8 +50,20 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   immGen.io.instruction := instruction
   val imm = immGen.io.sextImm
 
-  val alu_inputy = Mux(control.io.alusrc, imm, registers.io.readdata2)
-  alu.io.inputx := registers.io.readdata1
+  branchCtrl.io.branch := control.io.branch
+  branchCtrl.io.funct3 := instruction(14,12)
+  branchCtrl.io.inputx := registers.io.readdata1
+  branchCtrl.io.inputy := registers.io.readdata2
+
+  val alu_inputx = Wire(UInt())
+  alu_inputx := DontCare
+  switch(control.io.alusrc1) {
+    is(0.U) { alu_inputx := registers.io.readdata1 }
+    is(1.U) { alu_inputx := 0.U }
+    is(2.U) { alu_inputx := pcPlusFour.io.result }
+  }
+  val alu_inputy = Mux(control.io.alusrc2, imm, registers.io.readdata2)
+  alu.io.inputx := alu_inputx
   alu.io.inputy := alu_inputy
   alu.io.operation := aluControl.io.operation
 
@@ -59,33 +72,47 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.memread   := control.io.memread
   io.dmem.memwrite  := control.io.memwrite
 
-  val write_data = Mux(control.io.memtoreg,io.dmem.readdata, alu.io.result)
+  val write_data = Wire(UInt())
+  when (control.io.memtoreg) {
+    write_data := io.dmem.readdata
+  } .elsewhen ((control.io.jump & 2.U) === 2.U) {
+    write_data := pcPlusFour.io.result
+  } .otherwise {
+    write_data := alu.io.result
+  }
+
   registers.io.writedata := write_data
 
   branchAdd.io.inputx := pc
   branchAdd.io.inputy := imm
-  val next_pc = Mux(control.io.branch & alu.io.zero,
-                    branchAdd.io.result,
-                    pcPlusFour.io.result)
+  val next_pc = Wire(UInt())
+  when (branchCtrl.io.taken || control.io.jump === 2.U) {
+    next_pc := branchAdd.io.result
+  } .elsewhen (control.io.jump === 3.U) {
+    next_pc := alu.io.result & Cat(Fill(31, 1.U), 0.U)
+  } .otherwise {
+    next_pc := pcPlusFour.io.result
+  }
+
+  // Debug / pipeline viewer
+  val structures = List(
+    (control, "control"),
+    (registers, "registers"),
+    (aluControl, "aluControl"),
+    (alu, "alu"),
+    (immGen, "immGen"),
+    (branchCtrl, "branchCtrl"),
+    (pcPlusFour, "pcPlusFour"),
+    (branchAdd, "branchAdd")
+  )
 
   printf("DASM(%x)\n", instruction)
-  printf("Cycle=%d pc=0x%x, r1=%d, r2=%d, rw=%d, daddr=%x, npc=0x%x\n",
-         cycleCount,
-         pc,
-         registers.io.readreg1,
-         registers.io.readreg2,
-         registers.io.writereg,
-         io.dmem.address,
-         next_pc
-         )
-  printf("                 r1=%x, r2=%x, imm=%x, alu=%x, data=%x, write=%x\n",
-         registers.io.readdata1,
-         registers.io.readdata2,
-         imm,
-         alu.io.result,
-         io.dmem.readdata,
-         registers.io.writedata
-         )
+  printf(p"CYCLE=$cycleCount\n")
+  printf(p"pc: $pc\n")
+  for (structure <- structures) {
+    printf(p"${structure._2}: ${structure._1.io}\n")
+  }
+  printf("\n")
 
   pc := next_pc
 

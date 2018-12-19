@@ -16,8 +16,8 @@ class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
   val tests = List(
     // ALUop,  Funct7,       Func3,    Control Input
     ( "b00".U, "b0000000".U, "b000".U, "b0010".U),
+    ( "b00".U, "b1111111".U, "b111".U, "b0010".U),
     ( "b00".U, "b0000000".U, "b000".U, "b0010".U),
-    ( "b01".U, "b0000000".U, "b000".U, "b0110".U),
     ( "b10".U, "b0000000".U, "b000".U, "b0010".U),
     ( "b10".U, "b0100000".U, "b000".U, "b0110".U),
     ( "b10".U, "b0000000".U, "b111".U, "b0000".U),

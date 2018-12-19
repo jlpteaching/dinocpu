@@ -17,16 +17,14 @@ class ALUUnitTester(c: ALU) extends PeekPokeTester(c) {
 
   def test(op: UInt, f: (BigInt, BigInt) => BigInt) {
     for (i <- 0 until 10) {
-      val x = rnd.nextInt(100)
-      val y = rnd.nextInt(500)
+      val x = rnd.nextInt(100000000)
+      val y = rnd.nextInt(500000000)
       poke(alu.io.operation, op)
       poke(alu.io.inputx, x)
       poke(alu.io.inputy, y)
       step(1)
       val expectOut = f(x, y)
-      val expectZero = (expectOut == 0)
       expect(alu.io.result, expectOut)
-      expect(alu.io.zero, expectZero)
     }
   }
 
@@ -44,46 +42,6 @@ class ALUUnitTester(c: ALU) extends PeekPokeTester(c) {
   test(SUB_OP, (x: BigInt, y: BigInt) => twoscomp(x - y))
   test(SLT_OP, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
   test(NOR_OP, (x: BigInt, y: BigInt) => twoscomp(~(x | y)))
-
-  // Explicitly test 0
-  val x = 0
-  val y = 0
-  poke(alu.io.operation, ADD_OP)
-  poke(alu.io.inputx, x)
-  poke(alu.io.inputy, y)
-  step(1)
-  expect(alu.io.result, x+y)
-  expect(alu.io.zero, (x+y == 0))
-  poke(alu.io.operation, AND_OP)
-  poke(alu.io.inputx, x)
-  poke(alu.io.inputy, y)
-  step(1)
-  expect(alu.io.result, 0)
-  expect(alu.io.zero, 1)
-  poke(alu.io.operation, OR_OP)
-  poke(alu.io.inputx, x)
-  poke(alu.io.inputy, y)
-  step(1)
-  expect(alu.io.result, 0)
-  expect(alu.io.zero, 1)
-  poke(alu.io.operation, SUB_OP)
-  poke(alu.io.inputx, x)
-  poke(alu.io.inputy, y)
-  step(1)
-  expect(alu.io.result, x-y)
-  expect(alu.io.zero, (x-y == 0))
-  poke(alu.io.operation, SLT_OP)
-  poke(alu.io.inputx, x)
-  poke(alu.io.inputy, y)
-  step(1)
-  expect(alu.io.result, 0)
-  expect(alu.io.zero, (1))
-  poke(alu.io.operation, NOR_OP)
-  poke(alu.io.inputx, x)
-  poke(alu.io.inputy, y)
-  step(1)
-  expect(alu.io.result, maxInt)
-  expect(alu.io.zero, (0))
 }
 
 /**

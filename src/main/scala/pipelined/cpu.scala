@@ -156,7 +156,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   } .otherwise {
     id_ex.excontrol.aluop  := control.io.aluop
-    id_ex.excontrol.alusrc := control.io.alusrc
+    id_ex.excontrol.alusrc := control.io.alusrc2
 
     id_ex.mcontrol.memread  := control.io.memread
     id_ex.mcontrol.memwrite := control.io.memwrite
@@ -200,7 +200,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   ex_mem.readdata2 := regb_data     // This could easily be overlooked. Add test!
   ex_mem.aluresult := alu.io.result
-  ex_mem.zero      := alu.io.zero
+  //ex_mem.zero      := alu.io.zero
 
   ex_mem.nextpc := branchAdd.io.result
 

@@ -12,7 +12,11 @@ import Constants._
 /**
  * The ALU control unit
  *
- * Here we should describe the I/O
+ * Input:  aluop, defines how to decode the the other bits.
+ *         0 means load/store, 1 means beq, 2 means R-type and use funct fields
+ * Input:  funct7, the most significant bits of the instruction
+ * Input:  funct3, the middle three bits of the instruction (12-14)
+ * Output: operation, What we want the ALU to do. See [[CODCPU.ALUConstants]]
  *
  * For more information, see Section 4.4 and A.5 of Patterson and Hennessy
  * This follows figure 4.12
@@ -31,9 +35,6 @@ class ALUControl extends Module {
   switch (io.aluop) {
     is (0.U) { // load or store
       io.operation := ADD_OP
-    }
-    is (1.U) { // beq
-      io.operation := SUB_OP
     }
     is (2.U) { // R-type, use funct fields
       switch (io.funct7) {
@@ -70,7 +71,6 @@ class ALU extends Module {
     val inputy    = Input(UInt(32.W))
 
     val result    = Output(UInt(32.W))
-    val zero      = Output(Bool())
   })
 
   // Default to 0 output
@@ -96,6 +96,4 @@ class ALU extends Module {
       io.result := ~(io.inputx | io.inputy)
     }
   }
-
-  io.zero := (io.result === 0.U)
 }

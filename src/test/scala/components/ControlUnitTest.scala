@@ -12,9 +12,8 @@ import Constants._
 class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
   private val ctl = c
 
-  // Copied from Patterson and Hennessy table 4.22
   val tests = List(
-    // Inputs,       alusrc, memtoreg, regwrite, memread, memwrite, branch, aluop
+    // Inputs,       alusrc2, memtoreg, regwrite, memread, memwrite, branch, aluop
     ( "b0110011".U,    0,        0,       1,        0,       0,        0,     2),
     ( "b0000011".U,    1,        1,       1,        1,       0,        0,     0),
     ( "b0100011".U,    1,        0,       0,        0,       1,        0,     0),
@@ -29,7 +28,7 @@ class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
     expect(ctl.io.memtoreg, t._3)
     expect(ctl.io.aluop, t._8)
     expect(ctl.io.memwrite, t._6)
-    expect(ctl.io.alusrc, t._2)
+    expect(ctl.io.alusrc2, t._2)
     expect(ctl.io.regwrite, t._4)
   }
 }
