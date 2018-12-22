@@ -11,7 +11,7 @@ import chisel3.util.{BitPat, ListLookup}
  * Output: branch,  true if branch or jal and update PC with immediate
  * Output: memread, true if we should read memory
  * Output: memtoreg, true if we are writing the memory value to the register
- * Output: aluop, 0 simply add, 1 is branch, 2 is R-type
+ * Output: aluop, 0 simply add, 1 is R-type
  * Output: memwrite, write the memory
  * Output: regwrite, write the register file
  * Output: alusrc2, true if use the immediate value
@@ -28,7 +28,7 @@ class Control extends Module {
     val branch = Output(Bool())
     val memread = Output(Bool())
     val memtoreg = Output(Bool())
-    val aluop = Output(UInt(2.W))
+    val aluop = Output(Bool())
     val memwrite = Output(Bool())
     val regwrite = Output(Bool())
     val alusrc2 = Output(Bool())

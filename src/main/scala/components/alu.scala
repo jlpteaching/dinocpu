@@ -23,7 +23,7 @@ import Constants._
  */
 class ALUControl extends Module {
   val io = IO(new Bundle {
-    val aluop     = Input(UInt(2.W))
+    val memory    = Input(Bool())
     val funct7    = Input(UInt(7.W))
     val funct3    = Input(UInt(3.W))
 
