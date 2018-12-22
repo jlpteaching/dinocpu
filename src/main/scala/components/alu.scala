@@ -32,37 +32,17 @@ class ALUControl extends Module {
 
   io.operation := 15.U // invalid operation
 
-  switch (io.aluop) {
-    is (0.U) { // load or store
-      io.operation := ADD_OP
-    }
-    is (2.U) { // R-type, use funct fields
-      switch (io.funct7) {
-        is ("b0100000".U) { // sub and sra
-          switch (io.funct3) {
-            is ("b000".U) { io.operation := SUB_OP }
-          }
-        }
-        is ("b0000000".U) {
-          switch (io.funct3) {
-            is ("b000".U) { io.operation := ADD_OP }
-            is ("b110".U) { io.operation := OR_OP }
-            is ("b111".U) { io.operation := AND_OP }
-          }
-        }
-      }
-    }
-  }
+  // Your code goes here
 
 }
 
 /**
  * The ALU
  *
- * Here we should describe the I/O
- *
- * For more information, see Section 4.3 and A.5 of Patterson and Hennessy
- * Specifically, the control lines come from figure 1.5.13
+ * Input:  operation, specifies which operation the ALU should perform
+ * Input:  inputx, the first input (e.g., reg1)
+ * Input:  inputy, the second input (e.g., reg2)
+ * Output: the result of the compuation
  */
 class ALU extends Module {
   val io = IO(new Bundle {
@@ -77,23 +57,35 @@ class ALU extends Module {
   io.result := 0.U
 
   switch (io.operation) {
-    is (AND_OP) {
+    is ("b0000".U) {
       io.result := io.inputx & io.inputy
     }
-    is (OR_OP) {
+    is ("b0001".U) {
       io.result := io.inputx | io.inputy
     }
-    is (ADD_OP) {
+    is ("b0010".U) {
       io.result := io.inputx + io.inputy
     }
-    is (SUB_OP) {
+    is ("b0011".U) {
       io.result := io.inputx - io.inputy
     }
-    is (SLT_OP) {
+    is ("b0100".U) {
       io.result := (io.inputx < io.inputy)
     }
-    is (NOR_OP) {
-      io.result := ~(io.inputx | io.inputy)
+    is ("b0101".U) {
+      io.result := (io.inputx.asSInt < io.inputy.asSInt) // signed
+    }
+    is ("b0110".U) {
+      io.result := io.inputx << io.inputy
+    }
+    is ("b0111".U) {
+      io.result := io.inputx >> io.inputy
+    }
+    is ("b1000".U) {
+      io.result := io.inputx.asSInt >> io.inputy // arithmetic (signed)
+    }
+    is ("b1001".U) {
+      io.result := io.inputx ^ io.inputy
     }
   }
 }
