@@ -7,17 +7,15 @@ import chisel3._
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
-import Constants._
-
 class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
   private val ctl = c
 
   val tests = List(
-    // Inputs,       alusrc2, memtoreg, regwrite, memread, memwrite, branch, aluop
-    ( "b0110011".U,    0,        0,       1,        0,       0,        0,     2),
-    ( "b0000011".U,    1,        1,       1,        1,       0,        0,     0),
-    ( "b0100011".U,    1,        0,       0,        0,       1,        0,     0),
-    ( "b1100011".U,    0,        0,       0,        0,       0,        1,     1)
+    // Inputs,       alusrc2, memtoreg, regwrite, memread, memwrite, branch, memop
+    ( "b0110011".U,    0,        0,       1,        0,       0,        0,     0), // R-type
+    ( "b0000011".U,    1,        1,       1,        1,       0,        0,     1), // Load
+    ( "b0100011".U,    1,        0,       0,        0,       1,        0,     1), // Store
+    ( "b1100011".U,    0,        0,       0,        0,       0,        1,     0)  // beq
   )
 
   for (t <- tests) {
@@ -26,7 +24,7 @@ class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
     expect(ctl.io.branch, t._7)
     expect(ctl.io.memread, t._5)
     expect(ctl.io.memtoreg, t._3)
-    expect(ctl.io.aluop, t._8)
+    expect(ctl.io.memop, t._8)
     expect(ctl.io.memwrite, t._6)
     expect(ctl.io.alusrc2, t._2)
     expect(ctl.io.regwrite, t._4)
@@ -45,17 +43,9 @@ class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
   * }}}
   */
 class ControlTester extends ChiselFlatSpec {
-  private val backendNames = if(firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
-    Array("firrtl", "verilator")
-  }
-  else {
-    Array("firrtl")
-  }
-  for ( backendName <- backendNames ) {
-    "Control" should s"save written values (with $backendName)" in {
-      Driver(() => new Control, backendName) {
-        c => new ControlUnitTester(c)
-      } should be (true)
-    }
+  "Control" should s"match expectations" in {
+    Driver(() => new Control) {
+      c => new ControlUnitTester(c)
+    } should be (true)
   }
 }

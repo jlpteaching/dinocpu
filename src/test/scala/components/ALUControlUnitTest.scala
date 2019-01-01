@@ -7,29 +7,34 @@ import chisel3._
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
-import Constants._
 
 class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
   private val ctl = c
 
-  // Copied from Patterson and Hennessy table 4.12
+  // Copied from Patterson and Waterman Figure 2.3
   val tests = List(
-    // ALUop,  Funct7,       Func3,    Control Input
-    ( "b00".U, "b0000000".U, "b000".U, "b0010".U),
-    ( "b00".U, "b1111111".U, "b111".U, "b0010".U),
-    ( "b00".U, "b0000000".U, "b000".U, "b0010".U),
-    ( "b10".U, "b0000000".U, "b000".U, "b0010".U),
-    ( "b10".U, "b0100000".U, "b000".U, "b0110".U),
-    ( "b10".U, "b0000000".U, "b111".U, "b0000".U),
-    ( "b10".U, "b0000000".U, "b110".U, "b0001".U)
+    // memop,  Funct7,       Func3,    Control Input
+    (  true.B, "b0000000".U, "b000".U, "b0010".U, "load/store"),
+    (  true.B, "b1111111".U, "b111".U, "b0010".U, "load/store"),
+    (  true.B, "b0000000".U, "b000".U, "b0010".U, "load/store"),
+    ( false.B, "b0000000".U, "b000".U, "b0010".U, "add"),
+    ( false.B, "b0100000".U, "b000".U, "b0011".U, "sub"),
+    ( false.B, "b0000000".U, "b001".U, "b0110".U, "sll"),
+    ( false.B, "b0000000".U, "b010".U, "b0100".U, "slt"),
+    ( false.B, "b0000000".U, "b011".U, "b0101".U, "sltu"),
+    ( false.B, "b0000000".U, "b100".U, "b1001".U, "xor"),
+    ( false.B, "b0000000".U, "b101".U, "b0111".U, "srl"),
+    ( false.B, "b0100000".U, "b101".U, "b1000".U, "sra"),
+    ( false.B, "b0000000".U, "b110".U, "b0001".U, "or"),
+    ( false.B, "b0000000".U, "b111".U, "b0000".U, "and")
   )
 
   for (t <- tests) {
-    poke(ctl.io.aluop, t._1)
+    poke(ctl.io.memop, t._1)
     poke(ctl.io.funct7, t._2)
     poke(ctl.io.funct3, t._3)
     step(1)
-    expect(ctl.io.operation, t._4)
+    expect(ctl.io.operation, t._4, s"${t._5} wrong")
   }
 }
 
@@ -45,17 +50,9 @@ class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
   * }}}
   */
 class ALUControlTester extends ChiselFlatSpec {
-  private val backendNames = if(firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
-    Array("firrtl", "verilator")
-  }
-  else {
-    Array("firrtl")
-  }
-  for ( backendName <- backendNames ) {
-    "ALUControl" should s"save written values (with $backendName)" in {
-      Driver(() => new ALUControl, backendName) {
-        c => new ALUControlUnitTester(c)
-      } should be(true)
-    }
+  "ALUControl" should s"match expectations for each intruction type" in {
+    Driver(() => new ALUControl) {
+      c => new ALUControlUnitTester(c)
+    } should be (true)
   }
 }

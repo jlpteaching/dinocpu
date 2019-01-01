@@ -7,10 +7,8 @@ import chisel3._
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
-import Constants._
 
-
-class ALUUnitTester(c: ALU) extends PeekPokeTester(c) {
+class ALURandomUnitTester(c: ALU) extends PeekPokeTester(c) {
   private val alu = c
 
   val maxInt = BigInt("FFFFFFFF", 16)
@@ -23,8 +21,8 @@ class ALUUnitTester(c: ALU) extends PeekPokeTester(c) {
       poke(alu.io.inputx, x)
       poke(alu.io.inputy, y)
       step(1)
-      val expectOut = f(x, y)
-      expect(alu.io.result, expectOut)
+      val expectOut = f(x, y).toInt & maxInt
+      expect(alu.io.result, expectOut, s"for operation ${op.toInt.toBinaryString}")
     }
   }
 
@@ -36,12 +34,51 @@ class ALUUnitTester(c: ALU) extends PeekPokeTester(c) {
     }
   }
 
-  test(ADD_OP, (x: BigInt, y: BigInt) => (x + y))
-  test(AND_OP, (x: BigInt, y: BigInt) => (x & y))
-  test(OR_OP, (x: BigInt, y: BigInt) => (x | y))
-  test(SUB_OP, (x: BigInt, y: BigInt) => twoscomp(x - y))
-  test(SLT_OP, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
-  test(NOR_OP, (x: BigInt, y: BigInt) => twoscomp(~(x | y)))
+  test("b0000".U, (x: BigInt, y: BigInt) => (x & y))
+  test("b0001".U, (x: BigInt, y: BigInt) => (x | y))
+  test("b0010".U, (x: BigInt, y: BigInt) => (x + y))
+  test("b0011".U, (x: BigInt, y: BigInt) => twoscomp(x - y))
+  test("b0100".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
+  test("b0101".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
+  test("b0110".U, (x: BigInt, y: BigInt) => (x << (y.toInt & 0x1f)))
+  test("b0111".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x1f)))
+  test("b1000".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x1f)))
+  test("b1001".U, (x: BigInt, y: BigInt) => (x ^ y))
+  test("b1010".U, (x: BigInt, y: BigInt) => twoscomp(~(x | y)))
+}
+
+class ALUDirectedUnitTester(c: ALU) extends PeekPokeTester(c) {
+  private val alu = c
+  val maxInt = BigInt("FFFFFFFF", 16)
+
+  def twoscomp(v: BigInt) : BigInt = {
+    if (v < 0) {
+      return maxInt + v + 1
+    } else {
+      return v
+    }
+  }
+
+  // signed <
+  poke(alu.io.operation, "b0101".U)
+  poke(alu.io.inputx, twoscomp(-1))
+  poke(alu.io.inputy, 1)
+  step(1)
+  expect(alu.io.result, 1)
+
+  // unsigned <
+  poke(alu.io.operation, "b0100".U)
+  poke(alu.io.inputx, maxInt)
+  poke(alu.io.inputy, 1)
+  step(1)
+  expect(alu.io.result, 0)
+
+  // signed >>
+  poke(alu.io.operation, "b1000".U)
+  poke(alu.io.inputx, twoscomp(-1024))
+  poke(alu.io.inputy, 5)
+  step(1)
+  expect(alu.io.result, twoscomp(-32))
 }
 
 /**
@@ -56,17 +93,14 @@ class ALUUnitTester(c: ALU) extends PeekPokeTester(c) {
   * }}}
   */
 class ALUTester extends ChiselFlatSpec {
-  private val backendNames = if(firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
-    Array("firrtl", "verilator")
+  "ALU" should s"match expectations for random tests" in {
+    Driver(() => new ALU) {
+      c => new ALURandomUnitTester(c)
+    } should be (true)
   }
-  else {
-    Array("firrtl")
-  }
-  for ( backendName <- backendNames ) {
-    "ALU" should s"save written values (with $backendName)" in {
-      Driver(() => new ALU, backendName) {
-        c => new ALUUnitTester(c)
-      } should be (true)
-    }
+  "ALU" should s"match expectations for directed edge tests" in {
+    Driver(() => new ALU) {
+      c => new ALUDirectedUnitTester(c)
+    } should be (true)
   }
 }

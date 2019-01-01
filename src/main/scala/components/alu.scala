@@ -7,8 +7,6 @@ package CODCPU
 import chisel3._
 import chisel3.util._
 
-import Constants._
-
 /**
  * The ALU control unit
  *
@@ -23,7 +21,7 @@ import Constants._
  */
 class ALUControl extends Module {
   val io = IO(new Bundle {
-    val memory    = Input(Bool())
+    val memop    = Input(Bool())
     val funct7    = Input(UInt(7.W))
     val funct3    = Input(UInt(3.W))
 
@@ -32,7 +30,30 @@ class ALUControl extends Module {
 
   io.operation := 15.U // invalid operation
 
-  // Your code goes here
+  when (io.memop) {
+    io.operation := "b0010".U
+  } .otherwise {
+    switch (io.funct7) {
+      is ("b0100000".U) { // sub and sra
+        switch (io.funct3) {
+          is ("b000".U) { io.operation := "b0011".U } // sub
+          is ("b101".U) { io.operation := "b1000".U } // sra
+        }
+      }
+      is ("b0000000".U) {
+        switch (io.funct3) {
+          is ("b000".U) { io.operation := "b0010".U } // add
+          is ("b001".U) { io.operation := "b0110".U } // sll
+          is ("b010".U) { io.operation := "b0100".U } // slt
+          is ("b011".U) { io.operation := "b0101".U } // sltu
+          is ("b100".U) { io.operation := "b1001".U } // xor
+          is ("b101".U) { io.operation := "b0111".U } // srl
+          is ("b110".U) { io.operation := "b0001".U } // or
+          is ("b111".U) { io.operation := "b0000".U } // and
+        }
+      }
+    }
+  }
 
 }
 
@@ -73,19 +94,22 @@ class ALU extends Module {
       io.result := (io.inputx < io.inputy)
     }
     is ("b0101".U) {
-      io.result := (io.inputx.asSInt < io.inputy.asSInt) // signed
+      io.result := (io.inputx.asSInt < io.inputy.asSInt).asUInt // signed
     }
     is ("b0110".U) {
-      io.result := io.inputx << io.inputy
+      io.result := io.inputx << io.inputy(4,0)
     }
     is ("b0111".U) {
-      io.result := io.inputx >> io.inputy
+      io.result := io.inputx >> io.inputy(4,0)
     }
     is ("b1000".U) {
-      io.result := io.inputx.asSInt >> io.inputy // arithmetic (signed)
+      io.result := (io.inputx.asSInt >> io.inputy(4,0)).asUInt // arithmetic (signed)
     }
     is ("b1001".U) {
       io.result := io.inputx ^ io.inputy
+    }
+    is ("b1010".U) {
+      io.result := ~(io.inputx | io.inputy)
     }
   }
 }
