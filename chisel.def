@@ -10,7 +10,7 @@ From: openjdk:8
     apt-get -y install perl verilator make g++
 
 %runscript
-    sbt
+    sbt -mem 2048
 
 %labels
     Author Jason Lowe-Power
