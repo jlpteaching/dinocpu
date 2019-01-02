@@ -40,24 +40,8 @@ class Control extends Module {
     ListLookup(io.opcode,
       /*default*/           List(false.B, false.B, 3.U,   false.B, false.B,  false.B, false.B,    0.U,    0.U),
       Array(                 /*  branch,  memread, toreg, add,     memwrite, immediate, regwrite, alusrc1,  jump */
-      // R-format
-      BitPat("b0110011") -> List(false.B, false.B, 0.U,   false.B, false.B,  false.B, true.B,     0.U,    0.U),
-      // I-format
-      BitPat("b0010011") -> List(false.B, false.B, 0.U,   false.B, false.B,  true.B,  true.B,     0.U,    0.U),
-      // load
-      BitPat("b0000011") -> List(false.B, true.B,  1.U,   true.B,  false.B,  true.B,  true.B,     0.U,    0.U),
-      // store
-      BitPat("b0100011") -> List(false.B, false.B, 0.U,   true.B,  true.B,   true.B,  false.B,    0.U,    0.U),
-      // beq
-      BitPat("b1100011") -> List(true.B,  false.B, 0.U,   false.B, false.B,  false.B, false.B,    0.U,    0.U),
-      // lui
-      BitPat("b0110111") -> List(false.B, false.B, 0.U,   true.B,  false.B,  true.B,  true.B,     1.U,    0.U),
-      // auipc
-      BitPat("b0010111") -> List(false.B, false.B, 0.U,   true.B,  false.B,  true.B,  true.B,     2.U,    0.U),
-      // jal
-      BitPat("b1101111") -> List(true.B,  false.B, 2.U,   false.B, false.B,  false.B, true.B,     1.U,    2.U),
-      // jalr
-      BitPat("b1100111") -> List(false.B, false.B, 2.U,   false.B, false.B,  true.B,  true.B,     0.U,    3.U)
+      // Invalid
+      BitPat("b0000000") -> List(false.B, false.B, 0.U,   false.B, false.B,  false.B, false.B,     0.U,    0.U)
       ) // Array
     ) // ListLookup
 
