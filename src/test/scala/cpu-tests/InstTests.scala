@@ -16,6 +16,17 @@ package CODCPU
  *  - extra name information
  */
 object InstTests {
+
+  val maxInt = BigInt("FFFFFFFF", 16)
+
+  def twoscomp(v: BigInt) : BigInt = {
+    if (v < 0) {
+      return maxInt + v + 1
+    } else {
+      return v
+    }
+  }
+
 	val rtype = List[CPUTestCase](
 		CPUTestCase("add1",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
@@ -59,12 +70,12 @@ object InstTests {
                 Map("single-cycle" -> 3, "five-cycle" -> 7, "pipelined" -> 7),
                 Map(5 -> 1234, 6 -> 1, 7 -> 5678, 8 -> 9012),
 								Map(5 -> 0, 6 -> 1, 7 -> 5678, 8 -> 9012),
-								Map(), Map(), "False"),
+								Map(), Map(), "-False"),
 		CPUTestCase("beq",
                 Map("single-cycle" -> 3, "five-cycle" -> 9, "pipelined" -> 9),
                 Map(5 -> 1234, 6 -> 1, 7 -> 5678, 28 -> 5678),
 								Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678),
-								Map(), Map(), "True")
+								Map(), Map(), "-True")
 	)
 
 	val memory = List[CPUTestCase](
@@ -125,7 +136,22 @@ object InstTests {
                 Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
                 Map(),
 								Map(0 -> 0, 10 -> 17, 11 -> 93),
-								Map(), Map())
+								Map(), Map()),
+		CPUTestCase("slli",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 1),
+								Map(0 -> 0, 5 -> 1, 6 -> 128),
+								Map(), Map()),
+		CPUTestCase("srai",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 1024),
+								Map(0 -> 0, 5 -> 1024, 6 -> 8),
+								Map(), Map()),
+		CPUTestCase("srai",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> twoscomp(-1024)),
+								Map(0 -> 0, 5 -> twoscomp(-1024), 6 -> twoscomp(-8)),
+								Map(), Map(), "-negative")
   )
 
   val tests = Map(

@@ -7,11 +7,11 @@ import treadle.executable.TreadleException
 
 class CPUFlatSpec extends FlatSpec with Matchers
 
-class CPUTesterDriver(cpuType: String, binary: String) {
+class CPUTesterDriver(cpuType: String, binary: String, extraName: String = "") {
   val optionsManager = new SimulatorOptionsManager()
 
   if (optionsManager.targetDirName == ".") {
-    optionsManager.setTargetDirName(s"test_run_dir/$cpuType/$binary")
+    optionsManager.setTargetDirName(s"test_run_dir/$cpuType/$binary$extraName")
   }
 
   val hexName = s"${optionsManager.targetDirName}/${binary}.hex"
@@ -105,7 +105,7 @@ case class CPUTestCase(
 
 object CPUTesterDriver {
   def apply(testCase: CPUTestCase, cpuType: String): Boolean = {
-    val driver = new CPUTesterDriver(cpuType, testCase.binary)
+    val driver = new CPUTesterDriver(cpuType, testCase.binary, testCase.extraName)
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))

@@ -31,7 +31,10 @@ class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
     ( false.B, true.B,  "b0000000".U, "b010".U, "b0100".U, "sltiu"),
     ( false.B, true.B,  "b0000000".U, "b100".U, "b1001".U, "xori"),
     ( false.B, true.B,  "b0000000".U, "b110".U, "b0001".U, "ori"),
-    ( false.B, true.B,  "b0000000".U, "b111".U, "b0000".U, "andi")
+    ( false.B, true.B,  "b0000000".U, "b111".U, "b0000".U, "andi"),
+    ( false.B, true.B,  "b0000000".U, "b001".U, "b0110".U, "slli"),
+    ( false.B, true.B,  "b0000000".U, "b101".U, "b0111".U, "srli"),
+    ( false.B, true.B,  "b0100000".U, "b101".U, "b1000".U, "srai")
   )
 
   for (t <- tests) {
