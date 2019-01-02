@@ -30,7 +30,7 @@ class ALUControlUnitTester(c: ALUControl) extends PeekPokeTester(c) {
   )
 
   for (t <- tests) {
-    poke(ctl.io.memop, t._1)
+    poke(ctl.io.add, t._1)
     poke(ctl.io.funct7, t._2)
     poke(ctl.io.funct3, t._3)
     step(1)

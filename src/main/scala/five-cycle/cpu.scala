@@ -28,7 +28,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   }
 
    class EXControl extends Bundle {
-    val memop   = UInt(2.W)
+    val add   = UInt(2.W)
     val alusrc2 = Bool()
     val alusrc1 = Bool()
     val branch  = Bool()
@@ -156,7 +156,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.mcontrol  := 0.U.asTypeOf(new MControl)
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   } .otherwise {
-    id_ex.excontrol.memop   := control.io.memop
+    id_ex.excontrol.add   := control.io.add
     id_ex.excontrol.alusrc2 := control.io.alusrc2
     id_ex.excontrol.alusrc1 := control.io.alusrc1
     id_ex.excontrol.branch   := control.io.branch
@@ -176,7 +176,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   // EX STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  aluControl.io.memop  := id_ex.excontrol.memop
+  aluControl.io.add  := id_ex.excontrol.add
   aluControl.io.funct7 := id_ex.funct7
   aluControl.io.funct3 := id_ex.funct3
 

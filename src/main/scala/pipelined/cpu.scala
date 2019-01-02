@@ -21,7 +21,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   }
 
   class EXControl extends Bundle {
-    val memop  = UInt(2.W)
+    val add  = UInt(2.W)
     val alusrc = Bool()
   }
 
@@ -155,7 +155,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.mcontrol  := 0.U.asTypeOf(new MControl)
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   } .otherwise {
-    id_ex.excontrol.memop  := control.io.memop
+    id_ex.excontrol.add  := control.io.add
     id_ex.excontrol.alusrc := control.io.alusrc2
 
     id_ex.mcontrol.memread  := control.io.memread
@@ -176,7 +176,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   hazard.io.idex_memread := id_ex.mcontrol.memread
   hazard.io.idex_rd      := id_ex.writereg
 
-  aluControl.io.memop  := id_ex.excontrol.memop
+  aluControl.io.add  := id_ex.excontrol.add
   aluControl.io.funct7 := id_ex.funct7
   aluControl.io.funct3 := id_ex.funct3
 

@@ -10,8 +10,7 @@ import chisel3.util._
 /**
  * The ALU control unit
  *
- * Input:  aluop, defines how to decode the the other bits.
- *         0 means load/store, 1 means beq, 2 means R-type and use funct fields
+ * Input:  add, if true, add no matter what the other bits are
  * Input:  funct7, the most significant bits of the instruction
  * Input:  funct3, the middle three bits of the instruction (12-14)
  * Output: operation, What we want the ALU to do. See [[CODCPU.ALUConstants]]
@@ -21,7 +20,7 @@ import chisel3.util._
  */
 class ALUControl extends Module {
   val io = IO(new Bundle {
-    val memop    = Input(Bool())
+    val add       = Input(Bool())
     val funct7    = Input(UInt(7.W))
     val funct3    = Input(UInt(3.W))
 
@@ -30,7 +29,7 @@ class ALUControl extends Module {
 
   io.operation := 15.U // invalid operation
 
-  when (io.memop) {
+  when (io.add) {
     io.operation := "b0010".U
   } .otherwise {
     switch (io.funct7) {

@@ -11,7 +11,7 @@ class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
   private val ctl = c
 
   val tests = List(
-    // Inputs,       alusrc2, memtoreg, regwrite, memread, memwrite, branch, memop
+    // Inputs,       alusrc2, memtoreg, regwrite, memread, memwrite, branch, add
     ( "b0110011".U,    0,        0,       1,        0,       0,        0,     0), // R-type
     ( "b0000011".U,    1,        1,       1,        1,       0,        0,     1), // Load
     ( "b0100011".U,    1,        0,       0,        0,       1,        0,     1), // Store
@@ -24,7 +24,7 @@ class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
     expect(ctl.io.branch, t._7)
     expect(ctl.io.memread, t._5)
     expect(ctl.io.memtoreg, t._3)
-    expect(ctl.io.memop, t._8)
+    expect(ctl.io.add, t._8)
     expect(ctl.io.memwrite, t._6)
     expect(ctl.io.alusrc2, t._2)
     expect(ctl.io.regwrite, t._4)

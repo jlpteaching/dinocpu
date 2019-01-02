@@ -302,3 +302,88 @@ Note: This stores the image in `~/.singularity/cache/library/`.
 If, instead, you use `singularity pull library://jlowepower/default/codcpu`, then the image is downloaded to the current working directory.
 
 **Important:** We should discourage students from using `singularity pull` in case we need to update the image!
+
+# Example debugging
+
+First, I tried to run the test:
+
+```
+testOnly CODCPU.ImmediateSimpleCPUTester
+```
+
+When this ran, I received the output:
+
+```
+[info] ImmediateSimpleCPUTester:
+[info] Simple CPU
+[info] - should run auipc0 *** FAILED ***
+[info]   false was not true (ImmediateTest.scala:33)
+[info] Simple CPU
+[info] - should run auipc1 *** FAILED ***
+[info]   false was not true (ImmediateTest.scala:33)
+[info] Simple CPU
+[info] - should run auipc2 *** FAILED ***
+[info]   false was not true (ImmediateTest.scala:33)
+[info] Simple CPU
+[info] - should run auipc3 *** FAILED ***
+[info]   false was not true (ImmediateTest.scala:33)
+[info] Simple CPU
+[info] - should run lui0
+[info] Simple CPU
+[info] - should run lui1 *** FAILED ***
+[info]   false was not true (ImmediateTest.scala:33)
+[info] Simple CPU
+[info] - should run addi1 *** FAILED ***
+[info]   false was not true (ImmediateTest.scala:33)
+[info] Simple CPU
+[info] - should run addi2 *** FAILED ***
+[info]   false was not true (ImmediateTest.scala:33)
+[info] ScalaTest
+[info] Run completed in 5 seconds, 392 milliseconds.
+[info] Total number of tests run: 8
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 1, failed 7, canceled 0, ignored 0, pending 0
+[info] *** 7 TESTS FAILED ***
+[error] Failed: Total 8, Failed 7, Errors 0, Passed 1
+[error] Failed tests:
+[error]         CODCPU.ImmediateSimpleCPUTester
+[error] (Test / testOnly) sbt.TestsFailedException: Tests unsuccessful
+[error] Total time: 7 s, completed Jan 1, 2019 11:38:09 PM
+```
+
+Now, I am going to dive into the `auipc` instruction.
+
+So, I need to run the simulator.
+The simulator takes two parameters, the RISC binary and the CPU type.
+So, to run with the `auipc` workload on the single cycle CPU I would use the following:
+
+```
+runMain CODCPU.simulate src/test/resources/risc-v/auipc0 single-cycle --max-cycles 5
+```
+
+Then, I get the following output, which I can step through to find the problem.
+
+```
+[info] [0.000] Elaborating design...
+[info] [0.017] Done elaborating.
+Total FIRRTL Compile Time: 78.6 ms
+Total FIRRTL Compile Time: 119.4 ms
+file loaded in 0.153465121 seconds, 458 symbols, 393 statements
+DASM(537)
+CYCLE=1
+pc: 4
+control: Bundle(opcode -> 55, branch -> 0, memread -> 0, memtoreg -> 0, memop -> 0, memwrite -> 0, regwrite -> 1, alusrc2 -> 1, alusrc1 -> 1, jump -> 0)
+registers: Bundle(readreg1 -> 0, readreg2 -> 0, writereg -> 10, writedata -> 0, wen -> 1, readdata1 -> 0, readdata2 -> 0)
+aluControl: Bundle(memop -> 0, funct7 -> 0, funct3 -> 0, operation -> 2)
+alu: Bundle(operation -> 2, inputx -> 0, inputy -> 0, result -> 0)
+immGen: Bundle(instruction -> 1335, sextImm -> 0)
+branchCtrl: Bundle(branch -> 0, funct3 -> 0, inputx -> 0, inputy -> 0, taken -> 0)
+pcPlusFour: Bundle(inputx -> 0, inputy -> 4, result -> 4)
+branchAdd: Bundle(inputx -> 0, inputy -> 0, result -> 0)
+```
+
+Also, I could have just run one of the tests that were failing by using `-z` when running `testOnly` like the following:
+
+```
+testOnly CODCPU.ImmediateSimpleCPUTester -- -z auipc0
+```

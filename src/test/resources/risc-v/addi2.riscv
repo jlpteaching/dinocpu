@@ -1,0 +1,13 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    addi a0, zero, 17 # (reg[10] = 0 + 17)
+    addi a1, a0, 76 # (reg[11] = reg[10] + 17)
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:

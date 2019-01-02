@@ -1,0 +1,12 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    lui a0, 0 # (reg[10] = 0 << 12))
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:

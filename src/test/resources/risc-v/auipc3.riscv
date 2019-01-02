@@ -1,0 +1,13 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    nop
+    auipc a0, 17 # (reg[10] = 17 + pc (4))
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
