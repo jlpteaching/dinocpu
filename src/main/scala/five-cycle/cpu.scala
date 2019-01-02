@@ -29,7 +29,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
 
    class EXControl extends Bundle {
     val add   = UInt(2.W)
-    val alusrc2 = Bool()
+    val immediate = Bool()
     val alusrc1 = Bool()
     val branch  = Bool()
   }
@@ -157,7 +157,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   } .otherwise {
     id_ex.excontrol.add   := control.io.add
-    id_ex.excontrol.alusrc2 := control.io.alusrc2
+    id_ex.excontrol.immediate := control.io.immediate
     id_ex.excontrol.alusrc1 := control.io.alusrc1
     id_ex.excontrol.branch   := control.io.branch
     id_ex.mcontrol.jump     := control.io.jump
@@ -177,6 +177,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   /////////////////////////////////////////////////////////////////////////////
 
   aluControl.io.add  := id_ex.excontrol.add
+  aluControl.io.immediate := id_ex.excontrol.immediate
   aluControl.io.funct7 := id_ex.funct7
   aluControl.io.funct3 := id_ex.funct3
 
@@ -193,7 +194,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     is(2.U) { alu_inputx := id_ex.pcplusfour }
   }
   alu.io.inputx := alu_inputx
-  alu.io.inputy := Mux(id_ex.excontrol.alusrc2, id_ex.imm, id_ex.readdata2)
+  alu.io.inputy := Mux(id_ex.excontrol.immediate, id_ex.imm, id_ex.readdata2)
   alu.io.operation := aluControl.io.operation
 
   branchAdd.io.inputx := id_ex.pc

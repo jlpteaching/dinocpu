@@ -14,7 +14,7 @@ import chisel3.util.{BitPat, ListLookup}
  * Output: add, true if the ALU should add the results
  * Output: memwrite, write the memory
  * Output: regwrite, write the register file
- * Output: alusrc2, true if use the immediate value
+ * Output: immediate, true if use the immediate value
  * Output: alusrc1, 0 is Read data 1, 1 is zero, 2 is PC
  * Output: jump, 0 no jump, 2 jump, 3 jump and link register
  *
@@ -31,7 +31,7 @@ class Control extends Module {
     val add = Output(Bool())
     val memwrite = Output(Bool())
     val regwrite = Output(Bool())
-    val alusrc2 = Output(Bool())
+    val immediate = Output(Bool())
     val alusrc1 = Output(UInt(2.W))
     val jump    = Output(UInt(2.W))
   })
@@ -39,7 +39,7 @@ class Control extends Module {
   val signals =
     ListLookup(io.opcode,
       /*default*/           List(false.B, false.B, false.B,  false.B, false.B,  false.B, false.B,   0.U,     0.U),
-      Array(                 /*  branch,  memread, memtoreg, add,     memwrite, alusrc2, regwrite, alusrc1,  jump */
+      Array(                 /*  branch,  memread, memtoreg, add,     memwrite, immediate, regwrite, alusrc1,  jump */
       // R-format
       BitPat("b0110011") -> List(false.B, false.B, false.B,  false.B, false.B,  false.B, true.B,     0.U,    0.U),
       // I-format
@@ -66,7 +66,7 @@ class Control extends Module {
   io.memtoreg := signals(2)
   io.add := signals(3)
   io.memwrite := signals(4)
-  io.alusrc2 := signals(5)
+  io.immediate := signals(5)
   io.regwrite := signals(6)
   io.alusrc1 := signals(7)
   io.jump := signals(8)

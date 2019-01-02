@@ -21,8 +21,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   }
 
   class EXControl extends Bundle {
-    val add  = UInt(2.W)
-    val alusrc = Bool()
+    val add  = Bool()
+    val immediate = Bool()
   }
 
   class MControl extends Bundle {
@@ -156,7 +156,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   } .otherwise {
     id_ex.excontrol.add  := control.io.add
-    id_ex.excontrol.alusrc := control.io.alusrc2
+    id_ex.excontrol.immediate := control.io.immediate
 
     id_ex.mcontrol.memread  := control.io.memread
     id_ex.mcontrol.memwrite := control.io.memwrite
@@ -176,9 +176,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   hazard.io.idex_memread := id_ex.mcontrol.memread
   hazard.io.idex_rd      := id_ex.writereg
 
-  aluControl.io.add  := id_ex.excontrol.add
-  aluControl.io.funct7 := id_ex.funct7
-  aluControl.io.funct3 := id_ex.funct3
+  aluControl.io.add       := id_ex.excontrol.add
+  aluControl.io.immediate := id_ex.excontrol.immediate
+  aluControl.io.funct7    := id_ex.funct7
+  aluControl.io.funct3    := id_ex.funct3
 
   forwarding.io.rs1 := id_ex.rs1
   forwarding.io.rs2 := id_ex.rs2
@@ -192,7 +193,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
                            (forwarding.io.forwardB === 1.U) -> ex_mem.aluresult,
                            (forwarding.io.forwardB === 2.U) -> write_data))
 
-  alu.io.inputy := Mux(id_ex.excontrol.alusrc, id_ex.imm, regb_data)
+  alu.io.inputy := Mux(id_ex.excontrol.immediate, id_ex.imm, regb_data)
   alu.io.operation := aluControl.io.operation
 
   branchAdd.io.inputx := id_ex.pc

@@ -43,9 +43,10 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   registers.io.writereg := instruction(11,7)
   registers.io.wen      := control.io.regwrite && (registers.io.writereg =/= 0.U)
 
-  aluControl.io.add  := control.io.add
-  aluControl.io.funct7 := instruction(31,25)
-  aluControl.io.funct3 := instruction(14,12)
+  aluControl.io.add       := control.io.add
+  aluControl.io.immediate := control.io.immediate
+  aluControl.io.funct7    := instruction(31,25)
+  aluControl.io.funct3    := instruction(14,12)
 
   immGen.io.instruction := instruction
   val imm = immGen.io.sextImm
@@ -62,7 +63,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
     is(1.U) { alu_inputx := 0.U }
     is(2.U) { alu_inputx := pc }
   }
-  val alu_inputy = Mux(control.io.alusrc2, imm, registers.io.readdata2)
+  val alu_inputy = Mux(control.io.immediate, imm, registers.io.readdata2)
   alu.io.inputx := alu_inputx
   alu.io.inputy := alu_inputy
   alu.io.operation := aluControl.io.operation

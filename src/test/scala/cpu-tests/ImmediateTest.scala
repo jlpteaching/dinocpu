@@ -24,13 +24,23 @@ class ImmediateSimpleCPUTester extends CPUFlatSpec {
     CPUTestCase("addi1",  5,  Map(),
                               Map(0 -> 0, 10 -> 17),
                               Map(), Map()),
-    CPUTestCase("addi2",  5,  Map(),
+    CPUTestCase("addi2",  6,  Map(),
                               Map(0 -> 0, 10 -> 17, 11 -> 93),
                               Map(), Map())
   )
   for (test <- testCases) {
-    "Simple CPU" should s"run ${test.binary}${test.extraName}" in {
+    "Single cycle CPU" should s"run ${test.binary}${test.extraName}" in {
       CPUTesterDriver(test, "single-cycle") should be(true)
     }
   }
+  // for (test <- testCases) {
+  //   "Five cycle CPU" should s"run ${test.binary}${test.extraName}" in {
+  //     CPUTesterDriver(test, "five-cycle") should be(true)
+  //   }
+  // }
+  // for (test <- testCases) {
+  //   "Pipelined CPU" should s"run ${test.binary}${test.extraName}" in {
+  //     CPUTesterDriver(test, "single-cycle") should be(true)
+  //   }
+  // }
 }
