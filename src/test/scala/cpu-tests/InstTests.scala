@@ -203,7 +203,17 @@ object InstTests {
                 Map("single-cycle" -> 6, "five-cycle" -> 10, "pipelined" -> 10),
                 Map(5 -> 1234),
 								Map(6 -> 1234),
-								Map(), Map(0x100 -> 1234))
+								Map(), Map(0x100 -> 1234)),
+		CPUTestCase("sb",
+                Map("single-cycle" -> 6, "five-cycle" -> 10, "pipelined" -> 10),
+                Map(5 -> 1),
+								Map(6 -> 1),
+								Map(), Map(0x100 -> BigInt("ffffff01", 16))),
+		CPUTestCase("sh",
+                Map("single-cycle" -> 6, "five-cycle" -> 10, "pipelined" -> 10),
+                Map(5 -> 1),
+								Map(6 -> 1),
+								Map(), Map(0x100 -> BigInt("ffff0001", 16)))
 	)
 
   val immediate = List[CPUTestCase](

@@ -89,22 +89,21 @@ class DualPortedMemory(size: Int, memfile: String) extends Module {
   }
 
   when (io.dmem.memwrite) {
-    val writedata = Wire(UInt(32.W))
-    writedata := io.dmem.writedata
     when (io.dmem.maskmode =/= 2.U) { // When not storing a whole word
       val offset = io.dmem.address(1,0)
       // first read the data since we are only overwriting part of it
-      writedata := memory(io.dmem.address >> 2)
+      val readdata = Wire(UInt(32.W))
+      readdata := memory(io.dmem.address >> 2)
       // mask off the part we're writing
       val data = Wire(UInt(32.W))
       when (io.dmem.maskmode === 0.U) { // Reading a byte
-        data := io.dmem.writedata & ~(0xff.U << (offset * 8.U))
+        data := readdata & ~(0xff.U << (offset * 8.U))
       } .otherwise {
-        data := io.dmem.writedata & ~(0xffff.U << (offset * 8.U))
+        data := readdata & ~(0xffff.U << (offset * 8.U))
       }
       memory(io.dmem.address >> 2) := data | (io.dmem.writedata << (offset * 8.U))
     } .otherwise {
-      memory(io.dmem.address >> 2) := writedata
+      memory(io.dmem.address >> 2) := io.dmem.writedata
     }
   }
 }
