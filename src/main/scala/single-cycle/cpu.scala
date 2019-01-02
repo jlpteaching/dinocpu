@@ -72,6 +72,8 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.writedata := registers.io.readdata2
   io.dmem.memread   := control.io.memread
   io.dmem.memwrite  := control.io.memwrite
+  io.dmem.maskmode  := instruction(13,12)
+  io.dmem.sext      := ~instruction(14)
 
   val write_data = Wire(UInt())
   when (control.io.memtoreg) {
