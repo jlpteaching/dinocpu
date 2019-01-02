@@ -12,9 +12,9 @@ class BranchControlUnitTester(c: BranchControl, branch: Boolean = true) extends 
     ("b000".U, (a: BigInt, b: BigInt) => a==b),
     ("b001".U, (a: BigInt, b: BigInt) => a!=b),
     ("b100".U, (a: BigInt, b: BigInt) => a.intValue<b.intValue),
-    ("b101".U, (a: BigInt, b: BigInt) => a.intValue>b.intValue),
+    ("b101".U, (a: BigInt, b: BigInt) => a.intValue>=b.intValue),
     ("b110".U, (a: BigInt, b: BigInt) => a<b),
-    ("b111".U, (a: BigInt, b: BigInt) => a>b)
+    ("b111".U, (a: BigInt, b: BigInt) => a>=b)
   )
 
   def test(opcode: UInt, result: (BigInt, BigInt) => Boolean) {

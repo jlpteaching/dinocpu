@@ -1,0 +1,28 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    bge t2, t3, label   # if reg[7] >= reg[28], go to label.
+    add t0, zero, zero  # else reg[5] = 0 + 0
+    beq zero, zero, end # no matter what, go to end
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+label:
+    add t0, t0, t1     # reg[5] = reg[5] + reg[6]
+
+end:
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
