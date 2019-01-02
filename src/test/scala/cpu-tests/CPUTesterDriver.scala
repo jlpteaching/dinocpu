@@ -93,7 +93,7 @@ class CPUTesterDriver(cpuType: String, binary: String) {
 
 case class CPUTestCase(
   binary:  String,
-  cycles: Int,
+  cycles: Map[String, Int],
   initRegs: Map[Int, BigInt],
   checkRegs: Map[Int, BigInt],
   initMem: Map[Int, BigInt],
@@ -108,7 +108,7 @@ object CPUTesterDriver {
     val driver = new CPUTesterDriver(cpuType, testCase.binary)
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
-    driver.run(testCase.cycles)
+    driver.run(testCase.cycles(cpuType))
     val success = driver.checkRegs(testCase.checkRegs)
     success && driver.checkMemory(testCase.checkMem)
   }
