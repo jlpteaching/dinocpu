@@ -13,24 +13,11 @@ import scala.math.max
  */
 class CPUConfig
 {
-  /** If true, then the CPU should be elaborated in testing mode. */
-  var testing = false
-
   /** The type of CPU to elaborate */
   var cpuType = "single-cycle"
 
   /** The memory file location */
   var memFile = "test"
-
-  /**
-   * Set the CPU to testing mode.
-   *
-   * The CPU is elaborated in testing mode which adds some BoringUtils to expose
-   * certain internal elementes for peek/poke.
-   */
-  def setTesting() = {
-    testing = true
-  }
 
   /**
    * Returns the CPU that we will be elaborating
