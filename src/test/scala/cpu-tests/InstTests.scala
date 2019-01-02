@@ -154,10 +154,29 @@ object InstTests {
 								Map(), Map(), "-negative")
   )
 
+  val jump = List[CPUTestCase](
+    CPUTestCase("jal",
+                Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
+                Map(5 -> 1234),
+								Map(0 -> 0, 5 -> 1234, 6 -> 1234, 1 -> 4),
+								Map(), Map()),
+    CPUTestCase("jalr0",
+                Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
+                Map(5 -> 1234, 10 -> 28),
+								Map(0 -> 0, 5 -> 1234, 6 -> 1234, 1 -> 4),
+								Map(), Map()),
+    CPUTestCase("jalr1",
+                Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
+                Map(5 -> 1234, 10 -> 20),
+								Map(0 -> 0, 5 -> 1234, 6 -> 1234, 1 -> 4),
+								Map(), Map())
+  )
+
   val tests = Map(
     "rtype" -> rtype,
     "branch" -> branch,
     "memory" -> memory,
-    "immediate" -> immediate
+    "immediate" -> immediate,
+    "jump" -> jump
   )
 }
