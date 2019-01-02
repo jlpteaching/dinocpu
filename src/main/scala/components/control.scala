@@ -10,7 +10,7 @@ import chisel3.util.{BitPat, ListLookup}
  *
  * Output: branch,  true if branch or jal and update PC with immediate
  * Output: memread, true if we should read memory
- * Output: memtoreg, true if we are writing the memory value to the register
+ * Output: toreg, 0 if writing ALU result, 1 if writing memory data, 2 if writing pc+4
  * Output: add, true if the ALU should add the results
  * Output: memwrite, write the memory
  * Output: regwrite, write the register file
@@ -27,7 +27,7 @@ class Control extends Module {
 
     val branch = Output(Bool())
     val memread = Output(Bool())
-    val memtoreg = Output(Bool())
+    val toreg = Output(UInt(2.W))
     val add = Output(Bool())
     val memwrite = Output(Bool())
     val regwrite = Output(Bool())
@@ -38,32 +38,32 @@ class Control extends Module {
 
   val signals =
     ListLookup(io.opcode,
-      /*default*/           List(false.B, false.B, false.B,  false.B, false.B,  false.B, false.B,   0.U,     0.U),
-      Array(                 /*  branch,  memread, memtoreg, add,     memwrite, immediate, regwrite, alusrc1,  jump */
+      /*default*/           List(false.B, false.B, 3.U,   false.B, false.B,  false.B, false.B,    0.U,    0.U),
+      Array(                 /*  branch,  memread, toreg, add,     memwrite, immediate, regwrite, alusrc1,  jump */
       // R-format
-      BitPat("b0110011") -> List(false.B, false.B, false.B,  false.B, false.B,  false.B, true.B,     0.U,    0.U),
+      BitPat("b0110011") -> List(false.B, false.B, 0.U,   false.B, false.B,  false.B, true.B,     0.U,    0.U),
       // I-format
-      BitPat("b0010011") -> List(false.B, false.B, false.B,  false.B, false.B,  true.B,  true.B,     0.U,    0.U),
+      BitPat("b0010011") -> List(false.B, false.B, 0.U,   false.B, false.B,  true.B,  true.B,     0.U,    0.U),
       // load
-      BitPat("b0000011") -> List(false.B, true.B,  true.B,   true.B,  false.B,  true.B,  true.B,     0.U,    0.U),
+      BitPat("b0000011") -> List(false.B, true.B,  1.U,   true.B,  false.B,  true.B,  true.B,     0.U,    0.U),
       // store
-      BitPat("b0100011") -> List(false.B, false.B, false.B,  true.B,  true.B,   true.B,  false.B,    0.U,    0.U),
+      BitPat("b0100011") -> List(false.B, false.B, 0.U,   true.B,  true.B,   true.B,  false.B,    0.U,    0.U),
       // beq
-      BitPat("b1100011") -> List(true.B,  false.B, false.B,  false.B, false.B,  false.B, false.B,    0.U,    0.U),
+      BitPat("b1100011") -> List(true.B,  false.B, 0.U,   false.B, false.B,  false.B, false.B,    0.U,    0.U),
       // lui
-      BitPat("b0110111") -> List(false.B, false.B, false.B,  true.B,  false.B,  true.B,  true.B,     1.U,    0.U),
+      BitPat("b0110111") -> List(false.B, false.B, 0.U,   true.B,  false.B,  true.B,  true.B,     1.U,    0.U),
       // auipc
-      BitPat("b0010111") -> List(false.B, false.B, false.B,  true.B,  false.B,  true.B,  true.B,     2.U,    0.U),
+      BitPat("b0010111") -> List(false.B, false.B, 0.U,   true.B,  false.B,  true.B,  true.B,     2.U,    0.U),
       // jal
-      BitPat("b1101111") -> List(true.B,  false.B, false.B,  false.B, false.B,  false.B, true.B,     1.U,    2.U),
+      BitPat("b1101111") -> List(true.B,  false.B, 2.U,   false.B, false.B,  false.B, true.B,     1.U,    2.U),
       // jalr
-      BitPat("b1100111") -> List(false.B, false.B, false.B,  false.B, false.B,  true.B,  true.B,     0.U,    3.U)
+      BitPat("b1100111") -> List(false.B, false.B, 2.U,   false.B, false.B,  true.B,  true.B,     0.U,    3.U)
       ) // Array
     ) // ListLookup
 
   io.branch := signals(0)
   io.memread := signals(1)
-  io.memtoreg := signals(2)
+  io.toreg := signals(2)
   io.add := signals(3)
   io.memwrite := signals(4)
   io.immediate := signals(5)

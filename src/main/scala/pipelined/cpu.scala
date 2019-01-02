@@ -29,10 +29,12 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     val memread  = Bool()
     val memwrite = Bool()
     val branch   = Bool()
+    val maskmode = UInt(2.W)
+    val sext     = Bool()
   }
 
   class WBControl extends Bundle {
-    val memtoreg = Bool()
+    val toreg    = UInt(2.W)
     val regwrite = Bool()
   }
 
@@ -57,6 +59,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     val aluresult = UInt(32.W)
     val zero      = Bool()
     val nextpc    = UInt(32.W)
+    val pcplusfour= UInt(32.W)
     val mcontrol  = new MControl
     val wbcontrol = new WBControl
   }
@@ -65,6 +68,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     val writereg  = UInt(5.W)
     val aluresult = UInt(32.W)
     val readdata  = UInt(32.W)
+    val pcplusfour= UInt(32.W)
     val wbcontrol = new WBControl
   }
 
@@ -161,8 +165,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.mcontrol.memread  := control.io.memread
     id_ex.mcontrol.memwrite := control.io.memwrite
     id_ex.mcontrol.branch   := control.io.branch
+    id_ex.mcontrol.maskmode := if_id.instruction(13,12)
+    id_ex.mcontrol.sext     := if_id.instruction(14)
 
-    id_ex.wbcontrol.memtoreg := control.io.memtoreg
+    id_ex.wbcontrol.toreg    := control.io.toreg
     id_ex.wbcontrol.regwrite := control.io.regwrite
   }
 
@@ -220,6 +226,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.writedata := ex_mem.readdata2
   io.dmem.memread   := ex_mem.mcontrol.memread
   io.dmem.memwrite  := ex_mem.mcontrol.memwrite
+  io.dmem.maskmode  := ex_mem.mcontrol.maskmode
+  io.dmem.sext      := ex_mem.mcontrol.sext
 
   // Send this back to the fetch stage
   next_pc      := ex_mem.nextpc
@@ -227,6 +235,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   mem_wb.writereg  := ex_mem.writereg
   mem_wb.aluresult := ex_mem.aluresult
+  mem_wb.pcplusfour := ex_mem.pcplusfour
   mem_wb.readdata  := io.dmem.readdata
   mem_wb.wbcontrol := ex_mem.wbcontrol
 
@@ -240,7 +249,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   // WB STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  write_data := Mux(mem_wb.wbcontrol.memtoreg, mem_wb.readdata, mem_wb.aluresult)
+  write_data := MuxCase(mem_wb.aluresult, Array(
+                       (mem_wb.wbcontrol.toreg === 0.U) -> mem_wb.aluresult,
+                       (mem_wb.wbcontrol.toreg === 1.U) -> mem_wb.readdata,
+                       (mem_wb.wbcontrol.toreg === 2.U) -> mem_wb.pcplusfour))
 
   registers.io.writedata := write_data
   registers.io.writereg  := mem_wb.writereg

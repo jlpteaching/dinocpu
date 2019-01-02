@@ -30,7 +30,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
    class EXControl extends Bundle {
     val add   = UInt(2.W)
     val immediate = Bool()
-    val alusrc1 = Bool()
+    val alusrc1 = UInt(2.W)
     val branch  = Bool()
   }
 
@@ -39,10 +39,12 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     val memwrite = Bool()
     val taken    = Bool()
     val jump     = UInt(2.W)
+    val maskmode = UInt(2.W)
+    val sext     = Bool()
   }
 
   class WBControl extends Bundle {
-    val memtoreg = Bool()
+    val toreg    = UInt(2.W)
     val regwrite = Bool()
     val pctoreg  = Bool()
   }
@@ -156,16 +158,16 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.mcontrol  := 0.U.asTypeOf(new MControl)
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   } .otherwise {
-    id_ex.excontrol.add   := control.io.add
+    id_ex.excontrol.add       := control.io.add
     id_ex.excontrol.immediate := control.io.immediate
-    id_ex.excontrol.alusrc1 := control.io.alusrc1
-    id_ex.excontrol.branch   := control.io.branch
-    id_ex.mcontrol.jump     := control.io.jump
+    id_ex.excontrol.alusrc1   := control.io.alusrc1
+    id_ex.excontrol.branch    := control.io.branch
 
+    id_ex.mcontrol.jump     := control.io.jump
     id_ex.mcontrol.memread  := control.io.memread
     id_ex.mcontrol.memwrite := control.io.memwrite
 
-    id_ex.wbcontrol.memtoreg := control.io.memtoreg
+    id_ex.wbcontrol.toreg    := control.io.toreg
     id_ex.wbcontrol.regwrite := control.io.regwrite
   }
 
@@ -188,10 +190,10 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
 
   val alu_inputx = Wire(UInt(32.W))
   alu_inputx := DontCare
-  switch(control.io.alusrc1) {
+  switch(id_ex.excontrol.alusrc1) {
     is(0.U) { alu_inputx := id_ex.readdata1 }
     is(1.U) { alu_inputx := 0.U }
-    is(2.U) { alu_inputx := id_ex.pcplusfour }
+    is(2.U) { alu_inputx := id_ex.pc }
   }
   alu.io.inputx := alu_inputx
   alu.io.inputy := Mux(id_ex.excontrol.immediate, id_ex.imm, id_ex.readdata2)
@@ -215,8 +217,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     ex_mem.nextpc := DontCare // No need to set the PC if not a branch
   }
 
-  ex_mem.writereg := id_ex.writereg
-
+  ex_mem.writereg   := id_ex.writereg
   ex_mem.pcplusfour := id_ex.pcplusfour
 
   when (flush_exmem) {
@@ -237,6 +238,8 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.writedata := ex_mem.readdata2
   io.dmem.memread   := ex_mem.mcontrol.memread
   io.dmem.memwrite  := ex_mem.mcontrol.memwrite
+  io.dmem.maskmode  := ex_mem.mcontrol.maskmode
+  io.dmem.sext      := ex_mem.mcontrol.sext
 
   // Send this back to the fetch stage
   next_pc      := ex_mem.nextpc
@@ -244,6 +247,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
 
   mem_wb.writereg  := ex_mem.writereg
   mem_wb.aluresult := ex_mem.aluresult
+  mem_wb.pcplusfour := ex_mem.pcplusfour
   mem_wb.readdata  := io.dmem.readdata
   mem_wb.wbcontrol := ex_mem.wbcontrol
 
@@ -263,7 +267,10 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   // WB STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  registers.io.writedata := Mux(mem_wb.wbcontrol.memtoreg, mem_wb.readdata, mem_wb.aluresult)
+  registers.io.writedata := MuxCase(mem_wb.aluresult, Array(
+                            (mem_wb.wbcontrol.toreg === 0.U) -> mem_wb.aluresult,
+                            (mem_wb.wbcontrol.toreg === 1.U) -> mem_wb.readdata,
+                            (mem_wb.wbcontrol.toreg === 2.U) -> mem_wb.pcplusfour))
   registers.io.writereg  := mem_wb.writereg
   registers.io.wen       := mem_wb.wbcontrol.regwrite && (registers.io.writereg =/= 0.U)
 

@@ -76,9 +76,9 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.sext      := ~instruction(14)
 
   val write_data = Wire(UInt())
-  when (control.io.memtoreg) {
+  when (control.io.toreg === 1.U) {
     write_data := io.dmem.readdata
-  } .elsewhen ((control.io.jump & 2.U) === 2.U) {
+  } .elsewhen (control.io.toreg === 2.U) {
     write_data := pcPlusFour.io.result
   } .otherwise {
     write_data := alu.io.result
