@@ -36,27 +36,4 @@ class RegisterFile(implicit val conf: CPUConfig) extends Module {
   // might both read and write the registers (e.g., an add)
   io.readdata1 := regs(io.readreg1)
   io.readdata2 := regs(io.readreg2)
-
-  // For testing so we can read/write register from the outside world
-  if (conf.testing == true) {
-    val regNum  = Wire(UInt(5.W))
-    val regData = Wire(UInt(32.W))
-    val writeRegData = Wire(UInt(32.W))
-    val writeReg = Wire(Bool())
-    regNum := DontCare
-    regData := DontCare
-    writeRegData := DontCare
-    writeReg := DontCare
-
-    regData := regs(regNum)
-
-    when (writeReg) {
-      regs(regNum) := writeRegData
-    }
-
-    BoringUtils.addSink(regNum, "regNum")
-    BoringUtils.addSource(regData, "regData")
-    BoringUtils.addSink(writeReg, "writeReg")
-    BoringUtils.addSink(writeRegData, "writeRegData")
-  }
 }

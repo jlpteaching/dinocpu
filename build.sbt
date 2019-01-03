@@ -66,15 +66,40 @@ libraryDependencies += "net.fornwall.jelf" % "jelf" % "0.2"
 // and all tests that end in "Grader" will run when you run stb Grader / test
 lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
 lazy val Grader = config("grader") extend(Test)
+lazy val TestAll = config("testAll") extend(Test)
+lazy val Lab1 = config("lab1") extend(Test)
+lazy val Lab2 = config("lab2") extend(Test)
+lazy val Lab3 = config("lab3") extend(Test)
+lazy val Lab4 = config("lab4") extend(Test)
 
+def allFilter(name: String): Boolean = name endsWith "Tester"
 def graderFilter(name: String): Boolean = name endsWith "Grader"
-def unitFilter(name: String): Boolean = (name endsWith "Tester") && !graderFilter(name)
+def lab1Filter(name: String): Boolean = name endsWith "TesterLab1"
+def lab2Filter(name: String): Boolean = name endsWith "TesterLab2"
+def lab3Filter(name: String): Boolean = name endsWith "TesterLab3"
+def lab4Filter(name: String): Boolean = name endsWith "TesterLab4"
 
 lazy val root = (project in file("."))
-  .configs(Grader)
+  .configs(TestAll).configs(Grader).configs(Lab1).configs(Lab2).configs(Lab3).configs(Lab4)
   .settings(
     inConfig(Grader)(Defaults.testTasks),
+    inConfig(TestAll)(Defaults.testTasks),
+    inConfig(Lab1)(Defaults.testTasks),
+    inConfig(Lab2)(Defaults.testTasks),
+    inConfig(Lab3)(Defaults.testTasks),
+    inConfig(Lab4)(Defaults.testTasks),
+    libraryDependencies += scalatest % TestAll,
     libraryDependencies += scalatest % Grader,
-    testOptions in Test := Seq(Tests.Filter(unitFilter)),
-    testOptions in Grader := Seq(Tests.Filter(graderFilter))
+    libraryDependencies += scalatest % Lab1,
+    libraryDependencies += scalatest % Lab2,
+    libraryDependencies += scalatest % Lab3,
+    libraryDependencies += scalatest % Lab4,
+    testOptions in TestAll := Seq(Tests.Filter(allFilter)),
+    // CHANGE THE LINE BELOW FOR EACH LAB!!!! Use the matching filter
+    testOptions in Test := Seq(Tests.Filter(allFilter)),
+    testOptions in Grader := Seq(Tests.Filter(graderFilter)),
+    testOptions in Lab1 := Seq(Tests.Filter(lab1Filter)),
+    testOptions in Lab2 := Seq(Tests.Filter(lab2Filter)),
+    testOptions in Lab3 := Seq(Tests.Filter(lab3Filter)),
+    testOptions in Lab4 := Seq(Tests.Filter(lab4Filter))
   )

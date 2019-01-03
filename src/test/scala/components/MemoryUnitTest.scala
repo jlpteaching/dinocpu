@@ -11,6 +11,8 @@ class MemoryUnitZeroTester(m: DualPortedMemory, size: Int) extends PeekPokeTeste
   for (i <- 0 to size/4 - 1) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
+    poke(m.io.dmem.maskmode, 2)
+    poke(m.io.dmem.sext, 0)
     poke(m.io.imem.address, i*4)
     step(1)
     expect(m.io.imem.instruction, 0)
@@ -24,6 +26,8 @@ class MemoryUnitReadTester(m: DualPortedMemory, size: Int) extends PeekPokeTeste
   for (i <- 0 to size/4 - 1) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
+    poke(m.io.dmem.maskmode, 2)
+    poke(m.io.dmem.sext, 0)
     poke(m.io.imem.address, i*4)
     step(1)
     expect(m.io.imem.instruction, i)
@@ -37,6 +41,8 @@ class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTest
   for (i <- 0 to size/4/2 - 1) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memwrite, 1)
+    poke(m.io.dmem.maskmode, 2)
+    poke(m.io.dmem.sext, 0)
     poke(m.io.dmem.writedata, i+100)
     step(1)
   }
@@ -45,6 +51,8 @@ class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTest
   for (i <- 0 to size/4 - 1) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
+    poke(m.io.dmem.maskmode, 2)
+    poke(m.io.dmem.sext, 0)
     poke(m.io.imem.address, i*4)
     step(1)
     if (i < size/2) {
