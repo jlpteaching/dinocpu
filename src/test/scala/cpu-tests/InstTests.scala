@@ -292,6 +292,10 @@ object InstTests {
 								Map(), Map())
   )
 
+	val lab1tests = Map(
+    "rtype" -> rtype
+	)
+
   val tests = Map(
     "rtype" -> rtype,
     "branch" -> branch,
