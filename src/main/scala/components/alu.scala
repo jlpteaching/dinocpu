@@ -93,10 +93,10 @@ class ALU extends Module {
       io.result := io.inputx - io.inputy
     }
     is ("b0100".U) {
-      io.result := (io.inputx < io.inputy)
+      io.result := (io.inputx.asSInt < io.inputy.asSInt).asUInt // signed
     }
     is ("b0101".U) {
-      io.result := (io.inputx.asSInt < io.inputy.asSInt).asUInt // signed
+      io.result := (io.inputx < io.inputy)
     }
     is ("b0110".U) {
       io.result := io.inputx << io.inputy(4,0)
