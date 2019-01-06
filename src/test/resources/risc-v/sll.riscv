@@ -1,0 +1,12 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    sll t1, t2, t0 # (reg[6] = (reg[7] << reg[5][4:0]))
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
