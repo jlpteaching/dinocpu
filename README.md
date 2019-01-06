@@ -387,3 +387,43 @@ Also, I could have just run one of the tests that were failing by using `-z` whe
 ```
 testOnly CODCPU.ImmediateSimpleCPUTester -- -z auipc0
 ```
+
+# How to use specific versions of chisel, firrtl, etc
+
+Clone the repos:
+
+```
+git clone https://github.com/freechipsproject/firrtl.git
+git clone https://github.com/freechipsproject/firrtl-interpreter.git
+git clone https://github.com/freechipsproject/chisel3.git
+git clone https://github.com/freechipsproject/chisel-testers.git
+git clone https://github.com/freechipsproject/treadle.git
+```
+
+Compile each by running `sbt compile` in each directory and then publish it locally.
+
+```
+cd firrtl && \
+sbt compile && sbt publishLocal && \
+cd ../firrtl-interpreter && \
+sbt compile && sbt publishLocal && \
+cd ../chisel3 && \
+sbt compile && sbt publishLocal && \
+cd ../chisel-testers && \
+sbt compile && sbt publishLocal && \
+cd ../treadle && \
+sbt compile && sbt publishLocal && \
+cd ..
+```
+
+By default, this installs all of these to `~/.ivy2/local`.
+You can change this path by specifying `-ivy` on the sbt command line.
+
+```
+`sbt -ivy /opt/ivy2`
+```
+
+However, you only want to do that while building installing.
+Once installed, now you have an ivy repository at /opt/ivy2.
+We want to use that as one of the resolvers in the `build.sbt` file.
+It's important not to use `-ivy /opt/ivy2` in the singularity file as it writes that location when in use.

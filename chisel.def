@@ -1,6 +1,9 @@
 BootStrap: docker
 From: openjdk:8
 
+%files
+    get_and_build_deps.sh /opt
+
 %post
     touch /usr/lib/jvm/java-8-openjdk-amd64/release
     curl -L -o sbt-0.13.16.deb http://dl.bintray.com/sbt/debian/sbt-0.13.16.deb
@@ -8,9 +11,19 @@ From: openjdk:8
     rm sbt-0.13.16.deb
     apt-get -y update
     apt-get -y install perl verilator make g++
+    cd /opt
+    ./get_and_build_deps.sh
 
 %runscript
     sbt -mem 2048
 
 %labels
-    Author Jason Lowe-Power
+    Author Jason Lowe-Power <jlowepower@ucdavis.edu>
+
+%help
+    This container is set up for building, testing, and simulating the DINO CPU.
+    When run, this container executes sbt and will drop you into the sbt shell.
+
+    If you want to run a different command in this container, you can use
+    singularity exec <image.sif> <your command>. You may want to increase the
+    memory for sbt as the runscript above.
