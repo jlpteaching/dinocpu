@@ -1,6 +1,6 @@
 // Unit tests for the memory objects.
 
-package CODCPU
+package dinocpu
 
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
@@ -71,11 +71,11 @@ class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTest
   *
   * From within sbt use:
   * {{{
-  * testOnly CODCPU.MemoryTester
+  * testOnly dinocpu.MemoryTester
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly CODCPU.MemoryTester'
+  * sbt 'testOnly dinocpu.MemoryTester'
   * }}}
   */
 class MemoryTester extends ChiselFlatSpec {

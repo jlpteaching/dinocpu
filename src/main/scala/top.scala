@@ -1,5 +1,5 @@
 // Main entry point for single cycle CPU
-package CODCPU
+package dinocpu
 
 import chisel3._
 

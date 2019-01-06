@@ -24,18 +24,24 @@ def javacOptionsVersion(scalaVersion: String): Seq[String] = {
   }
 }
 
-name := "dachr-codcpu"
+name := "dinocpu"
+version := "0.5"
+organization := "edu.ucdavis.cs"
 
-version := "3.1.0"
-
-scalaVersion := "2.11.12"
-
-crossScalaVersions := Seq("2.11.12", "2.12.4")
+scalaVersion := "2.12.6"
+crossScalaVersions := Seq("2.12.6", "2.11.12")
 
 resolvers ++= Seq(
-  Resolver.sonatypeRepo("snapshots"),
   Resolver.sonatypeRepo("releases")
 )
+
+// Note: This will only work inside the sigularity container built with the chisel.def file.
+// You may want to include Resolver.sonatypeRepo("snapshots") if you haven't built
+// the dependencies locally. You can also check out all of the dependencies locally
+// and compile then use `publishLocal` to use the versions you've compiled.
+// If you use `sbt -ivy /opt/ivy2` when you `publishLocal`, then it will build the
+// repository in /opt/ivy2/local for use as below.
+resolvers += Resolver.file("local-repo", file("/opt/ivy2/local"))(Resolver.ivyStylePatterns)
 
 // For the elf loader
 resolvers += "Spring Plugins Repository" at "http://repo.spring.io/plugins-release/"
@@ -43,8 +49,7 @@ resolvers += "Spring Plugins Repository" at "http://repo.spring.io/plugins-relea
 // Provide a managed dependency on X if -DXVersion="" is supplied on the command line.
 val defaultVersions = Map(
   "chisel3" -> "3.2-SNAPSHOT",
-  "chisel-iotesters" -> "1.3-SNAPSHOT",
-  "treadle" -> "1.1-SNAPSHOT"
+  "chisel-iotesters" -> "1.3-SNAPSHOT"
   )
 
 libraryDependencies ++= (Seq("chisel3","chisel-iotesters").map {

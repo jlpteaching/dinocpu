@@ -1,11 +1,11 @@
 // Main entry point for elaboration
-package CODCPU
+package dinocpu
 
 /**
  * Simple object with only a main function to run the chisel elaboration.
  * When run, this will output Top.v, Top.fir, and other files.
  *
- * Running this takes a single argument, the CPU type to run. See [[CODCPU.CPUConfig]].
+ * Running this takes a single argument, the CPU type to run. See [[dinocpu.CPUConfig]].
  */
 object elaborate {
   def main(args: Array[String]): Unit = {

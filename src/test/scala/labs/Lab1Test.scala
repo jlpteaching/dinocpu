@@ -2,7 +2,7 @@
 // If you name your test class something that ends with "TesterLab1" it will
 // automatically be run when you use `Lab1 / test` at the sbt prompt.
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 
@@ -41,11 +41,11 @@ class ALUControlUnitRTypeTester(c: ALUControl) extends PeekPokeTester(c) {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * Lab1 / testOnly CODCPU.ALUControlTesterLab1
+  * Lab1 / testOnly dinocpu.ALUControlTesterLab1
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly CODCPU.ALUControlTesterLab1'
+  * sbt 'testOnly dinocpu.ALUControlTesterLab1'
   * }}}
   */
 class ALUControlTesterLab1 extends ChiselFlatSpec {
@@ -60,17 +60,39 @@ class ALUControlTesterLab1 extends ChiselFlatSpec {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly CODCPU.SingleCycleCPUTesterLab1
+  * testOnly dinocpu.SingleCycleCPUTesterLab1
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly CODCPU.SingleCycleCPUTesterLab1'
+  * sbt 'testOnly dinocpu.SingleCycleCPUTesterLab1'
+  * }}}
+  */
+class SingleCycleAddTesterLab1 extends CPUFlatSpec {
+  val test = CPUTestCase("add1",
+                Map("single-cycle" -> 1),
+                Map(5 -> 1234),
+								Map(0 -> 0, 5 -> 1234, 6 -> 1234),
+								Map(), Map())
+  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+    CPUTesterDriver(test, "single-cycle") should be(true)
+  }
+}
+
+/**
+  * This is a trivial example of how to run this Specification
+  * From within sbt use:
+  * {{{
+  * testOnly dinocpu.SingleCycleCPUTesterLab1
+  * }}}
+  * From a terminal shell use:
+  * {{{
+  * sbt 'testOnly dinocpu.SingleCycleCPUTesterLab1'
   * }}}
   *
   * To run a **single** test from this suite, you can use the -z option to sbt test.
   * The option after the `-z` is a string to search for in the test
   * {{{
-  * sbt> testOnly CODCPU.SingleCycleCPUTesterLab1 -- -z beqFalse
+  * sbt> testOnly dinocpu.SingleCycleCPUTesterLab1 -- -z beqFalse
   * }}}
   * Or, to run just the r-type instructions you can use `-z rtype`
   */

@@ -1,6 +1,6 @@
 // Lists of different instruction test cases for use with different CPU models
 
-package CODCPU
+package dinocpu
 
 /**
  * This object contains a set of lists of tests. Each list is a different set of
@@ -62,6 +62,46 @@ object InstTests {
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(5 -> 1234, 6 -> 5678),
 								Map(7 -> 1026),
+								Map(), Map()),
+		CPUTestCase("xor",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> 1234, 5 -> 5678),
+								Map(5 -> 5678, 7 -> 1234, 6 -> 4860),
+								Map(), Map()),
+		CPUTestCase("slt",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> 1234, 5 -> 5678),
+								Map(5 -> 5678, 7 -> 1234, 6 -> 1),
+								Map(), Map()),
+		CPUTestCase("slt1",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> -1, 5 -> 1),
+								Map(5 -> 1, 6 -> 1),
+								Map(), Map()),
+		CPUTestCase("sltu",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> -1, 5 -> 1),
+								Map(5 -> 1, 6 -> 0),
+								Map(), Map()),
+		CPUTestCase("sltu1",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> 20, 5 -> 100),
+								Map(5 -> 100, 6 -> 1),
+								Map(), Map()),
+		CPUTestCase("sll",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> 32, 5 -> 2),
+								Map(7 -> 32, 5 -> 2, 6 -> 128),
+								Map(), Map()),
+		CPUTestCase("srl",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> 32, 5 -> 2),
+								Map(7 -> 32, 5 -> 2, 6 -> 8),
+								Map(), Map()),
+		CPUTestCase("sra",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> twoscomp(-2), 5 -> 31),
+								Map(5 -> 31, 6 -> twoscomp(-1)),
 								Map(), Map())
 	)
 

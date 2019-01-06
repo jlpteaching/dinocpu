@@ -1,6 +1,6 @@
 // Unit tests for the ALU
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 
@@ -60,14 +60,14 @@ class ALUDirectedUnitTester(c: ALU) extends PeekPokeTester(c) {
   }
 
   // signed <
-  poke(alu.io.operation, "b0101".U)
+  poke(alu.io.operation, "b0100".U)
   poke(alu.io.inputx, twoscomp(-1))
   poke(alu.io.inputy, 1)
   step(1)
   expect(alu.io.result, 1)
 
   // unsigned <
-  poke(alu.io.operation, "b0100".U)
+  poke(alu.io.operation, "b0101".U)
   poke(alu.io.inputx, maxInt)
   poke(alu.io.inputy, 1)
   step(1)
@@ -85,11 +85,11 @@ class ALUDirectedUnitTester(c: ALU) extends PeekPokeTester(c) {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly CODCPU.ALUTester
+  * testOnly dinocpu.ALUTester
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly CODCPU.ALUTester'
+  * sbt 'testOnly dinocpu.ALUTester'
   * }}}
   */
 class ALUTester extends ChiselFlatSpec {

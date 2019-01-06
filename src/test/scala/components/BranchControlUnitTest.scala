@@ -1,6 +1,6 @@
 // Unit tests for the ALU control logic
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 
@@ -43,11 +43,11 @@ class BranchControlUnitTester(c: BranchControl, branch: Boolean = true) extends 
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly CODCPU.ControlTester
+  * testOnly dinocpu.ControlTester
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly CODCPU.ControlTester'
+  * sbt 'testOnly dinocpu.ControlTester'
   * }}}
   */
 class BranchControlTester extends ChiselFlatSpec {

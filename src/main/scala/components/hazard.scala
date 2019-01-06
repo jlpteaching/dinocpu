@@ -1,6 +1,6 @@
 // This file contains the hazard detection unit
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 

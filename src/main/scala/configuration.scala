@@ -1,6 +1,6 @@
-// Configurations for the CODCPU
+// Configurations for the dinocpu
 
-package CODCPU
+package dinocpu
 
 // For file length
 import java.io.{File, FileNotFoundException}
@@ -8,7 +8,7 @@ import java.io.{File, FileNotFoundException}
 import scala.math.max
 
 /**
- * This class configures all of the CODCPUs. It takes parameters for the type of CPU model
+ * This class configures all of the dinocpus. It takes parameters for the type of CPU model
  * (e.g., single-cycle, five-cycle, etc.), and the memories to hook up.
  */
 class CPUConfig
@@ -39,7 +39,7 @@ class CPUConfig
    *
    * @param minSize is the minimum size for the memory. If the binary file is
    *        smaller than this, create a memory that is this size.
-   * @return [[CODCPU.DualPortedMemory]] object
+   * @return [[dinocpu.DualPortedMemory]] object
    */
   def getMem(minSize: Int = 4096) = {
     val f = new File(memFile)

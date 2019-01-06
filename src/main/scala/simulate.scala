@@ -1,5 +1,5 @@
 // Main entry point for simulation
-package CODCPU
+package dinocpu
 
 import firrtl.{ExecutionOptionsManager, HasFirrtlOptions}
 import treadle.{HasTreadleOptions, TreadleOptionsManager, TreadleTester}
@@ -16,7 +16,7 @@ import scala.collection.SortedMap
  * "_last" symbol in the elf file or the max cycle parameter is reached
  *
  * {{{
- *  sbt> runMain CODCPU.simulate [options] <riscv binary> <CPU type>
+ *  sbt> runMain dinocpu.simulate [options] <riscv binary> <CPU type>
  * }}}
  */
 object simulate {

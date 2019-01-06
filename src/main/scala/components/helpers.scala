@@ -1,6 +1,6 @@
 // Some other helpful hardware structures (e.g., adders, shifters, etc.)
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 import chisel3.util._
