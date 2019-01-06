@@ -66,6 +66,28 @@ class ALUControlTesterLab1 extends ChiselFlatSpec {
   * {{{
   * sbt 'testOnly CODCPU.SingleCycleCPUTesterLab1'
   * }}}
+  */
+class SingleCycleAddTesterLab1 extends CPUFlatSpec {
+  val test = CPUTestCase("add1",
+                Map("single-cycle" -> 1),
+                Map(5 -> 1234),
+								Map(0 -> 0, 5 -> 1234, 6 -> 1234),
+								Map(), Map())
+  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+    CPUTesterDriver(test, "single-cycle") should be(true)
+  }
+}
+
+/**
+  * This is a trivial example of how to run this Specification
+  * From within sbt use:
+  * {{{
+  * testOnly CODCPU.SingleCycleCPUTesterLab1
+  * }}}
+  * From a terminal shell use:
+  * {{{
+  * sbt 'testOnly CODCPU.SingleCycleCPUTesterLab1'
+  * }}}
   *
   * To run a **single** test from this suite, you can use the -z option to sbt test.
   * The option after the `-z` is a string to search for in the test
