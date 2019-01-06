@@ -1,5 +1,6 @@
-# DINO CPU models
+# Davis In-Order (DINO) CPU models
 
+![Cute Dino](dino-128.png)
 
 This repository contains chisel implementations of the CPU models from Patterson and Hennessy's Computer Organization and Design primarily for use in UC Davis's Computer Architecture course (ECS 154B).
 
