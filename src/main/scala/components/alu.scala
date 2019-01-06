@@ -11,7 +11,7 @@ import chisel3.util._
  * The ALU control unit
  *
  * Input:  add, if true, add no matter what the other bits are
- * Input:  add, if true, ignore funct7 when computing the operation
+ * Input:  immediate, if true, ignore funct7 when computing the operation
  * Input:  funct7, the most significant bits of the instruction
  * Input:  funct3, the middle three bits of the instruction (12-14)
  * Output: operation, What we want the ALU to do. See [[CODCPU.ALUConstants]]
