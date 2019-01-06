@@ -60,14 +60,14 @@ class ALUDirectedUnitTester(c: ALU) extends PeekPokeTester(c) {
   }
 
   // signed <
-  poke(alu.io.operation, "b0101".U)
+  poke(alu.io.operation, "b0100".U)
   poke(alu.io.inputx, twoscomp(-1))
   poke(alu.io.inputy, 1)
   step(1)
   expect(alu.io.result, 1)
 
   // unsigned <
-  poke(alu.io.operation, "b0100".U)
+  poke(alu.io.operation, "b0101".U)
   poke(alu.io.inputx, maxInt)
   poke(alu.io.inputy, 1)
   step(1)
