@@ -1,6 +1,6 @@
 // The IO between the core and the rest of the system
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 

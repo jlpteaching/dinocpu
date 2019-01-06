@@ -1,4 +1,4 @@
-package CODCPU
+package dinocpu
 
 import chisel3.iotesters.Driver
 

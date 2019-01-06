@@ -1,6 +1,6 @@
 // The instruction and data memory modules
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 import chisel3.util._

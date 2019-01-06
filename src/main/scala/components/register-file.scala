@@ -1,6 +1,6 @@
 // Describes a 32 entry two read port one write port register file
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 

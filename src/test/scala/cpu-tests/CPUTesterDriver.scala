@@ -1,6 +1,6 @@
-package CODCPU
+package dinocpu
 
-import CODCPU.simulate.{build, elfToHex}
+import dinocpu.simulate.{build, elfToHex}
 import org.scalatest.{FlatSpec, Matchers}
 import treadle.TreadleTester
 import treadle.executable.TreadleException

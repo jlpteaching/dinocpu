@@ -1,6 +1,6 @@
 // This file contains the forwarding unit
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 

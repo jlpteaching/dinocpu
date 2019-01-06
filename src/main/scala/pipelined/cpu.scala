@@ -1,6 +1,6 @@
 // This file is where all of the CPU components are assembled into the whole CPU
 
-package CODCPU
+package dinocpu
 
 import chisel3._
 import chisel3.util.{Counter, MuxCase}

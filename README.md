@@ -1,4 +1,4 @@
-# DArchR Computer Organization and Design CPU models
+# DINO CPU models
 
 
 This repository contains chisel implementations of the CPU models from Patterson and Hennessy's Computer Organization and Design primarily for use in UC Davis's Computer Architecture course (ECS 154B).
@@ -286,20 +286,20 @@ sudo singularity build chisel.sif chisel.def
 The `chisel.def` file specifies `sbt` as the runscript (entrypoint in docker parlance).
 Thus, you can simply `run` the image and you'll be dropped into the `sbt` shell.
 
-Currently, the image is stored in the [singularity cloud](https://cloud.sylabs.io/library) under `jlowepower/default/codcpu`.
+Currently, the image is stored in the [singularity cloud](https://cloud.sylabs.io/library) under `jlowepower/default/dinocpu`.
 This might change in the future.
 
 To run this image directly from the cloud, you can use the following command.
 
 ```
-singularity run library://jlowepower/default/codcpu
+singularity run library://jlowepower/default/dinocpu
 ```
 
 This will drop you directly into `sbt` and you will be able to run the tests, simulator, compile, etc.
 
 Note: This stores the image in `~/.singularity/cache/library/`.
 
-If, instead, you use `singularity pull library://jlowepower/default/codcpu`, then the image is downloaded to the current working directory.
+If, instead, you use `singularity pull library://jlowepower/default/dinocpu`, then the image is downloaded to the current working directory.
 
 **Important:** We should discourage students from using `singularity pull` in case we need to update the image!
 
@@ -308,7 +308,7 @@ If, instead, you use `singularity pull library://jlowepower/default/codcpu`, the
 First, I tried to run the test:
 
 ```
-testOnly CODCPU.ImmediateSimpleCPUTester
+testOnly dinocpu.ImmediateSimpleCPUTester
 ```
 
 When this ran, I received the output:
@@ -346,7 +346,7 @@ When this ran, I received the output:
 [info] *** 7 TESTS FAILED ***
 [error] Failed: Total 8, Failed 7, Errors 0, Passed 1
 [error] Failed tests:
-[error]         CODCPU.ImmediateSimpleCPUTester
+[error]         dinocpu.ImmediateSimpleCPUTester
 [error] (Test / testOnly) sbt.TestsFailedException: Tests unsuccessful
 [error] Total time: 7 s, completed Jan 1, 2019 11:38:09 PM
 ```
@@ -358,7 +358,7 @@ The simulator takes two parameters, the RISC binary and the CPU type.
 So, to run with the `auipc` workload on the single cycle CPU I would use the following:
 
 ```
-runMain CODCPU.simulate src/test/resources/risc-v/auipc0 single-cycle --max-cycles 5
+runMain dinocpu.simulate src/test/resources/risc-v/auipc0 single-cycle --max-cycles 5
 ```
 
 Then, I get the following output, which I can step through to find the problem.
@@ -385,7 +385,7 @@ branchAdd: Bundle(inputx -> 0, inputy -> 0, result -> 0)
 Also, I could have just run one of the tests that were failing by using `-z` when running `testOnly` like the following:
 
 ```
-testOnly CODCPU.ImmediateSimpleCPUTester -- -z auipc0
+testOnly dinocpu.ImmediateSimpleCPUTester -- -z auipc0
 ```
 
 # How to use specific versions of chisel, firrtl, etc
