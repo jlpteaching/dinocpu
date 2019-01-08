@@ -29,17 +29,36 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
 
   // To make the FIRRTL compiler happy. Remove this as you connect up the I/O's
   control.io    := DontCare
-  registers.io  := DontCare
-  aluControl.io := DontCare
-  alu.io        := DontCare
   immGen.io     := DontCare
   branchCtrl.io := DontCare
-  pcPlusFour.io := DontCare
   branchAdd.io  := DontCare
 
   io.imem.address := pc
 
+  pcPlusFour.io.inputx := pc
+  pcPlusFour.io.inputy := 4.U
+
   val instruction = io.imem.instruction
+  
+  registers.io.readreg1 := instruction(19,15)
+  registers.io.readreg2 := instruction(24,20)
+
+  val writereg = instruction(11,7)
+  registers.io.writereg := writereg
+  registers.io.wen := true.B
+
+  aluControl.io.add       := false.B
+  aluControl.io.immediate := false.B
+  aluControl.io.funct7    := instruction(31,25)
+  aluControl.io.funct3    := instruction(14,12)
+
+  alu.io.operation := aluControl.io.operation
+  alu.io.inputx := registers.io.readdata1
+  alu.io.inputy := registers.io.readdata2
+
+  registers.io.writedata := Mux(writereg === 0.U, 0.U, alu.io.result)
+
+  pc := pcPlusFour.io.result
 
   // Debug / pipeline viewer
   val structures = List(
