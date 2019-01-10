@@ -1,0 +1,15 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start: #checks if v is a power of 2
+	#stores 1 in f if true or 0 if false
+	#  t0 =v and t2 = f and t1 = 1
+    sub t2, t0, t1  # t2 = v - 1
+    and t2, t0, t2  # t2 = v & (v-1)
+    sltu t2,t2,t1   # f = (t2 <1)
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:

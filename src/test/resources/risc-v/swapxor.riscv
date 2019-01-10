@@ -1,0 +1,13 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start: #swaps a and b without a temporary variable
+    xor t0, t0, t2 #  t0 =a and t2 = b 
+    xor t2, t2, t0
+    xor t0, t0, t2
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:

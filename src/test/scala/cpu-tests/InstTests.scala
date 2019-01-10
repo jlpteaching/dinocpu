@@ -102,7 +102,29 @@ object InstTests {
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(7 -> twoscomp(-2), 5 -> 31),
 								Map(5 -> 31, 6 -> twoscomp(-1)),
+								Map(), Map()),
+		CPUTestCase("swapxor",
+                Map("single-cycle" -> 3, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> 5678, 5 -> 1234),
+								Map(5 -> 5678,7->1234),
+								Map(), Map()),
+		CPUTestCase("power2",
+                Map("single-cycle" -> 3, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 512, 6->1),
+								Map(7->1),
+								Map(), Map()),
+		CPUTestCase("oppsign",
+                Map("single-cycle" -> 2, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 512, 6->twoscomp(-1024),7->0),
+								Map(7->1),
+								Map(), Map()),
+		CPUTestCase("rotR",
+                Map("single-cycle" -> 4, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> twoscomp(-1), 6->1, 7->32),
+								Map(7->twoscomp(-1)),
 								Map(), Map())
+
+
 	)
 
 	val branch = List[CPUTestCase](
