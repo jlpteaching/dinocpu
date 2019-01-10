@@ -1,0 +1,15 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start: #checks if x and y have opposite sign (MSB of x and y are 0 and 1 or vice-versa)
+        #(x^y)<0 = 1: if sign differs
+	#	 = 0: if sign is same
+
+    xor t0, t0, t1  # t0 = x ^ y
+    slt t2, t0, t2  # t2 = (x ^ y)<0 
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:

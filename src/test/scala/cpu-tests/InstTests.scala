@@ -43,11 +43,6 @@ object InstTests {
                 Map(5 -> 1234, 6 -> 3456),
 								Map(0 -> 0, 5 -> 1234, 6 -> 3456),
 								Map(), Map()),
-		CPUTestCase("addfwd",
-                Map("single-cycle" -> 10, "five-cycle" -> 0, "pipelined" -> 14),
-                Map(5 -> 1, 10 -> 0),
-								Map(5 -> 1, 10 -> 10),
-								Map(), Map()),
 		CPUTestCase("or",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(5 -> 1234, 6 -> 5678),
@@ -102,6 +97,34 @@ object InstTests {
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(7 -> twoscomp(-2), 5 -> 31),
 								Map(5 -> 31, 6 -> twoscomp(-1)),
+								Map(), Map())
+  )
+
+	val rtypeMultiCycle = List[CPUTestCase](
+		CPUTestCase("addfwd",
+                Map("single-cycle" -> 10, "five-cycle" -> 0, "pipelined" -> 14),
+                Map(5 -> 1, 10 -> 0),
+								Map(5 -> 1, 10 -> 10),
+								Map(), Map()),
+		CPUTestCase("swapxor",
+                Map("single-cycle" -> 3, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(7 -> 5678, 5 -> 1234),
+								Map(5 -> 5678,7->1234),
+								Map(), Map()),
+		CPUTestCase("power2",
+                Map("single-cycle" -> 3, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 512, 6->1),
+								Map(7->1),
+								Map(), Map()),
+		CPUTestCase("oppsign",
+                Map("single-cycle" -> 2, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 512, 6->twoscomp(-1024),7->0),
+								Map(7->1),
+								Map(), Map()),
+		CPUTestCase("rotR",
+                Map("single-cycle" -> 4, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> twoscomp(-1), 6->1, 7->32),
+								Map(7->twoscomp(-1)),
 								Map(), Map())
 	)
 
@@ -332,12 +355,9 @@ object InstTests {
 								Map(), Map())
   )
 
-	val lab1tests = Map(
-    "rtype" -> rtype
-	)
-
   val tests = Map(
     "rtype" -> rtype,
+    "rtypeMultiCycle" -> rtypeMultiCycle,
     "branch" -> branch,
     "memory" -> memory,
     "immediate" -> immediate,
