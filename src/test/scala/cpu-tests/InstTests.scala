@@ -102,7 +102,10 @@ object InstTests {
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(7 -> twoscomp(-2), 5 -> 31),
 								Map(5 -> 31, 6 -> twoscomp(-1)),
-								Map(), Map()),
+								Map(), Map())
+  )
+
+	val rtypeMultiCycle = List[CPUTestCase](
 		CPUTestCase("swapxor",
                 Map("single-cycle" -> 3, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(7 -> 5678, 5 -> 1234),
@@ -123,8 +126,6 @@ object InstTests {
                 Map(5 -> twoscomp(-1), 6->1, 7->32),
 								Map(7->twoscomp(-1)),
 								Map(), Map())
-
-
 	)
 
 	val branch = List[CPUTestCase](
@@ -354,12 +355,9 @@ object InstTests {
 								Map(), Map())
   )
 
-	val lab1tests = Map(
-    "rtype" -> rtype
-	)
-
   val tests = Map(
     "rtype" -> rtype,
+    "rtypeMultiCycle" -> rtypeMultiCycle,
     "branch" -> branch,
     "memory" -> memory,
     "immediate" -> immediate,

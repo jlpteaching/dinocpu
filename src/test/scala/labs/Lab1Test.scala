@@ -60,11 +60,11 @@ class ALUControlTesterLab1 extends ChiselFlatSpec {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly dinocpu.SingleCycleCPUTesterLab1
+  * testOnly dinocpu.SingleCycleAddTesterLab1
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly dinocpu.SingleCycleCPUTesterLab1'
+  * sbt 'testOnly dinocpu.SingleCycleAddTesterLab1'
   * }}}
   */
 class SingleCycleAddTesterLab1 extends CPUFlatSpec {
@@ -82,27 +82,52 @@ class SingleCycleAddTesterLab1 extends CPUFlatSpec {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly dinocpu.SingleCycleCPUTesterLab1
+  * testOnly dinocpu.SingleCycleRTypeTesterLab1
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly dinocpu.SingleCycleCPUTesterLab1'
+  * sbt 'testOnly dinocpu.SingleCycleRTypeTesterLab1'
   * }}}
   *
   * To run a **single** test from this suite, you can use the -z option to sbt test.
   * The option after the `-z` is a string to search for in the test
   * {{{
-  * sbt> testOnly dinocpu.SingleCycleCPUTesterLab1 -- -z beqFalse
+  * sbt> testOnly dinocpu.SingleCycleRTypeTesterLab1 -- -z add1
   * }}}
   * Or, to run just the r-type instructions you can use `-z rtype`
   */
-class SingleCycleCPUTesterLab1 extends CPUFlatSpec {
+class SingleCycleRTypeTesterLab1 extends CPUFlatSpec {
   behavior of "Single Cycle CPU"
-  for ((group, tests) <- InstTests.lab1tests) {
-    for (test <- tests) {
-      it should s"run $group ${test.binary}${test.extraName}" in {
-        CPUTesterDriver(test, "single-cycle") should be(true)
-      }
+  for (test <- InstTests.rtype) {
+    it should s"run R-type instruction ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "single-cycle") should be(true)
+    }
+  }
+}
+
+/**
+  * This is a trivial example of how to run this Specification
+  * From within sbt use:
+  * {{{
+  * testOnly dinocpu.SingleCycleMultiCycleTesterLab1
+  * }}}
+  * From a terminal shell use:
+  * {{{
+  * sbt 'testOnly dinocpu.SingleCycleMultiCycleTesterLab1'
+  * }}}
+  *
+  * To run a **single** test from this suite, you can use the -z option to sbt test.
+  * The option after the `-z` is a string to search for in the test
+  * {{{
+  * sbt> testOnly dinocpu.SingleCycleMultiCycleTesterLab1 -- -z swapxor
+  * }}}
+  * Or, to run just the r-type instructions you can use `-z rtype`
+  */
+class SingleCycleMultiCycleTesterLab1 extends CPUFlatSpec {
+  behavior of "Single Cycle CPU"
+  for (test <- InstTests.rtypeMultiCycle) {
+    it should s"run R-type multi-cycle program ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "single-cycle") should be(true)
     }
   }
 }
