@@ -36,4 +36,14 @@ class RegisterFile(implicit val conf: CPUConfig) extends Module {
   // might both read and write the registers (e.g., an add)
   io.readdata1 := regs(io.readreg1)
   io.readdata2 := regs(io.readreg2)
+
+var x=0
+printf("\nRegister | Data\n")
+printf("-------------------\n")
+for (x <- 0 to 31) 
+{
+	printf("   x%d     |  %d\n", x.U, regs(x))
+	printf("-------------------\n")
+}
+
 }
