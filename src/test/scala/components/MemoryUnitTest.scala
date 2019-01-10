@@ -79,31 +79,22 @@ class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTest
   * }}}
   */
 class MemoryTester extends ChiselFlatSpec {
-  private val backendNames = if(firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
-    Array("treadle", "verilator")
+  "DualPortedMemory" should s"have all zeros (with treadle)" in {
+    Driver(() => new DualPortedMemory(2048, "src/test/resources/raw/zero.hex"), "treadle") {
+      m => new MemoryUnitZeroTester(m, 2048)
+    } should be (true)
   }
-  else {
-    Array("treadle")
+
+  "DualPortedMemory" should s"have increasing words (with treadle)" in {
+    Driver(() => new DualPortedMemory(2048, "src/test/resources/raw/ascending.hex"), "treadle") {
+      m => new MemoryUnitReadTester(m, 2048)
+    } should be (true)
   }
-  for ( backendName <- backendNames ) {
-    "DualPortedMemory" should s"have all zeros (with $backendName)" in {
-      Driver(() => new DualPortedMemory(2048, "src/test/resources/raw/zero.hex"), backendName) {
-        m => new MemoryUnitZeroTester(m, 2048)
-      } should be (true)
-    }
+
+  "DualPortedMemory" should s"store and load words (with treadle)" in {
+    Driver(() => new DualPortedMemory(2048, "src/test/resources/raw/ascending.hex"), "treadle") {
+      m => new MemoryUnitReadTester(m, 2048)
+    } should be (true)
   }
-  for ( backendName <- backendNames ) {
-    "DualPortedMemory" should s"have increasing words (with $backendName)" in {
-      Driver(() => new DualPortedMemory(2048, "src/test/resources/raw/ascending.hex"), backendName) {
-        m => new MemoryUnitReadTester(m, 2048)
-      } should be (true)
-    }
-  }
-  for ( backendName <- backendNames ) {
-    "DualPortedMemory" should s"store and load words (with $backendName)" in {
-      Driver(() => new DualPortedMemory(2048, "src/test/resources/raw/ascending.hex"), backendName) {
-        m => new MemoryUnitReadTester(m, 2048)
-      } should be (true)
-    }
-  }
+
 }

@@ -39,18 +39,10 @@ class RegisterFileUnitTester(c: RegisterFile) extends PeekPokeTester(c) {
   * }}}
   */
 class RegisterFileTester extends ChiselFlatSpec {
-  private val backendNames = if(firrtl.FileUtils.isCommandAvailable(Seq("verilator", "--version"))) {
-    Array("firrtl", "verilator")
-  }
-  else {
-    Array("firrtl")
-  }
-  for ( backendName <- backendNames ) {
-    "RegisterFile" should s"save written values (with $backendName)" in {
-      implicit val conf = new CPUConfig()
-      Driver(() => new RegisterFile, backendName) {
-        c => new RegisterFileUnitTester(c)
-      } should be (true)
-    }
+  "RegisterFile" should s"save written values (with firrtl)" in {
+    implicit val conf = new CPUConfig()
+    Driver(() => new RegisterFile, "firrtl") {
+      c => new RegisterFileUnitTester(c)
+    } should be (true)
   }
 }
