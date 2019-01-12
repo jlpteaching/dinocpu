@@ -35,16 +35,20 @@ RUN \
   make install && \
   cd ../../ && rm -rf riscv-fesvr
 
-# Change to the working directory where we are going to run everything
-WORKDIR /
+# Get the dependencies
+WORKDIR /opt
+ADD get_and_build_deps.sh /opt
 
+RUN ./get_and_build_deps.sh
+
+# Change to the working directory where we are going to run everything
 # Copy all needed files into the workdir
-RUN git clone https://github.com/darchr/codcpu
-WORKDIR /codcpu
-# Remove this line, later
-RUN git checkout testing
+WORKDIR /dinocpu
+ADD src/ src/
+ADD build.sbt .
+ADD project/ project/
 
 # Go ahead and run the tests to cache the sbt stuff.
-RUN sbt test
+RUN sbt test; echo // ignore the return code of sbt test
 
 ADD run_autograder /autograder

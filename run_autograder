@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 
+to_submit=("src/main/scala/components/alucontrol.scala" "src/main/scala/single-cycle/cpu.scala")
+
 # Copy the files from /autograder/submission to the proper location
-cp -r /autograder/submission/src /codcpu
+
+for i in ${to_submit[@]}
+do
+    name=$(basename $i)
+    cp -r /autograder/submission/$name /dinocpu/$i
+done
 
 # change directory to the main codcpu directory
-cd /codcpu
+cd /dinocpu
 
 # Run the test. This should generate the json file in /autograder/results
 sbt "Grader / test"

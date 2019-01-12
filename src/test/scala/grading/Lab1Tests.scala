@@ -8,7 +8,7 @@ import org.scalatest.junit.JUnitSuite
 import org.junit.runner.RunWith
 
 @RunWith(classOf[GradedTestRunnerJSON])
-class ALUControlUnitGrader extends JUnitSuite {
+class Lab1Grader extends JUnitSuite {
 
   @Test
   @GradedTest(name="ALUControlUnit", max_score=25)
@@ -19,7 +19,7 @@ class ALUControlUnitGrader extends JUnitSuite {
 
       implicit val conf = new CPUConfig()
 
-    val success = Driver(() => new ALUControl) {
+      val success = Driver(() => new ALUControl) {
         c => new ALUControlUnitRTypeTester(c)
       }
 
@@ -29,10 +29,6 @@ class ALUControlUnitGrader extends JUnitSuite {
       if (!success) fail("Test failed!")
     }
   }
-}
-
-@RunWith(classOf[GradedTestRunnerJSON])
-class AddGrader extends JUnitSuite {
 
   @Test
   @GradedTest(name="Add instruction add1", max_score=5)
@@ -79,10 +75,6 @@ class AddGrader extends JUnitSuite {
       if (!success) fail("Test failed!")
     }
   }
-}
-
-@RunWith(classOf[GradedTestRunnerJSON])
-class RtypeGrader extends JUnitSuite {
 
   @Test
   @GradedTest(name="All R types", max_score=20)
@@ -104,10 +96,6 @@ class RtypeGrader extends JUnitSuite {
       if (!success) fail("Test failed!")
     }
   }
-}
-
-@RunWith(classOf[GradedTestRunnerJSON])
-class MulticycleGrader extends JUnitSuite {
 
   @Test
   @GradedTest(name="Multiple cycle R types", max_score=10)
