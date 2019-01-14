@@ -82,3 +82,69 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
   - `Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5)` runs the single-cyle implementation for one cycle and the five-cycle, pipelined implementations for five cycles.
  - `Map(5 -> 1234, 20 -> 5678)` initializes `t0` (`reg[5]`) to 1234 and `s4` (`reg[20]`) to 5678.
  - `Map(0 -> 0, 10 -> 6912)` checks if the contents of `reg[0]` and `a0` are 0 and 6912 respectively.
+ 
+ # Adding your CPU Test Cases
+ ## 1. Editing the given CPU Test Cases:
+ Editing the already given CPU Test Cases with new values for initializing amd checking registers is very simple. Consider the test case for `add2.risv`. If we edit the test case to the following:
+   ```
+ CPUTestCase(  "add2",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 2048, 20 -> 512),
+                Map(0 -> 0, 10 -> 2560),
+                Map(), Map())
+                
+  ```
+  
+  The test case now initializes `t0`(`reg[5]`) to 2048, `s4`(`reg[20]`) to 512 and checks if `a0` (`reg[10]`) has the sum 2560 (= 2048 + 512). 
+  
+  ## 2. Adding new tests:
+  ```		
+  CPUTestCase("add2",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 1234, 20 -> 5678),
+								Map(0 -> 0, 10 -> 6912),
+								Map(), Map()),
+        
+  CPUTestCase("add2",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 2048, 20 -> 512),
+								Map(0 -> 0, 10 -> 2560),
+								Map(), Map())
+  ```
+     
+  Simply copying the CPU Test case as is and adding in changes to register values will throw the error show below. 
+ ```
+ sbt:dinocpu> testOnly dinocpu.SingleCycleCPUTester -- -z add
+[info] SingleCycleCPUTester:
+[info] dinocpu.SingleCycleCPUTester *** ABORTED ***
+[info]   Duplicate test name: Single Cycle CPU should run rtype add2 (CPUTests.scala:27)
+[info] ScalaTest
+[info] Run completed in 411 milliseconds.
+[info] Total number of tests run: 0
+[info] Suites: completed 0, aborted 1
+[info] Tests: succeeded 0, failed 0, canceled 0, ignored 0, pending 0
+[info] *** 1 SUITE ABORTED ***
+[error] Error: Total 1, Failed 0, Errors 1, Passed 0
+[error] Error during tests:
+[error] 	dinocpu.SingleCycleCPUTester
+[error] (Test / testOnly) sbt.TestsFailedException: Tests unsuccessful
+[error] Total time: 3 s, completed Jan 14, 2019 6:29:23 AM
+
+ ```
+ 
+ To avoid this add a name to the extra CPU Test Case which distinguishes it from any previous test cases that test for the same instruction in the extra name information field as shown below.
+ 
+   ```		
+  CPUTestCase("add2",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 1234, 20 -> 5678),
+								Map(0 -> 0, 10 -> 6912),
+								Map(), Map()),
+        
+  CPUTestCase("add2",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map(5 -> 2048, 20 -> 512),
+								Map(0 -> 0, 10 -> 2560),
+								Map(), Map(),"-addnew")
+  ```
+ 
