@@ -3,6 +3,8 @@
 # I'm sure there's a better way to do this with sbt, but I need to get something
 # working.
 
+pushd /opt
+
 git clone https://github.com/freechipsproject/firrtl.git
 git clone https://github.com/freechipsproject/firrtl-interpreter.git
 git clone https://github.com/freechipsproject/chisel3.git
@@ -24,3 +26,5 @@ cd ..
 
 rm -rf firrtl firrtl-interpreter chisel3 chisel-testers treadle
 rm -rf /opt/ivy2/cache
+
+popd
