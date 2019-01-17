@@ -25,12 +25,12 @@ cd ../chisel3 && \
 git checkout 685790b2c6c7ff8ddfd34f2f84572a985d3416cc && \
 sbt -ivy /opt/ivy2 compile && sbt -ivy /opt/ivy2 publishLocal
 
-cd ../chisel-testers && \
-git checkout 8a737012f3c93dd41a3a9e120eebfc07ba541ebf && \
-sbt -ivy /opt/ivy2 compile && sbt -ivy /opt/ivy2 publishLocal
-
 cd ../treadle && \
 git checkout a10de08ff4dca3f5db44a665ca807d4457f0f10e && \
+sbt -ivy /opt/ivy2 compile && sbt -ivy /opt/ivy2 publishLocal
+
+cd ../chisel-testers && \
+git checkout 8a737012f3c93dd41a3a9e120eebfc07ba541ebf && \
 sbt -ivy /opt/ivy2 compile && sbt -ivy /opt/ivy2 publishLocal
 
 cd ..
