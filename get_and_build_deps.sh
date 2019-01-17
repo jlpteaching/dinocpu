@@ -18,7 +18,7 @@ git checkout df3a34f01d227ff9ad0e63a41ff10001ac01c01d && \
 sbt -ivy /opt/ivy2 compile && sbt -ivy /opt/ivy2 publishLocal
 
 cd ../firrtl-interpreter && \
-git checkout df3a34f01d227ff9ad0e63a41ff10001ac01c01d && \
+git checkout e9d2939206573e398f04559b0ae314fc62bd38f7 && \
 sbt -ivy /opt/ivy2 compile && sbt -ivy /opt/ivy2 publishLocal
 
 cd ../chisel3 && \
