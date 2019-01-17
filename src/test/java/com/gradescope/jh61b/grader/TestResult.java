@@ -38,6 +38,7 @@ public class TestResult {
 		String noLinuxNewLines = noWeirdNewLines.replace("\n", "\\n");
 		String noTabs = noLinuxNewLines.replace("\t", "    ");
 		String noQuotes = noTabs.replace("\"", "\\\"");
+		String noSingeQuotes = noQuotes.replace("\'", "\\\'");
 
 		return "{" + String.join(",", new String[] {
 			String.format("\"%s\": \"%s\"", "name", name),
@@ -45,7 +46,7 @@ public class TestResult {
 			String.format("\"%s\": %s", "score", score),
 			String.format("\"%s\": %s", "max_score", maxScore),
 			String.format("\"%s\": \"%s\"", "visibility", visibility),
-			String.format("\"%s\": \"%s\"", "output", noQuotes)
+			String.format("\"%s\": \"%s\"", "output", noSingeQuotes)
 		}) + "}";
 	}
 
