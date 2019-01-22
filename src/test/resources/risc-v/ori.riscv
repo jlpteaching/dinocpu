@@ -1,0 +1,12 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    ori t1, t0, 255 # (reg[6] = reg[5] | 255)
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
