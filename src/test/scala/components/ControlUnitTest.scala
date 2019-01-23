@@ -12,15 +12,7 @@ class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
 
   val tests = List(
     // Inputs,       imm,      toreg, regwrite, memread, memwrite, branch, add,      alusrc1, jump 
-    ( "b0110011".U,    0,        0,       1,        0,       0,        0,     0,	0,	0), // R-type
-    ( "b0010011".U,    1,        0,       1,        0,       0,        0,     0,	0,	0), // I-type
-    ( "b0000011".U,    1,        1,       1,        1,       0,        0,     1,	0,	0), // Load
-    ( "b0100011".U,    1,        0,       0,        0,       1,        0,     1,	0,	0), // Store
-    ( "b1100011".U,    0,        0,       0,        0,       0,        1,     0,	0,	0),  // beq
-    ( "b0110111".U,    1,        0,       1,        0,       0,        0,     1,	1,	0), // lui
-    ( "b0010111".U,    1,        0,       1,        0,       0,        0,     1,	2,	0), // auipc
-    ( "b1101111".U,    0,        2,       1,        0,       0,        1,     0,	1,	2), // jal
-    ( "b1100111".U,    1,        2,       1,        0,       0,        0,     0,	0,	3) // jalr
+    ( "b0110011".U,    0,        0,       1,        0,       0,        0,     0,	0,	0) // R-type
 
 
   )
