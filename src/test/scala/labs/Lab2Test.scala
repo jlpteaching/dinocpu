@@ -41,8 +41,8 @@ class SingleCycleRTypeTesterLab2 extends CPUFlatSpec {
   *
 */
 class SingleCycleITypeTesterLab2 extends CPUFlatSpec {
-  
-  val maxInt = BigInt("FFFFFFFF", 16) 
+
+  val maxInt = BigInt("FFFFFFFF", 16)
 
   def twoscomp(v: BigInt) : BigInt = {
     if (v < 0) {
@@ -114,9 +114,9 @@ class SingleCycleITypeTesterLab2 extends CPUFlatSpec {
 								Map(), Map())
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run I-Type instruction ${test.binary}${test.extraName}" in {
-    CPUTesterDriver(test, "single-cycle") should be(true)
-	}
+    "Single Cycle CPU" should s"run I-Type instruction ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "single-cycle") should be(true)
+    }
   }
 }
 
@@ -147,9 +147,9 @@ class SingleCycleLoadTesterLab2 extends CPUFlatSpec {
 								Map(), Map())
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run load instruction test ${test.binary}${test.extraName}" in {
-    CPUTesterDriver(test, "single-cycle") should be(true)
-	}
+    "Single Cycle CPU" should s"run load instruction test ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "single-cycle") should be(true)
+    }
   }
 }
 
@@ -423,7 +423,7 @@ class SingleCycleApplicationsTesterLab2 extends CPUFlatSpec {
   val tests = List[CPUTestCase](
     CPUTestCase("fibonacci",
               	Map("single-cycle" -> 300, "five-cycle" -> 6, "pipelined" -> 6),
-            	Map(6->11),
+              	Map(6->11),
 								Map(6->11,5->89),
 								Map(), Map()),
     CPUTestCase("naturalsum",
@@ -431,7 +431,7 @@ class SingleCycleApplicationsTesterLab2 extends CPUFlatSpec {
                 Map(),
 								Map(5->55),
 								Map(), Map()),
-CPUTestCase("multiplier",
+    CPUTestCase("multiplier",
           	Map("single-cycle" -> 1000, "five-cycle" -> 6, "pipelined" -> 6),
         	Map(5->23,6->20),
 								Map(5->23*20),
