@@ -1,5 +1,5 @@
 // Tests for Lab 2. Feel free to modify and add more tests here.
-// If you name your test class something that ends with "TesterLab1" it will
+// If you name your test class something that ends with "TesterLab2" it will
 // automatically be run when you use `Lab2 / test` at the sbt prompt.
 
 
@@ -18,13 +18,6 @@ import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
   * {{{
   * sbt 'testOnly dinocpu.SingleCycleRTypeTesterLab2'
   * }}}
-  *
-  * To run a **single** test from this suite, you can use the -z option to sbt test.
-  * The option after the `-z` is a string to search for in the test
-  * {{{
-  * sbt> testOnly dinocpu.SingleCycleRTypeTesterLab2 -- -z add1
-  * }}}
-  * Or, to run just the r-type instructions you can use `-z rtype`
   */
 class SingleCycleRTypeTesterLab2 extends CPUFlatSpec {
   behavior of "Single Cycle CPU"
@@ -121,7 +114,7 @@ class SingleCycleITypeTesterLab2 extends CPUFlatSpec {
 								Map(), Map())
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+  "Single Cycle CPU" should s"run I-Type instruction ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "single-cycle") should be(true)
 	}
   }
@@ -154,7 +147,7 @@ class SingleCycleLoadTesterLab2 extends CPUFlatSpec {
 								Map(), Map())
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+  "Single Cycle CPU" should s"run load instruction test ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "single-cycle") should be(true)
 	}
   }
@@ -207,7 +200,7 @@ class SingleCycleUTypeTesterLab2 extends CPUFlatSpec {
 								Map(), Map())
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+  "Single Cycle CPU" should s"run auipc/lui instruction test ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "single-cycle") should be(true)
 	}
   }
@@ -235,7 +228,7 @@ class SingleCycleStoreTesterLab2 extends CPUFlatSpec {
 								Map(), Map(0x100 -> 1234))
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+  "Single Cycle CPU" should s"run add Store instruction test ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "single-cycle") should be(true)
 	}
   }
@@ -298,7 +291,7 @@ class SingleCycleLoadStoreTesterLab2 extends CPUFlatSpec {
 								Map(), Map(0x100 -> BigInt("ffff0001", 16)))
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+  "Single Cycle CPU" should s"run load/store insturction test ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "single-cycle") should be(true)
 	}
   }
@@ -346,7 +339,7 @@ class BranchControlTesterLab2 extends ChiselFlatSpec {
 class SingleCycleBranchTesterLab2 extends CPUFlatSpec {
   behavior of "Single Cycle CPU"
   for (test <- InstTests.branch) {
-    it should s"run R-type instruction ${test.binary}${test.extraName}" in {
+    it should s"run branch instruction test ${test.binary}${test.extraName}" in {
       CPUTesterDriver(test, "single-cycle") should be(true)
     }
   }
@@ -374,7 +367,7 @@ class SingleCycleJALTesterLab2 extends CPUFlatSpec {
 								Map(), Map())
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+  "Single Cycle CPU" should s"run JAL instruction test ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "single-cycle") should be(true)
 	}
   }
@@ -407,7 +400,7 @@ class SingleCycleJALRTesterLab2 extends CPUFlatSpec {
 								Map(), Map())
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+  "Single Cycle CPU" should s"run JALR instruction test ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "single-cycle") should be(true)
 	}
   }
@@ -429,14 +422,29 @@ class SingleCycleApplicationsTesterLab2 extends CPUFlatSpec {
 
   val tests = List[CPUTestCase](
     CPUTestCase("fibonacci",
-                Map("single-cycle" -> 300, "five-cycle" -> 6, "pipelined" -> 6),
-                Map(6->11),
+              	Map("single-cycle" -> 300, "five-cycle" -> 6, "pipelined" -> 6),
+            	Map(6->11),
 								Map(6->11,5->89),
+								Map(), Map()),
+    CPUTestCase("naturalsum",
+               	Map("single-cycle" -> 200, "five-cycle" -> 6, "pipelined" -> 6),
+                Map(),
+								Map(5->55),
+								Map(), Map()),
+CPUTestCase("multiplier",
+          	Map("single-cycle" -> 1000, "five-cycle" -> 6, "pipelined" -> 6),
+        	Map(5->23,6->20),
+								Map(5->23*20),
+								Map(), Map()),
+    CPUTestCase("divider",
+                Map("single-cycle" -> 1000, "five-cycle" -> 6, "pipelined" -> 6),
+                Map(5->1260,6->30),
+								Map(7->42),
 								Map(), Map())
 
  )
   for (test <- tests) {
-  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+  "Single Cycle CPU" should s"run application test ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "single-cycle") should be(true)
 	}
   }
