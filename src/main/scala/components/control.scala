@@ -8,19 +8,20 @@ import chisel3.util.{BitPat, ListLookup}
 /**
  * Main control logic for our simple processor
  *
- * Output: branch,  true if branch or jal and update PC with immediate
- * Output: memread, true if we should read memory
- * Output: toreg, 0 if writing ALU result, 1 if writing memory data, 2 if writing pc+4
+ * Output: branch, true if branch or jump and link register (jal). update PC with immediate
+ * Output: memread, true if we should read from memory
+ * Output: toreg, 0 for writing ALU result, 1 for writing memory data, 2 for writing pc + 4
  * Output: add, true if the ALU should add the results
- * Output: memwrite, write the memory
- * Output: regwrite, write the register file
- * Output: immediate, true if use the immediate value
- * Output: alusrc1, 0 is Read data 1, 1 is zero, 2 is PC
- * Output: jump, 0 no jump, 2 jump, 3 jump and link register
+ * Output: memwrite, true if writing to the data memory
+ * Output: regwrite, true if writing to the register file
+ * Output: immediate, true if using the immediate value
+ * Output: alusrc1, 0 for read data 1, 1 for the constant zero, 2 for the PC
+ * Output: jump, 0 for no jump, 2 for jump, 3 for jal (jump and link register)
  *
- * For more information, see section 4.4 of Patterson and Hennessy
- * This follows figure 4.22
+ * For more information, see section 4.4 of Patterson and Hennessy.
+ * This follows figure 4.22.
  */
+
 class Control extends Module {
   val io = IO(new Bundle {
     val opcode = Input(UInt(7.W))
