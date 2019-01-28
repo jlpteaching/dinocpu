@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-to_submit=("src/main/scala/components/alucontrol.scala" "src/main/scala/single-cycle/cpu.scala")
+to_submit=("src/main/scala/components/control.scala" "src/main/scala/single-cycle/cpu.scala" "src/main/scala/single-cycle/branch-control.scala")
 
 # Copy the files from /autograder/submission to the proper location
 
