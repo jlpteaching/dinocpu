@@ -145,7 +145,7 @@ object InstTests {
 
 	val branch = List[CPUTestCase](
 		CPUTestCase("beq",
-                Map("single-cycle" -> 3, "five-cycle" -> 7, "pipelined" -> 7),
+                Map("single-cycle" -> 3, "five-cycle" -> 7, "pipelined" -> 9),
                 Map(5 -> 1234, 6 -> 1, 7 -> 5678, 28 -> 9012),
 								Map(5 -> 0, 6 -> 1, 7 -> 5678, 28 -> 9012),
 								Map(), Map(), "-False"),

@@ -24,6 +24,7 @@ class HazardUnit extends Module {
     val idex_bubble = Output(Bool())
   })
 
+
   io.pcwrite     := true.B
   io.ifid_write  := true.B
   io.idex_bubble := false.B
@@ -35,5 +36,4 @@ class HazardUnit extends Module {
     io.ifid_write  := false.B
     io.idex_bubble := true.B
   }
-
 }
