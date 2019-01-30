@@ -1,0 +1,31 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+
+
+#beq     t0,t1,label1
+#blt     t0,t1,label1
+#ble     t0,t1,label1
+#bge     t1,t0,label1
+#bge     t0,t1,label1
+
+add     t0,t0,t0 
+add     t1,t0,zero
+add     t2,t0,zero 
+add     t3,t0,zero
+add     t4,t0,zero 
+add     t5,t0,zero
+add     t6,t0,zero
+
+nop
+nop
+nop
+nop
+label1:
+
+
+_last:
+
+  .data
+.byte 0xFF,0xFF,0xFF,0xFF

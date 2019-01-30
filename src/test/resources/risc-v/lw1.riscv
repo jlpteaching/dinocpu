@@ -9,8 +9,11 @@ _start:
     nop
     nop
     nop
+    nop
+    nop
+    nop
 _last:
 
 
   .data
-.byte 0xFF,0xFF,0xFF,0xFF
+.word  4294967295
