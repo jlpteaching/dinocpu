@@ -28,10 +28,10 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   }
 
    class EXControl extends Bundle {
-    val add   = UInt(2.W)
+    val add       = Bool()
     val immediate = Bool()
-    val alusrc1 = UInt(2.W)
-    val branch  = Bool()
+    val alusrc1   = UInt(2.W)
+    val branch    = Bool()
   }
 
   class MControl extends Bundle {
@@ -46,7 +46,6 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   class WBControl extends Bundle {
     val toreg    = UInt(2.W)
     val regwrite = Bool()
-    val pctoreg  = Bool()
   }
 
   class IDEXBundle extends Bundle {
@@ -108,8 +107,8 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   val branch_taken = Wire(Bool())
 
   // For flushing stages.
-  val flush_idex  = Wire(Bool())
-  val flush_exmem = Wire(Bool())
+  val bubble_idex  = Wire(Bool())
+  val bubble_exmem = Wire(Bool())
 
   /////////////////////////////////////////////////////////////////////////////
   // FETCH STAGE
@@ -153,7 +152,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   id_ex.pc         := if_id.pc
   id_ex.pcplusfour := if_id.pcplusfour
 
-  when (flush_idex) {
+  when (bubble_idex) {
     id_ex.excontrol := 0.U.asTypeOf(new EXControl)
     id_ex.mcontrol  := 0.U.asTypeOf(new MControl)
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
@@ -162,10 +161,13 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.excontrol.immediate := control.io.immediate
     id_ex.excontrol.alusrc1   := control.io.alusrc1
     id_ex.excontrol.branch    := control.io.branch
-
+    
     id_ex.mcontrol.jump     := control.io.jump
     id_ex.mcontrol.memread  := control.io.memread
     id_ex.mcontrol.memwrite := control.io.memwrite
+    id_ex.mcontrol.maskmode := if_id.instruction(13,12)
+    id_ex.mcontrol.sext := ~if_id.instruction(14)
+
 
     id_ex.wbcontrol.toreg    := control.io.toreg
     id_ex.wbcontrol.regwrite := control.io.regwrite
@@ -205,11 +207,12 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   ex_mem.readdata2 := id_ex.readdata2
   ex_mem.aluresult := alu.io.result
   ex_mem.taken     := branchCtrl.io.taken
+  ex_mem.mcontrol.jump := id_ex.mcontrol.jump
 
-  when (branchCtrl.io.taken || control.io.jump === 2.U) {
+  when (branchCtrl.io.taken || id_ex.mcontrol.jump === 2.U) {
     ex_mem.nextpc := branchAdd.io.result
     ex_mem.taken  := true.B
-  } .elsewhen (control.io.jump === 3.U) {
+  } .elsewhen (id_ex.mcontrol.jump === 3.U) {
     ex_mem.nextpc := alu.io.result & Cat(Fill(31, 1.U), 0.U)
     ex_mem.taken  := true.B
   } .otherwise {
@@ -220,7 +223,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   ex_mem.writereg   := id_ex.writereg
   ex_mem.pcplusfour := id_ex.pcplusfour
 
-  when (flush_exmem) {
+  when (bubble_exmem) {
     ex_mem.mcontrol  := 0.U.asTypeOf(new MControl)
     ex_mem.wbcontrol := 0.U.asTypeOf(new WBControl)
   } .otherwise {
@@ -233,7 +236,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   /////////////////////////////////////////////////////////////////////////////
   // MEM STAGE
   /////////////////////////////////////////////////////////////////////////////
-
+  printf("jump =%x\n", control.io.jump)
   io.dmem.address   := ex_mem.aluresult
   io.dmem.writedata := ex_mem.readdata2
   io.dmem.memread   := ex_mem.mcontrol.memread
@@ -254,13 +257,13 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   // Now we know the direction of the branch. If it's taken, clear the control
   // for the previous stages.
   when (branch_taken) {
-    flush_exmem := true.B
-    flush_idex  := true.B
+    bubble_exmem := true.B
+    bubble_idex  := true.B
   } .otherwise {
-    flush_exmem := false.B
-    flush_idex  := false.B
+    bubble_exmem := false.B
+    bubble_idex  := false.B
   }
-
+  
   printf(p"MEM/WB: $mem_wb\n")
 
   /////////////////////////////////////////////////////////////////////////////
