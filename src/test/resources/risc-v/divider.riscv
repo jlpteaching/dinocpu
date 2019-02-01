@@ -13,7 +13,6 @@ sw	a5,0x400(zero)
 addi	a5,zero,-1
 sw	a5,0x450(zero)
 sw	zero,0x500(zero)
-nop
 jal	label2
 
 label6:
@@ -40,7 +39,6 @@ addi	a5,a5,1
 sw	a5,0x500(zero)
 
 label2:
-nop
 lw	a4,0x500(zero)
 lw	a5,0x550(zero)
 blt	a4,a5,label6

@@ -96,7 +96,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   val ex_mem     = RegInit(0.U.asTypeOf(new EXMEMBundle))
   val mem_wb     = RegInit(0.U.asTypeOf(new MEMWBBundle))
 
-  printf("Cycle=%d", cycleCount)
+  printf("Cycle=%d ", cycleCount)
 
   // Forward declaration of wires that connect different stages
 
@@ -138,7 +138,6 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
 
 
-  printf("pc=0x%x\n", pc)
   printf(p"IF/ID: $if_id\n")
 
   when (flush_ifid) {
@@ -224,8 +223,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
                            (forwarding.io.forwardA === 2.U) -> write_data))
 
 
- val alu_inputx = Wire(UInt(32.W))
- alu_inputx := DontCare
+  val alu_inputx = Wire(UInt(32.W))
+  alu_inputx := DontCare
   switch(id_ex.excontrol.alusrc1) {
    is(0.U) { alu_inputx := forward_inputx }
    is(1.U) { alu_inputx := 0.U }
@@ -251,10 +250,6 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   branchCtrl.io.inputy := forward_inputy
 
 
-
-  printf("aluinputx = %d, aluinputy = %d\n", alu.io.inputx,alu.io.inputy)
-
-
   branchAdd.io.inputx := id_ex.pc
   branchAdd.io.inputy := id_ex.imm
 
@@ -262,8 +257,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   ex_mem.aluresult := alu.io.result
   ex_mem.mcontrol.jump := id_ex.mcontrol.jump
 
-  printf("branch control taken = %d\n", branchCtrl.io.taken)
-  printf("jump = %d\n", id_ex.mcontrol.jump)
+
   when (branchCtrl.io.taken || id_ex.mcontrol.jump === 2.U) {
     ex_mem.nextpc := branchAdd.io.result
     ex_mem.taken  := true.B
