@@ -1,5 +1,5 @@
 
-RISCV ?= /opt/riscv32i
+RISCV ?= /opt/riscv
 RISCVBIN = $(RISCV)/bin
 
 SOURCES = $(wildcard *.riscv)

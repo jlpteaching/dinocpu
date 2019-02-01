@@ -333,7 +333,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
                        (mem_wb.wbcontrol.toreg === 0.U) -> mem_wb.aluresult,
                        (mem_wb.wbcontrol.toreg === 1.U) -> mem_wb.readdata,
                        (mem_wb.wbcontrol.toreg === 2.U) -> mem_wb.pcplusfour))
-  printf("write_data = %d\n", write_data)
+
   registers.io.writedata := write_data
 
   registers.io.writereg  := mem_wb.writereg
