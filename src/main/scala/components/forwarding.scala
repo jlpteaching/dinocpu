@@ -35,20 +35,17 @@ class ForwardingUnit extends Module {
     val forwardA = Output(UInt(2.W))
     val forwardB = Output(UInt(2.W))
   })
-  //printf("rs1 = %d, rs2 =%d, exmemrd = %d, exmemrw = %d,memwbrd = %d, memwbrw = %x,forwardA = %d, forwardB =%d ",io.rs1,io.rs2,io.exmemrd,io.exmemrw,io.memwbrd,io.memwbrw,io.forwardA,io.forwardB)
   when (io.rs1 === io.exmemrd && io.exmemrd =/= 0.U && io.exmemrw) {
     io.forwardA := 1.U
-  } .elsewhen (io.rs1 === io.memwbrd && io.memwbrd =/= 0.U && io.memwbrw && ~(io.exmemrw && io.exmemrd =/=0.U && io.exmemrd ===io.rs1)) {
+  } .elsewhen (io.rs1 === io.memwbrd && io.memwbrd =/= 0.U) {
     io.forwardA := 2.U
-  }
-  }
-.otherwise {
+  }.otherwise {
     io.forwardA := 0.U
   }
 
   when (io.rs2 === io.exmemrd && io.exmemrd =/= 0.U && io.exmemrw) {
     io.forwardB := 1.U
-  } .elsewhen (io.rs2 === io.memwbrd && io.memwbrd =/= 0.U && io.memwbrw&& ~(io.exmemrw && io.exmemrd =/=0.U && io.exmemrd ===io.rs2)) {
+  } .elsewhen (io.rs2 === io.memwbrd && io.memwbrd =/= 0.U) {
     io.forwardB := 2.U
   }.otherwise {
     io.forwardB := 0.U
