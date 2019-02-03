@@ -58,11 +58,6 @@ class FiveCycleITypeTesterLab3 extends CPUFlatSpec {
                 Map(),
 								Map(0 -> 0, 10 -> 17),
 								Map(), Map()),
-		CPUTestCase("addi2",
-                Map("single-cycle" -> 2, "five-cycle" -> 12, "pipelined" -> 6),
-                Map(),
-								Map(0 -> 0, 10 -> 17, 11 -> 93),
-								Map(), Map()),
 		CPUTestCase("slli",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(5 -> 1),
@@ -136,11 +131,6 @@ class FiveCycleLoadTesterLab3 extends CPUFlatSpec {
                 Map(),
 								Map(5 -> BigInt("ffffffff", 16)),
 								Map(), Map()),
-		CPUTestCase("lwfwd",
-                Map("single-cycle" -> 2, "five-cycle" -> 20, "pipelined" -> 7),
-                Map(5 -> BigInt("ffffffff", 16), 10 -> 5),
-								Map(5 -> 1, 10 -> 6),
-								Map(), Map())
  )
   for (test <- tests) {
     "Five Cycle CPU" should s"run load instruction test ${test.binary}${test.extraName}" in {
@@ -399,72 +389,6 @@ class FiveCycleJALRTesterLab3 extends CPUFlatSpec {
   "Five Cycle CPU" should s"run JALR instruction test ${test.binary}${test.extraName}" in {
     CPUTesterDriver(test, "five-cycle") should be(true)
 	}
-  }
-}
-
-/**
-  * This is a trivial example of how to run this Specification
-  * From within sbt use:
-  * {{{
-  * testOnly dinocpu.FiveCycleApplicationsTesterLab3
-  * }}}
-  * From a terminal shell use:
-  * {{{
-  * sbt 'testOnly dinocpu.FiveCycleApplicationsTesterLab3'
-  * }}}
-  *
-*/
-class FiveCycleApplicationsTesterLab3 extends CPUFlatSpec {
-
-  val tests = List[CPUTestCase](
-    CPUTestCase("fibonacci",
-              	Map("single-cycle" -> 300, "five-cycle" -> 6, "pipelined" -> 6),
-              	Map(6->11),
-								Map(6->11,5->89),
-								Map(), Map()),
-    CPUTestCase("naturalsum",
-               	Map("single-cycle" -> 200, "five-cycle" -> 6, "pipelined" -> 6),
-                Map(),
-								Map(5->55),
-								Map(), Map()),
-    CPUTestCase("multiplier",
-          	Map("single-cycle" -> 1000, "five-cycle" -> 6, "pipelined" -> 6),
-        	Map(5->23,6->20),
-								Map(5->23*20),
-								Map(), Map()),
-    CPUTestCase("divider",
-                Map("single-cycle" -> 1000, "five-cycle" -> 6, "pipelined" -> 6),
-                Map(5->1260,6->30),
-								Map(7->42),
-								Map(), Map())
-
- )
-  for (test <- tests) {
-  "Five Cycle CPU" should s"run application test ${test.binary}${test.extraName}" in {
-    CPUTesterDriver(test, "five-cycle") should be(true)
-	}
-  }
-}
-
-// Unit tests for the main control logic
-
-/*
-**
-  * This is a trivial example of how to run this Specification
-  * From within sbt use:
-  * {{{
-  * testOnly dinocpu.ControlTesterLab3
-  * }}}
-  * From a terminal shell use:
-  * {{{
-  * sbt 'testOnly dinocpu.ControlTesterLab3'
-  * }}}
-  */
-class ControlTesterLab3 extends ChiselFlatSpec {
-  "Control" should s"match expectations" in {
-    Driver(() => new Control) {
-      c => new ControlUnitTester(c)
-    } should be (true)
   }
 }
 
