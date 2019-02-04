@@ -27,28 +27,22 @@ class RegisterFile(implicit val conf: CPUConfig) extends Module {
 
   val regs = Reg(Vec(32, UInt(32.W)))
 
-
+  // When the write enable is high, write the data
+  when (io.wen) {
+    regs(io.writereg) := io.writedata
+  }
 
   // *Always* read the data. This is required for the single cycle CPU since in a single cycle it
   // might both read and write the registers (e.g., an add)
-  
-  when (io.readreg1 === io.writereg && io.wen){
-  //Forward writedata to readdata1 to avoid hazard when writing to and reading from the same register in a cycle
-    regs(io.writereg) := io.writedata
-    io.readdata1 := io.writedata
-    io.readdata2 := regs(io.readreg2)
-  } .elsewhen (io.readreg2 === io.writereg && io.wen) {  
-  //Forward writedata to readdata2 to avoid hazard when writing to and reading from the same register in a cycle
-    regs(io.writereg) := io.writedata
-    io.readdata1 := regs(io.readreg1)
-    io.readdata2 := io.writedata
-  }.otherwise {
-  // When the write enable is high, write the data
-     when (io.wen) {
-       regs(io.writereg) := io.writedata
-  }
-    io.readdata1 := regs(io.readreg1)
-    io.readdata2 := regs(io.readreg2)
-  }
+  io.readdata1 := regs(io.readreg1)
+  io.readdata2 := regs(io.readreg2)
 
+  if (conf.cpuType != "single-cycle") {
+    // For the five-cycle and pipelined CPU forward the data through the register file
+    when (io.readreg1 === io.writereg && io.wen) {
+      io.readdata1 := io.writedata
+    } .elsewhen (io.readreg2 === io.writereg && io.wen) {
+      io.readdata2 := io.writedata
+    }
+  }
 }
