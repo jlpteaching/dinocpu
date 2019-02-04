@@ -142,7 +142,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   when (flush_ifid) {
     if_id  := 0.U.asTypeOf(new IFIDBundle)
-  } 
+  }
 
 
   /////////////////////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.excontrol.immediate := control.io.immediate
     id_ex.excontrol.alusrc1   := control.io.alusrc1
     id_ex.excontrol.branch    := control.io.branch
-    
+
     id_ex.mcontrol.jump     := control.io.jump
     id_ex.mcontrol.memread  := control.io.memread
     id_ex.mcontrol.memwrite := control.io.memwrite
@@ -298,7 +298,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   // Send this back to the fetch stage
   next_pc      := ex_mem.nextpc
-  branch_taken := ex_mem.taken 
+  branch_taken := ex_mem.taken
 
   mem_wb.writereg  := ex_mem.writereg
   mem_wb.aluresult := ex_mem.aluresult
