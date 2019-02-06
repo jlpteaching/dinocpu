@@ -10,9 +10,9 @@ import chisel3._
  * Input:  rs1, the register number for which the data is used in the execute stage
  * Input:  rs2, the register number for which the data is used in the execute stage
  * Input:  exmemrd, the destination register for the instruction in the mem stage
- * Input:  exmemrw, true if the bit in the memory stage needs to write the register file
+ * Input:  exmemrw, true if the instruction in the memory stage needs to write the register file
  * Input:  memwbrd, the destination register for the instruction in the writeback stage
- * Input:  memwbrw, true if the bit in the writeback stage needs to write the register file
+ * Input:  memwbrw, true if the instruction in the writeback stage needs to write the register file
  *
  * Output: forwardA, 0, don't forward. 1, forward from mem stage. 2, forward from wb stage.
  *                   This is used for the "readdata1" forwarding
