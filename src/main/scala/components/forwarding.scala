@@ -35,11 +35,12 @@ class ForwardingUnit extends Module {
     val forwardA = Output(UInt(2.W))
     val forwardB = Output(UInt(2.W))
   })
+
   when (io.rs1 === io.exmemrd && io.exmemrd =/= 0.U && io.exmemrw) {
     io.forwardA := 1.U
   } .elsewhen (io.rs1 === io.memwbrd && io.memwbrd =/= 0.U && io.memwbrw) {
     io.forwardA := 2.U
-  }.otherwise {
+  } .otherwise {
     io.forwardA := 0.U
   }
 
@@ -47,7 +48,7 @@ class ForwardingUnit extends Module {
     io.forwardB := 1.U
   } .elsewhen (io.rs2 === io.memwbrd && io.memwbrd =/= 0.U && io.memwbrw) {
     io.forwardB := 2.U
-  }.otherwise {
+  } .otherwise {
     io.forwardB := 0.U
   }
 }
