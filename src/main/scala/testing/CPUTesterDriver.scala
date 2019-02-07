@@ -82,8 +82,17 @@ class CPUTesterDriver(cpuType: String, binary: String, extraName: String = "") {
     success
   }
 
+  var cycle = 0
+
+  def step(cycles: Int = 0): Unit = {
+    val start = cycle
+    while (cycle < start + cycles) {
+      simulator.step(1)
+      cycle += 1
+    }
+  }
+
   def run(cycles: Int): Unit = {
-    var cycle = 0
     while (cycle < cycles) {
       simulator.step(1)
       cycle += 1
@@ -101,6 +110,9 @@ case class CPUTestCase(
   extraName: String = ""
   )
 {
+  def name() : String = {
+    binary + extraName
+  }
 }
 
 object CPUTesterDriver {
