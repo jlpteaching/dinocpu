@@ -46,18 +46,6 @@ class HazardUnit extends Module {
   io.ifid_flush   := false.B
 
   // Load to use hazard.
-  when (io.idex_memread &&
-        (io.idex_rd === io.rs1 || io.idex_rd === io.rs2)) {
-    io.pcwrite     := 2.U
-    io.ifid_bubble := true.B
-    io.idex_bubble := true.B
-  }
 
   // branch flush
-  when (io.exmem_taken) {
-    io.pcwrite := 1.U // use the PC from mem stage
-    io.ifid_flush  := true.B
-    io.idex_bubble  := true.B
-    io.exmem_bubble := true.B
-  }
 }
