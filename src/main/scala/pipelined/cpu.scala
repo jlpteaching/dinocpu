@@ -189,11 +189,13 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   id_ex.excontrol.branch    := control.io.branch
   id_ex.excontrol.jump      := control.io.jump
 
+  // Set the memory control signals
   id_ex.mcontrol.memread  := control.io.memread
   id_ex.mcontrol.memwrite := control.io.memwrite
   id_ex.mcontrol.maskmode := if_id.instruction(13,12)
   id_ex.mcontrol.sext     := ~if_id.instruction(14)
 
+  // Set the writeback control signals
   id_ex.wbcontrol.toreg    := control.io.toreg
   id_ex.wbcontrol.regwrite := control.io.regwrite
 
