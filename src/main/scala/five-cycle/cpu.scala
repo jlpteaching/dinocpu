@@ -21,12 +21,15 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
   val io = IO(new CoreIO)
 
   // Bundles defining the pipeline registers and control structures
+
+  // Everything in the register between IF and ID stages
   class IFIDBundle extends Bundle {
     val instruction = UInt(32.W)
     val pc          = UInt(32.W)
     val pcplusfour  = UInt(32.W)
   }
 
+  // Control signals used in EX stage
    class EXControl extends Bundle {
     val add       = Bool()
     val immediate = Bool()
@@ -35,6 +38,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     val jump     = UInt(2.W)
   }
 
+  // Control signals used in MEM stage
   class MControl extends Bundle {
     val memread  = Bool()
     val memwrite = Bool()
@@ -43,11 +47,13 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     val sext     = Bool()
   }
 
+  // Control signals used in EB stage
   class WBControl extends Bundle {
     val toreg    = UInt(2.W)
     val regwrite = Bool()
   }
 
+  // Everything in the register between ID and EX stages
   class IDEXBundle extends Bundle {
     val writereg  = UInt(5.W)
     val funct7    = UInt(7.W)
@@ -62,6 +68,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     val wbcontrol = new WBControl
   }
 
+  // Everything in the register between ID and EX stages
   class EXMEMBundle extends Bundle {
     val writereg  = UInt(5.W)
     val readdata2 = UInt(32.W)
@@ -73,6 +80,7 @@ class FiveCycleCPU(implicit val conf: CPUConfig) extends Module {
     val wbcontrol = new WBControl
   }
 
+  // Everything in the register between ID and EX stages
   class MEMWBBundle extends Bundle {
     val writereg  = UInt(5.W)
     val aluresult = UInt(32.W)
