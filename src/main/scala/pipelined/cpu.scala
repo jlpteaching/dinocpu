@@ -164,17 +164,17 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   // EX STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  // Set the inputs to the hazard detection unit from this stage
+  // Set the inputs to the hazard detection unit from this stage (SKIP FOR PART I)
 
-  // Set the input to the forwarding unit from this stage
+  // Set the input to the forwarding unit from this stage (SKIP FOR PART I)
 
   // Connect the ALU control wires (line 45 of single-cycle/cpu.scala)
 
-  // Insert the forward inputx mux here
+  // Insert the forward inputx mux here (SKIP FOR PART I)
 
   // Insert the ALU inpux mux here (line 59 of single-cycle/cpu.scala)
 
-  // Insert forward inputy mux here
+  // Insert forward inputy mux here (SKIP FOR PART I)
 
   // Input y mux (line 66 of single-cycle/cpu.scala)
 
@@ -200,9 +200,9 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   // Send next_pc back to the fetch stage
 
-  // Send input signals to the hazard detection unit
+  // Send input signals to the hazard detection unit (SKIP FOR PART I)
 
-  // Send input signals to the forwarding unit
+  // Send input signals to the forwarding unit (SKIP FOR PART I)
 
   // Wire the MEM/WB register
 
@@ -216,7 +216,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   // Write the data to the register file
 
-  // Set the input signals for the forwarding unit
+  // Set the input signals for the forwarding unit (SKIP FOR PART I)
 
   printf("---------------------------------------------\n")
 }

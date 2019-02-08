@@ -28,7 +28,6 @@ class CPUConfig
     implicit val conf = this
     cpuType match {
       case "single-cycle" => new SingleCycleCPU
-      case "five-cycle" => new FiveCycleCPU
       case "pipelined" => new PipelinedCPU
       case _ => throw new IllegalArgumentException("Must specify known CPU model")
     }

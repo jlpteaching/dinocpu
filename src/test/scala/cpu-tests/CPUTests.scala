@@ -31,18 +31,6 @@ class SingleCycleCPUTester extends CPUFlatSpec {
   }
 }
 
-/** Just like [[SingleCycleCPUTester]], but for the five cycle CPU */
-class FiveCycleCPUTester extends CPUFlatSpec {
-  behavior of "Five Cycle CPU"
-  for ((group, tests) <- InstTests.tests) {
-    for (test <- tests if test.cycles("five-cycle") > 0) {
-      it should s"run $group ${test.binary}${test.extraName}" in {
-        CPUTesterDriver(test, "five-cycle") should be(true)
-      }
-    }
-  }
-}
-
 /** Just like [[SingleCycleCPUTester]], but for the pipelined CPU */
 class PipelinedCPUTester extends CPUFlatSpec {
   behavior of "Pipelined CPU"
