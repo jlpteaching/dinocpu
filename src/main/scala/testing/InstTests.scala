@@ -440,7 +440,7 @@ object InstTests {
 		"itypeMultiCycle" -> itypeMultiCycle,
     "branch" -> branch,
     "memory" -> memory,
-		"memoryMultiCycle" -> memoryMultiCycle
+		"memoryMultiCycle" -> memoryMultiCycle,
     "utype" -> utype,
     "jump" -> jump,
 		"applications" -> applications
