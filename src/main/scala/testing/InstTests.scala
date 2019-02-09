@@ -333,11 +333,6 @@ object InstTests {
                 Map(),
 								Map(5 -> BigInt("fffff3f4", 16)),
 								Map(), Map()),
-		CPUTestCase("lwfwd",
-                Map("single-cycle" -> 2, "five-cycle" -> 0, "pipelined" -> 7),
-                Map(5 -> BigInt("ffffffff", 16), 10 -> 5),
-								Map(5 -> 1, 10 -> 6),
-								Map(), Map()),
 		CPUTestCase("sw",
                 Map("single-cycle" -> 6, "five-cycle" -> 10, "pipelined" -> 10),
                 Map(5 -> 1234),
@@ -353,6 +348,14 @@ object InstTests {
                 Map(5 -> 1),
 								Map(6 -> 1),
 								Map(), Map(0x100 -> BigInt("ffff0001", 16)))
+	)
+
+	val memoryMultiCycle = List[CPUTestCase](
+		CPUTestCase("lwfwd",
+                Map("single-cycle" -> 2, "five-cycle" -> 0, "pipelined" -> 7),
+                Map(5 -> BigInt("ffffffff", 16), 10 -> 5),
+								Map(5 -> 1, 10 -> 6),
+								Map(), Map())
 	)
 
   val utype = List[CPUTestCase](
@@ -437,6 +440,7 @@ object InstTests {
 		"itypeMultiCycle" -> itypeMultiCycle,
     "branch" -> branch,
     "memory" -> memory,
+		"memoryMultiCycle" -> memoryMultiCycle,
     "utype" -> utype,
     "jump" -> jump,
 		"applications" -> applications

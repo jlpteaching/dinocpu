@@ -189,7 +189,6 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   // Calculate whether which PC we should use and set the taken flag (line 92 in single-cycle/cpu.scala)
 
-
   printf(p"EX/MEM: $ex_mem\n")
 
   /////////////////////////////////////////////////////////////////////////////

@@ -29,17 +29,18 @@ dinocpu:sbt> testOnly dinocpu.SingleCycleCPUTester -- -z sub
 
 
 # CPU Test Case
+
 The `InstTests` object in`src/test/scala/cput-tests/InstTests.scala`contains lists of different instruction test cases for use with different CPU models.Each list is a different set of instruction types and corresponds to a RISC-V program in `src/test/resources/risc-v`.
 
 Each test case looks like:
- - binary to run in src/test/resources/risc-v 
+ - binary to run in src/test/resources/risc-v
  - number of cycles to run for each CPU type
  - initial values for registers
  - final values to check for registers
  - initial values for memory
  - final values to check for memory
  - extra name information
- 
+
 
   ```
  CPUTestCase(  "binary_name",
@@ -47,10 +48,10 @@ Each test case looks like:
                 Map(rs1 -> data1, rs2 -> data2),
                 Map(0 -> 0, rd -> (data1 ? data2) , ...),
                 Map(), Map())
-                
+
   ```
-  
-  
+
+
 add2.riscv :
 
 ```
@@ -76,13 +77,13 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
                 Map(5 -> 1234, 20 -> 5678),
                 Map(0 -> 0, 10 -> 6912),
                 Map(), Map())
-                
+
   ```
-  
+
   - `Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5)` runs the single-cyle implementation for one cycle and the five-cycle, pipelined implementations for five cycles.
  - `Map(5 -> 1234, 20 -> 5678)` initializes `t0` (`reg[5]`) to 1234 and `s4` (`reg[20]`) to 5678.
  - `Map(0 -> 0, 10 -> 6912)` checks if the contents of `reg[0]` and `a0` are 0 and 6912 respectively.
- 
+
  # Adding your CPU Test Cases
  ## 1. Editing the given CPU Test Cases:
  Editing the already given CPU Test Cases with new values for initializing amd checking registers is very simple. Consider the test case for `add2.risv`. If we edit the test case to the following:
@@ -92,27 +93,27 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
                 Map(5 -> 2048, 20 -> 512),
                 Map(0 -> 0, 10 -> 2560),
                 Map(), Map())
-                
+
   ```
-  
-  The test case now initializes `t0`(`reg[5]`) to 2048, `s4`(`reg[20]`) to 512 and checks if `a0` (`reg[10]`) has the sum 2560 (= 2048 + 512). 
-  
+
+  The test case now initializes `t0`(`reg[5]`) to 2048, `s4`(`reg[20]`) to 512 and checks if `a0` (`reg[10]`) has the sum 2560 (= 2048 + 512).
+
   ## 2. Adding new tests:
-  ```		
+  ```
   CPUTestCase("add2",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(5 -> 1234, 20 -> 5678),
 								Map(0 -> 0, 10 -> 6912),
 								Map(), Map()),
-        
+
   CPUTestCase("add2",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(5 -> 2048, 20 -> 512),
 								Map(0 -> 0, 10 -> 2560),
 								Map(), Map())
   ```
-     
-  Simply copying the CPU Test case as is and adding in changes to register values will throw the error show below. 
+
+  Simply copying the CPU Test case as is and adding in changes to register values will throw the error show below.
  ```
  sbt:dinocpu> testOnly dinocpu.SingleCycleCPUTester -- -z add
 [info] SingleCycleCPUTester:
@@ -131,20 +132,20 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
 [error] Total time: 3 s, completed Jan 14, 2019 6:29:23 AM
 
  ```
- 
+
  To avoid this add a name to the extra CPU Test Case which distinguishes it from any previous test cases that test for the same instruction in the extra name information field as shown below.
- 
-   ```		
+
+   ```
   CPUTestCase("add2",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(5 -> 1234, 20 -> 5678),
 								Map(0 -> 0, 10 -> 6912),
 								Map(), Map()),
-        
+
   CPUTestCase("add2",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
                 Map(5 -> 2048, 20 -> 512),
 								Map(0 -> 0, 10 -> 2560),
 								Map(), Map(),"-addnew")
   ```
- 
+
