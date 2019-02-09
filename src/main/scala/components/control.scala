@@ -16,7 +16,7 @@ import chisel3.util.{BitPat, ListLookup}
  * Output: regwrite, true if writing to the register file
  * Output: immediate, true if using the immediate value
  * Output: alusrc1, 0 for read data 1, 1 for the constant zero, 2 for the PC
- * Output: jump, 0 for no jump, 2 for jump, 3 for jal (jump and link register)
+ * Output: jump, 0 for no jump, 2 for jal (jump and link), 3 for jalr (jump and link register)
  *
  * For more information, see section 4.4 of Patterson and Hennessy.
  * This follows figure 4.22.
