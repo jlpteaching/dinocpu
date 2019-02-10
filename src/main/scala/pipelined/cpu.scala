@@ -99,6 +99,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   val hazard     = Module(new HazardUnit())      //pipelined only
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
+  // The four pipeline registers
   val if_id      = RegInit(0.U.asTypeOf(new IFIDBundle))
   val id_ex      = RegInit(0.U.asTypeOf(new IDEXBundle))
   val ex_mem     = RegInit(0.U.asTypeOf(new EXMEMBundle))
