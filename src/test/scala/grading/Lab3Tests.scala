@@ -236,7 +236,7 @@ class Lab3Grader extends JUnitSuite {
   }
 
   @Test
-  @GradedTest(name="Applications", max_score=5)
+  @GradedTest(name="Applications", max_score=15)
   def verifyApplications() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
