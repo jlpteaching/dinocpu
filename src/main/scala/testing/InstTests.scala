@@ -447,7 +447,7 @@ object InstTests {
   )
 
 	// All of the tests
-	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++ memory ++ utype ++ jump ++ applications
+	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++ memory ++ memoryMultiCycle ++ utype ++ jump ++ applications
 
 	// Mapping from full name of test to test
 	val nameMap = allTests.map(x => x.name() -> x).toMap
