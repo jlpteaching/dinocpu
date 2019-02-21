@@ -7,9 +7,31 @@ import chisel3._
 import chisel3.util.experimental.BoringUtils
 
 /**
- * A 32 entry two read port one write port register file
+ * A 32 entry two read port one write port register file.
  *
- * Here we describe the I/O
+ * Note: this register file *has* an entry for register 0, and it's possible to
+ * overwrite the default 0 value. Thus, you need to add extra logic to the
+ * DINO CPU control or data path to make sure you always get 0 from register 0.
+ *
+ * Note: The chisel registers cannot be read and written on the same cycle.
+ * Therefore, we have a bypass logic for when a register is read in the same
+ * cycle it is written. However, for the single cycle CPU this causes a
+ * combinational loop. Thus, we must have different logic when creating a
+ * single cycle vs pipelined CPU.
+ *
+ * Basic operation:
+ *   readdata1 = R[readreg1]
+ *   readdata2 = R[readreg2]
+ *   if (wen) R[writereg] = writedata
+ *
+ * Input:  readreg1, the number of the register to read
+ * Input:  readreg2, the number of the register to read
+ * Input:  writereg, the number of the register to write
+ * Input:  writedata, the data to write into R[writereg]
+ * Input:  wen, write enable. If true, write the writereg register
+ *
+ * Output: readdata1, the data in register number readreg1 (R[readreg1])
+ * Output: readdata2, the data in register number readreg2 (R[readreg2])
  *
  * For more information, see section 4.3 of Patterson and Hennessy
  */
