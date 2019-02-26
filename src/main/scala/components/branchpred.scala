@@ -113,10 +113,47 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
 
   // The first bit for the table access is based on the number of entries.
   // +2 since we ignore the bottom two bits
-  val table_index = io.pc(log2Floor(conf.branchPredTableEntries) + 2, 2)
+  val tableIndex = io.pc(log2Floor(conf.branchPredTableEntries) + 2, 2)
 
   // Return the high-order bit
-  io.prediction := branchHistoryTable(table_index)(conf.saturatingCounterBits - 1)
+  io.prediction := branchHistoryTable(tableIndex)(conf.saturatingCounterBits - 1)
 
-  lastBranch := table_index
+  lastBranch := tableIndex
+}
+
+/**
+ * A simple global history predictor
+ */
+class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
+
+  // Default value is weakly taken for each branch
+  val defaultSaturatingCounter = (1 << conf.saturatingCounterBits - 1)
+  // Create a register file with conf.branchPredTableEntries
+  // Each entry is conf.saturatingCounterBits.W bits wide
+  val branchHistoryTable = RegInit(VecInit(Seq.fill(conf.branchPredTableEntries)(defaultSaturatingCounter.U(conf.saturatingCounterBits.W))))
+
+  // The length is based on the size of the branch history table
+  val historyBits = log2Floor(conf.branchPredTableEntries)
+  val history = RegInit(0.U(historyBits.W))
+
+  // when updating, grab the latest history
+  val currentHistory = Wire(UInt(historyBits.W))
+
+  when(io.update) {
+    // Make sure to use the value of a branch in the next stage
+    currentHistory := Cat(history(historyBits - 1, 1), io.taken)
+
+    history := currentHistory // update the history register at the end of the cycle
+    // Update the prediction for this branch history
+    when (io.taken) {
+      incrCounter(branchHistoryTable(currentHistory))
+    } .otherwise {
+      decrCounter(branchHistoryTable(currentHistory))
+    }
+
+  } .otherwise {
+    currentHistory := history
+  }
+
+  io.prediction := branchHistoryTable(currentHistory)
 }

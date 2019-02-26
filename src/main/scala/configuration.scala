@@ -47,6 +47,7 @@ class CPUConfig
       case "always-taken"     => new AlwaysTakenPredictor
       case "always-not-taken" => new AlwaysNotTakenPredictor
       case "local"            => new LocalPredictor
+      case "global"           => new GlobalHistoryPredictor
       case _ => throw new IllegalArgumentException("Must specify known branch predictor")
     }
   }
