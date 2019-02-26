@@ -169,6 +169,9 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   hazard.io.rs1 := rs1
   hazard.io.rs2 := rs2
 
+  // Set the predictor inputs
+  predictor.io.pc := if_id.pc
+
   // Set the branch for this stage to the hazard
   // This is needed for when the branch is predicted taken
   hazard.io.id_branch := control.io.branch & predictor.io.prediction
@@ -296,6 +299,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   ex_mem.mcontrol   := id_ex.mcontrol
   ex_mem.wbcontrol  := id_ex.wbcontrol
 
+  // Don't update the predictor by default
+  predictor.io.update := false.B
+  predictor.io.taken  := DontCare
+
   // Calculate whether which PC we should use and set the taken flag (line 92 in single-cycle/cpu.scala)
   when (id_ex.excontrol.jump(1)) {
     // If the high bit in the jump control is set, then we jump no matter what.
@@ -311,6 +318,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   } .otherwise {
     // No need to do anything unless the prediction was wrong
     when (branchCtrl.io.taken =/= id_ex.excontrol.prediction && id_ex.excontrol.branch) {
+      predictor.io.update := true.B
+      predictor.io.taken  := branchCtrl.io.taken
       when (branchCtrl.io.taken) { ex_mem.nextpc := id_ex.branchpc }
       .otherwise { ex_mem.nextpc := id_ex.pcplusfour }
       ex_mem.mcontrol.taken := true.B

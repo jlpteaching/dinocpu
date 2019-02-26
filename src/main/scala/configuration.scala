@@ -18,6 +18,10 @@ class CPUConfig
 
   /** The type of branch predictor to use */
   var branchPredictor = "always-not-taken"
+  /** Number of bits for the saturating counters */
+  var saturatingCounterBits = 2
+  /** Number of entries in the branch predictor table */
+  var branchPredTableEntries = 32
 
   /** The memory file location */
   var memFile = "test"
@@ -42,6 +46,7 @@ class CPUConfig
     branchPredictor match {
       case "always-taken"     => new AlwaysTakenPredictor
       case "always-not-taken" => new AlwaysNotTakenPredictor
+      case "local"            => new LocalPredictor
       case _ => throw new IllegalArgumentException("Must specify known branch predictor")
     }
   }
