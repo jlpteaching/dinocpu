@@ -11,9 +11,17 @@ object singlestep {
     println(s"Running test ${args(0)} on CPU design ${args(1)}")
 
     val test = InstTests.nameMap(args(0))
-    val cpuType = args(1)
+    val params = args(1).split(":")
+    val cpuType = params(0)
 
-    val driver = new CPUTesterDriver(cpuType, test.binary, test.extraName)
+    val predictor =
+    if (params.length == 2) {
+      params(1)
+    } else {
+      ""
+    }
+
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName)
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
     println("How many cycles to you want to run? \"Q\" to quit.")

@@ -7,7 +7,7 @@ import treadle.executable.TreadleException
 
 class CPUFlatSpec extends FlatSpec with Matchers
 
-class CPUTesterDriver(cpuType: String, binary: String, extraName: String = "") {
+class CPUTesterDriver(cpuType: String, branchPredictor: String, binary: String, extraName: String = "") {
   val optionsManager = new SimulatorOptionsManager()
 
   if (optionsManager.targetDirName == ".") {
@@ -19,6 +19,10 @@ class CPUTesterDriver(cpuType: String, binary: String, extraName: String = "") {
   val conf = new CPUConfig()
   conf.cpuType = cpuType
   conf.memFile = hexName
+
+  if (!branchPredictor.isEmpty) {
+    conf.branchPredictor = branchPredictor
+  }
 
   // This compiles the chisel to firrtl
   val compiledFirrtl = build(optionsManager, conf)
@@ -116,8 +120,8 @@ case class CPUTestCase(
 }
 
 object CPUTesterDriver {
-  def apply(testCase: CPUTestCase, cpuType: String): Boolean = {
-    val driver = new CPUTesterDriver(cpuType, testCase.binary, testCase.extraName)
+  def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = ""): Boolean = {
+    val driver = new CPUTesterDriver(cpuType, branchPredictor, testCase.binary, testCase.extraName)
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))

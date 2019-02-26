@@ -54,3 +54,20 @@ class PipelinedCPUTester extends CPUFlatSpec {
     }
   }
 }
+
+/** Just like [[SingleCycleCPUTester]], but for the pipelined CPU */
+class PipelinedBPTakenCPUTester extends CPUFlatSpec {
+  val mytests = Map(
+    "branch" -> InstTests.branch,
+    "jump" -> InstTests.jump,
+		"applications" -> InstTests.applications
+  )
+  behavior of "Pipelined CPU with always-taken branch predictor"
+  for ((group, tests) <- mytests) {
+    for (test <- tests) {
+      it should s"run $group ${test.binary}${test.extraName}" in {
+        CPUTesterDriver(test, "pipelined", "always-taken") should be(true)
+      }
+    }
+  }
+}

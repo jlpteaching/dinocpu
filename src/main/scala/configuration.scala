@@ -16,6 +16,9 @@ class CPUConfig
   /** The type of CPU to elaborate */
   var cpuType = "single-cycle"
 
+  /** The type of branch predictor to use */
+  var branchPredictor = "always-not-taken"
+
   /** The memory file location */
   var memFile = "test"
 
@@ -31,6 +34,15 @@ class CPUConfig
       case "five-cycle" => new FiveCycleCPU
       case "pipelined" => new PipelinedCPU
       case _ => throw new IllegalArgumentException("Must specify known CPU model")
+    }
+  }
+
+  def getBranchPredictor = {
+    implicit val conf = this
+    branchPredictor match {
+      case "always-taken"     => new AlwaysTakenPredictor
+      case "always-not-taken" => new AlwaysNotTakenPredictor
+      case _ => throw new IllegalArgumentException("Must specify known branch predictor")
     }
   }
 
