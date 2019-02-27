@@ -59,11 +59,11 @@ class CPUConfig
    *        smaller than this, create a memory that is this size.
    * @return [[dinocpu.DualPortedMemory]] object
    */
-  def getMem(minSize: Int = 4096) = {
+  def getMem(minSize: Int = 65536) = {
     val f = new File(memFile)
     if (f.length == 0) {
       println("WARNING: No file will be loaded for data memory")
     }
-    new DualPortedMemory(max(f.length.toInt, minSize), memFile)
+    new DualPortedMemory(minSize, memFile)
   }
 }
