@@ -1,0 +1,2799 @@
+
+towers.riscv:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <_start>:
+   0:	00000093          	li	ra,0
+   4:	00000113          	li	sp,0
+   8:	00000193          	li	gp,0
+   c:	00000213          	li	tp,0
+  10:	00000293          	li	t0,0
+  14:	00000313          	li	t1,0
+  18:	00000393          	li	t2,0
+  1c:	00000413          	li	s0,0
+  20:	00000493          	li	s1,0
+  24:	00000513          	li	a0,0
+  28:	00000593          	li	a1,0
+  2c:	00000613          	li	a2,0
+  30:	00000693          	li	a3,0
+  34:	00000713          	li	a4,0
+  38:	00000793          	li	a5,0
+  3c:	00000813          	li	a6,0
+  40:	00000893          	li	a7,0
+  44:	00000913          	li	s2,0
+  48:	00000993          	li	s3,0
+  4c:	00000a13          	li	s4,0
+  50:	00000a93          	li	s5,0
+  54:	00000b13          	li	s6,0
+  58:	00000b93          	li	s7,0
+  5c:	00000c13          	li	s8,0
+  60:	00000c93          	li	s9,0
+  64:	00000d13          	li	s10,0
+  68:	00000d93          	li	s11,0
+  6c:	00000e13          	li	t3,0
+  70:	00000e93          	li	t4,0
+  74:	00000f13          	li	t5,0
+  78:	00000f93          	li	t6,0
+  7c:	00002117          	auipc	sp,0x2
+  80:	99410113          	addi	sp,sp,-1644 # 1a10 <STACK>
+  84:	5d8000ef          	jal	ra,65c <main>
+  88:	76c0006f          	j	7f4 <end>
+
+0000008c <towers_verify.part.0>:
+  8c:	01852603          	lw	a2,24(a0)
+  90:	00052783          	lw	a5,0(a0)
+  94:	04f61a63          	bne	a2,a5,e8 <towers_verify.part.0+0x5c>
+  98:	01c52783          	lw	a5,28(a0)
+  9c:	02078463          	beqz	a5,c4 <towers_verify.part.0+0x38>
+  a0:	0007a703          	lw	a4,0(a5)
+  a4:	00100693          	li	a3,1
+  a8:	00d70863          	beq	a4,a3,b8 <towers_verify.part.0+0x2c>
+  ac:	0440006f          	j	f0 <towers_verify.part.0+0x64>
+  b0:	0007a683          	lw	a3,0(a5)
+  b4:	02d71e63          	bne	a4,a3,f0 <towers_verify.part.0+0x64>
+  b8:	0047a783          	lw	a5,4(a5)
+  bc:	00170713          	addi	a4,a4,1
+  c0:	fe0798e3          	bnez	a5,b0 <towers_verify.part.0+0x24>
+  c4:	00452503          	lw	a0,4(a0)
+  c8:	00100793          	li	a5,1
+  cc:	00c79633          	sll	a2,a5,a2
+  d0:	fff60613          	addi	a2,a2,-1
+  d4:	40c50533          	sub	a0,a0,a2
+  d8:	00a03533          	snez	a0,a0
+  dc:	40a00533          	neg	a0,a0
+  e0:	00657513          	andi	a0,a0,6
+  e4:	00008067          	ret
+  e8:	00400513          	li	a0,4
+  ec:	00008067          	ret
+  f0:	00500513          	li	a0,5
+  f4:	00008067          	ret
+
+000000f8 <list_getSize>:
+  f8:	00052503          	lw	a0,0(a0)
+  fc:	00008067          	ret
+
+00000100 <list_init>:
+ 100:	00052023          	sw	zero,0(a0)
+ 104:	00052223          	sw	zero,4(a0)
+ 108:	00008067          	ret
+
+0000010c <list_push>:
+ 10c:	00002697          	auipc	a3,0x2
+ 110:	93c68693          	addi	a3,a3,-1732 # 1a48 <g_nodeFreeList>
+ 114:	0046a783          	lw	a5,4(a3)
+ 118:	00052703          	lw	a4,0(a0)
+ 11c:	0047a603          	lw	a2,4(a5)
+ 120:	00170713          	addi	a4,a4,1
+ 124:	00c6a223          	sw	a2,4(a3)
+ 128:	00452683          	lw	a3,4(a0)
+ 12c:	00d7a223          	sw	a3,4(a5)
+ 130:	00f52223          	sw	a5,4(a0)
+ 134:	00b7a023          	sw	a1,0(a5)
+ 138:	00e52023          	sw	a4,0(a0)
+ 13c:	00008067          	ret
+
+00000140 <list_pop>:
+ 140:	00452703          	lw	a4,4(a0)
+ 144:	00050793          	mv	a5,a0
+ 148:	00052683          	lw	a3,0(a0)
+ 14c:	00472583          	lw	a1,4(a4)
+ 150:	00072503          	lw	a0,0(a4)
+ 154:	00002617          	auipc	a2,0x2
+ 158:	8f460613          	addi	a2,a2,-1804 # 1a48 <g_nodeFreeList>
+ 15c:	00b7a223          	sw	a1,4(a5)
+ 160:	00462583          	lw	a1,4(a2)
+ 164:	fff68693          	addi	a3,a3,-1
+ 168:	00b72223          	sw	a1,4(a4)
+ 16c:	00e62223          	sw	a4,4(a2)
+ 170:	00d7a023          	sw	a3,0(a5)
+ 174:	00008067          	ret
+
+00000178 <list_clear>:
+ 178:	00052703          	lw	a4,0(a0)
+ 17c:	02e05a63          	blez	a4,1b0 <list_clear+0x38>
+ 180:	00002617          	auipc	a2,0x2
+ 184:	8c860613          	addi	a2,a2,-1848 # 1a48 <g_nodeFreeList>
+ 188:	00452783          	lw	a5,4(a0)
+ 18c:	fff70713          	addi	a4,a4,-1
+ 190:	0047a683          	lw	a3,4(a5)
+ 194:	00d52223          	sw	a3,4(a0)
+ 198:	00462683          	lw	a3,4(a2)
+ 19c:	00d7a223          	sw	a3,4(a5)
+ 1a0:	00002697          	auipc	a3,0x2
+ 1a4:	8af6a623          	sw	a5,-1876(a3) # 1a4c <g_nodeFreeList+0x4>
+ 1a8:	fe0710e3          	bnez	a4,188 <list_clear+0x10>
+ 1ac:	00052023          	sw	zero,0(a0)
+ 1b0:	00008067          	ret
+
+000001b4 <towers_init>:
+ 1b4:	00b52023          	sw	a1,0(a0)
+ 1b8:	00052223          	sw	zero,4(a0)
+ 1bc:	00052423          	sw	zero,8(a0)
+ 1c0:	00052623          	sw	zero,12(a0)
+ 1c4:	00052823          	sw	zero,16(a0)
+ 1c8:	00052a23          	sw	zero,20(a0)
+ 1cc:	00052c23          	sw	zero,24(a0)
+ 1d0:	00052e23          	sw	zero,28(a0)
+ 1d4:	04b05463          	blez	a1,21c <towers_init+0x68>
+ 1d8:	00002797          	auipc	a5,0x2
+ 1dc:	87078793          	addi	a5,a5,-1936 # 1a48 <g_nodeFreeList>
+ 1e0:	0047a783          	lw	a5,4(a5)
+ 1e4:	00058713          	mv	a4,a1
+ 1e8:	00000693          	li	a3,0
+ 1ec:	0080006f          	j	1f4 <towers_init+0x40>
+ 1f0:	00060793          	mv	a5,a2
+ 1f4:	0047a603          	lw	a2,4(a5)
+ 1f8:	00e7a023          	sw	a4,0(a5)
+ 1fc:	00d7a223          	sw	a3,4(a5)
+ 200:	fff70713          	addi	a4,a4,-1
+ 204:	00078693          	mv	a3,a5
+ 208:	fe0714e3          	bnez	a4,1f0 <towers_init+0x3c>
+ 20c:	00002717          	auipc	a4,0x2
+ 210:	84c72023          	sw	a2,-1984(a4) # 1a4c <g_nodeFreeList+0x4>
+ 214:	00f52623          	sw	a5,12(a0)
+ 218:	00b52423          	sw	a1,8(a0)
+ 21c:	00008067          	ret
+
+00000220 <towers_clear>:
+ 220:	00852703          	lw	a4,8(a0)
+ 224:	04e05063          	blez	a4,264 <towers_clear+0x44>
+ 228:	00002697          	auipc	a3,0x2
+ 22c:	82068693          	addi	a3,a3,-2016 # 1a48 <g_nodeFreeList>
+ 230:	00c52783          	lw	a5,12(a0)
+ 234:	0046a683          	lw	a3,4(a3)
+ 238:	0080006f          	j	240 <towers_clear+0x20>
+ 23c:	00060793          	mv	a5,a2
+ 240:	0047a603          	lw	a2,4(a5)
+ 244:	fff70713          	addi	a4,a4,-1
+ 248:	00d7a223          	sw	a3,4(a5)
+ 24c:	00078693          	mv	a3,a5
+ 250:	fe0716e3          	bnez	a4,23c <towers_clear+0x1c>
+ 254:	00001717          	auipc	a4,0x1
+ 258:	7ef72c23          	sw	a5,2040(a4) # 1a4c <g_nodeFreeList+0x4>
+ 25c:	00c52623          	sw	a2,12(a0)
+ 260:	00052423          	sw	zero,8(a0)
+ 264:	01052703          	lw	a4,16(a0)
+ 268:	04e05063          	blez	a4,2a8 <towers_clear+0x88>
+ 26c:	00001697          	auipc	a3,0x1
+ 270:	7dc68693          	addi	a3,a3,2012 # 1a48 <g_nodeFreeList>
+ 274:	01452783          	lw	a5,20(a0)
+ 278:	0046a683          	lw	a3,4(a3)
+ 27c:	0080006f          	j	284 <towers_clear+0x64>
+ 280:	00060793          	mv	a5,a2
+ 284:	0047a603          	lw	a2,4(a5)
+ 288:	fff70713          	addi	a4,a4,-1
+ 28c:	00d7a223          	sw	a3,4(a5)
+ 290:	00078693          	mv	a3,a5
+ 294:	fe0716e3          	bnez	a4,280 <towers_clear+0x60>
+ 298:	00001717          	auipc	a4,0x1
+ 29c:	7af72a23          	sw	a5,1972(a4) # 1a4c <g_nodeFreeList+0x4>
+ 2a0:	00c52a23          	sw	a2,20(a0)
+ 2a4:	00052823          	sw	zero,16(a0)
+ 2a8:	01852703          	lw	a4,24(a0)
+ 2ac:	02e05c63          	blez	a4,2e4 <towers_clear+0xc4>
+ 2b0:	00001697          	auipc	a3,0x1
+ 2b4:	79868693          	addi	a3,a3,1944 # 1a48 <g_nodeFreeList>
+ 2b8:	01c52783          	lw	a5,28(a0)
+ 2bc:	0046a683          	lw	a3,4(a3)
+ 2c0:	0080006f          	j	2c8 <towers_clear+0xa8>
+ 2c4:	00060793          	mv	a5,a2
+ 2c8:	0047a603          	lw	a2,4(a5)
+ 2cc:	fff70713          	addi	a4,a4,-1
+ 2d0:	00d7a223          	sw	a3,4(a5)
+ 2d4:	00078693          	mv	a3,a5
+ 2d8:	fe0716e3          	bnez	a4,2c4 <towers_clear+0xa4>
+ 2dc:	00001717          	auipc	a4,0x1
+ 2e0:	76f72823          	sw	a5,1904(a4) # 1a4c <g_nodeFreeList+0x4>
+ 2e4:	00052583          	lw	a1,0(a0)
+ 2e8:	00052223          	sw	zero,4(a0)
+ 2ec:	00052423          	sw	zero,8(a0)
+ 2f0:	00052623          	sw	zero,12(a0)
+ 2f4:	00052823          	sw	zero,16(a0)
+ 2f8:	00052a23          	sw	zero,20(a0)
+ 2fc:	00052c23          	sw	zero,24(a0)
+ 300:	00052e23          	sw	zero,28(a0)
+ 304:	04b05463          	blez	a1,34c <towers_clear+0x12c>
+ 308:	00001797          	auipc	a5,0x1
+ 30c:	74078793          	addi	a5,a5,1856 # 1a48 <g_nodeFreeList>
+ 310:	0047a783          	lw	a5,4(a5)
+ 314:	00058713          	mv	a4,a1
+ 318:	00000693          	li	a3,0
+ 31c:	0080006f          	j	324 <towers_clear+0x104>
+ 320:	00060793          	mv	a5,a2
+ 324:	0047a603          	lw	a2,4(a5)
+ 328:	00e7a023          	sw	a4,0(a5)
+ 32c:	00d7a223          	sw	a3,4(a5)
+ 330:	fff70713          	addi	a4,a4,-1
+ 334:	00078693          	mv	a3,a5
+ 338:	fe0714e3          	bnez	a4,320 <towers_clear+0x100>
+ 33c:	00001717          	auipc	a4,0x1
+ 340:	70c72823          	sw	a2,1808(a4) # 1a4c <g_nodeFreeList+0x4>
+ 344:	00f52623          	sw	a5,12(a0)
+ 348:	00b52423          	sw	a1,8(a0)
+ 34c:	00008067          	ret
+
+00000350 <towers_solve_h>:
+ 350:	fe010113          	addi	sp,sp,-32
+ 354:	00812c23          	sw	s0,24(sp)
+ 358:	00912a23          	sw	s1,20(sp)
+ 35c:	01212823          	sw	s2,16(sp)
+ 360:	01312623          	sw	s3,12(sp)
+ 364:	01412423          	sw	s4,8(sp)
+ 368:	00112e23          	sw	ra,28(sp)
+ 36c:	00100793          	li	a5,1
+ 370:	00050a13          	mv	s4,a0
+ 374:	00060913          	mv	s2,a2
+ 378:	00070993          	mv	s3,a4
+ 37c:	00058493          	mv	s1,a1
+ 380:	00068413          	mv	s0,a3
+ 384:	04f58863          	beq	a1,a5,3d4 <towers_solve_h+0x84>
+ 388:	fff48493          	addi	s1,s1,-1
+ 38c:	00048593          	mv	a1,s1
+ 390:	000a0513          	mv	a0,s4
+ 394:	00040713          	mv	a4,s0
+ 398:	00098693          	mv	a3,s3
+ 39c:	00090613          	mv	a2,s2
+ 3a0:	fb1ff0ef          	jal	ra,350 <towers_solve_h>
+ 3a4:	00098713          	mv	a4,s3
+ 3a8:	00040693          	mv	a3,s0
+ 3ac:	00090613          	mv	a2,s2
+ 3b0:	00100593          	li	a1,1
+ 3b4:	000a0513          	mv	a0,s4
+ 3b8:	f99ff0ef          	jal	ra,350 <towers_solve_h>
+ 3bc:	00100793          	li	a5,1
+ 3c0:	00090713          	mv	a4,s2
+ 3c4:	00f48a63          	beq	s1,a5,3d8 <towers_solve_h+0x88>
+ 3c8:	00040913          	mv	s2,s0
+ 3cc:	00070413          	mv	s0,a4
+ 3d0:	fb9ff06f          	j	388 <towers_solve_h+0x38>
+ 3d4:	00060413          	mv	s0,a2
+ 3d8:	00442783          	lw	a5,4(s0)
+ 3dc:	00042683          	lw	a3,0(s0)
+ 3e0:	004a2703          	lw	a4,4(s4)
+ 3e4:	0047a583          	lw	a1,4(a5)
+ 3e8:	0007a603          	lw	a2,0(a5)
+ 3ec:	fff68693          	addi	a3,a3,-1
+ 3f0:	00b42223          	sw	a1,4(s0)
+ 3f4:	0049a583          	lw	a1,4(s3)
+ 3f8:	00d42023          	sw	a3,0(s0)
+ 3fc:	0009a683          	lw	a3,0(s3)
+ 400:	00b7a223          	sw	a1,4(a5)
+ 404:	00f9a223          	sw	a5,4(s3)
+ 408:	00c7a023          	sw	a2,0(a5)
+ 40c:	01c12083          	lw	ra,28(sp)
+ 410:	00168793          	addi	a5,a3,1
+ 414:	01812403          	lw	s0,24(sp)
+ 418:	00f9a023          	sw	a5,0(s3)
+ 41c:	00170793          	addi	a5,a4,1
+ 420:	00fa2223          	sw	a5,4(s4)
+ 424:	01412483          	lw	s1,20(sp)
+ 428:	01012903          	lw	s2,16(sp)
+ 42c:	00c12983          	lw	s3,12(sp)
+ 430:	00812a03          	lw	s4,8(sp)
+ 434:	02010113          	addi	sp,sp,32
+ 438:	00008067          	ret
+
+0000043c <towers_solve>:
+ 43c:	00052583          	lw	a1,0(a0)
+ 440:	01850713          	addi	a4,a0,24
+ 444:	01050693          	addi	a3,a0,16
+ 448:	00850613          	addi	a2,a0,8
+ 44c:	f05ff06f          	j	350 <towers_solve_h>
+
+00000450 <towers_verify>:
+ 450:	00852703          	lw	a4,8(a0)
+ 454:	00071c63          	bnez	a4,46c <towers_verify+0x1c>
+ 458:	01052783          	lw	a5,16(a0)
+ 45c:	00079463          	bnez	a5,464 <towers_verify+0x14>
+ 460:	c2dff06f          	j	8c <towers_verify.part.0>
+ 464:	00300513          	li	a0,3
+ 468:	00008067          	ret
+ 46c:	00200513          	li	a0,2
+ 470:	00008067          	ret
+
+00000474 <setStats>:
+ 474:	00008067          	ret
+
+00000478 <memcpy>:
+ 478:	00c5e7b3          	or	a5,a1,a2
+ 47c:	00f567b3          	or	a5,a0,a5
+ 480:	0037f793          	andi	a5,a5,3
+ 484:	00c506b3          	add	a3,a0,a2
+ 488:	02078463          	beqz	a5,4b0 <memcpy+0x38>
+ 48c:	00c58633          	add	a2,a1,a2
+ 490:	00050793          	mv	a5,a0
+ 494:	02d57e63          	bleu	a3,a0,4d0 <memcpy+0x58>
+ 498:	00158593          	addi	a1,a1,1
+ 49c:	fff5c703          	lbu	a4,-1(a1)
+ 4a0:	00178793          	addi	a5,a5,1
+ 4a4:	fee78fa3          	sb	a4,-1(a5)
+ 4a8:	feb618e3          	bne	a2,a1,498 <memcpy+0x20>
+ 4ac:	00008067          	ret
+ 4b0:	fed57ee3          	bleu	a3,a0,4ac <memcpy+0x34>
+ 4b4:	00050793          	mv	a5,a0
+ 4b8:	00458593          	addi	a1,a1,4
+ 4bc:	ffc5a703          	lw	a4,-4(a1)
+ 4c0:	00478793          	addi	a5,a5,4
+ 4c4:	fee7ae23          	sw	a4,-4(a5)
+ 4c8:	fed7e8e3          	bltu	a5,a3,4b8 <memcpy+0x40>
+ 4cc:	00008067          	ret
+ 4d0:	00008067          	ret
+
+000004d4 <memset>:
+ 4d4:	00c567b3          	or	a5,a0,a2
+ 4d8:	0037f793          	andi	a5,a5,3
+ 4dc:	00c50633          	add	a2,a0,a2
+ 4e0:	02078063          	beqz	a5,500 <memset+0x2c>
+ 4e4:	0ff5f593          	andi	a1,a1,255
+ 4e8:	00050793          	mv	a5,a0
+ 4ec:	04c57063          	bleu	a2,a0,52c <memset+0x58>
+ 4f0:	00178793          	addi	a5,a5,1
+ 4f4:	feb78fa3          	sb	a1,-1(a5)
+ 4f8:	fef61ce3          	bne	a2,a5,4f0 <memset+0x1c>
+ 4fc:	00008067          	ret
+ 500:	0ff5f593          	andi	a1,a1,255
+ 504:	00859793          	slli	a5,a1,0x8
+ 508:	00b7e7b3          	or	a5,a5,a1
+ 50c:	01079593          	slli	a1,a5,0x10
+ 510:	00f5e5b3          	or	a1,a1,a5
+ 514:	fec574e3          	bleu	a2,a0,4fc <memset+0x28>
+ 518:	00050793          	mv	a5,a0
+ 51c:	00478793          	addi	a5,a5,4
+ 520:	feb7ae23          	sw	a1,-4(a5)
+ 524:	fec7ece3          	bltu	a5,a2,51c <memset+0x48>
+ 528:	00008067          	ret
+ 52c:	00008067          	ret
+
+00000530 <strlen>:
+ 530:	00054783          	lbu	a5,0(a0)
+ 534:	00050713          	mv	a4,a0
+ 538:	00078c63          	beqz	a5,550 <strlen+0x20>
+ 53c:	00150513          	addi	a0,a0,1
+ 540:	00054783          	lbu	a5,0(a0)
+ 544:	fe079ce3          	bnez	a5,53c <strlen+0xc>
+ 548:	40e50533          	sub	a0,a0,a4
+ 54c:	00008067          	ret
+ 550:	00000513          	li	a0,0
+ 554:	00008067          	ret
+
+00000558 <strnlen>:
+ 558:	00050713          	mv	a4,a0
+ 55c:	02058663          	beqz	a1,588 <strnlen+0x30>
+ 560:	00054783          	lbu	a5,0(a0)
+ 564:	02078263          	beqz	a5,588 <strnlen+0x30>
+ 568:	00b505b3          	add	a1,a0,a1
+ 56c:	00c0006f          	j	578 <strnlen+0x20>
+ 570:	00054783          	lbu	a5,0(a0)
+ 574:	00078663          	beqz	a5,580 <strnlen+0x28>
+ 578:	00150513          	addi	a0,a0,1
+ 57c:	feb51ae3          	bne	a0,a1,570 <strnlen+0x18>
+ 580:	40e50533          	sub	a0,a0,a4
+ 584:	00008067          	ret
+ 588:	00000513          	li	a0,0
+ 58c:	00008067          	ret
+
+00000590 <strcmp>:
+ 590:	00150513          	addi	a0,a0,1
+ 594:	fff54783          	lbu	a5,-1(a0)
+ 598:	00158593          	addi	a1,a1,1
+ 59c:	fff5c703          	lbu	a4,-1(a1)
+ 5a0:	00078863          	beqz	a5,5b0 <strcmp+0x20>
+ 5a4:	fee786e3          	beq	a5,a4,590 <strcmp>
+ 5a8:	40e78533          	sub	a0,a5,a4
+ 5ac:	00008067          	ret
+ 5b0:	00000793          	li	a5,0
+ 5b4:	ff5ff06f          	j	5a8 <strcmp+0x18>
+
+000005b8 <strcpy>:
+ 5b8:	00050793          	mv	a5,a0
+ 5bc:	00158593          	addi	a1,a1,1
+ 5c0:	fff5c703          	lbu	a4,-1(a1)
+ 5c4:	00178793          	addi	a5,a5,1
+ 5c8:	fee78fa3          	sb	a4,-1(a5)
+ 5cc:	fe0718e3          	bnez	a4,5bc <strcpy+0x4>
+ 5d0:	00008067          	ret
+
+000005d4 <atol>:
+ 5d4:	00054783          	lbu	a5,0(a0)
+ 5d8:	02000713          	li	a4,32
+ 5dc:	00e79863          	bne	a5,a4,5ec <atol+0x18>
+ 5e0:	00150513          	addi	a0,a0,1
+ 5e4:	00054783          	lbu	a5,0(a0)
+ 5e8:	fee78ce3          	beq	a5,a4,5e0 <atol+0xc>
+ 5ec:	fd578713          	addi	a4,a5,-43
+ 5f0:	0fd77713          	andi	a4,a4,253
+ 5f4:	04070263          	beqz	a4,638 <atol+0x64>
+ 5f8:	00054683          	lbu	a3,0(a0)
+ 5fc:	00050793          	mv	a5,a0
+ 600:	00000613          	li	a2,0
+ 604:	04068863          	beqz	a3,654 <atol+0x80>
+ 608:	00000513          	li	a0,0
+ 60c:	00178793          	addi	a5,a5,1
+ 610:	fd068593          	addi	a1,a3,-48
+ 614:	00251713          	slli	a4,a0,0x2
+ 618:	0007c683          	lbu	a3,0(a5)
+ 61c:	00a70533          	add	a0,a4,a0
+ 620:	00151513          	slli	a0,a0,0x1
+ 624:	00a58533          	add	a0,a1,a0
+ 628:	fe0692e3          	bnez	a3,60c <atol+0x38>
+ 62c:	00060463          	beqz	a2,634 <atol+0x60>
+ 630:	40a00533          	neg	a0,a0
+ 634:	00008067          	ret
+ 638:	00154683          	lbu	a3,1(a0)
+ 63c:	fd378793          	addi	a5,a5,-45
+ 640:	0017b613          	seqz	a2,a5
+ 644:	00150793          	addi	a5,a0,1
+ 648:	fc0690e3          	bnez	a3,608 <atol+0x34>
+ 64c:	00000513          	li	a0,0
+ 650:	fddff06f          	j	62c <atol+0x58>
+ 654:	00000513          	li	a0,0
+ 658:	00008067          	ret
+
+0000065c <main>:
+ 65c:	00700713          	li	a4,7
+ 660:	00001797          	auipc	a5,0x1
+ 664:	3b078793          	addi	a5,a5,944 # 1a10 <STACK>
+ 668:	00001697          	auipc	a3,0x1
+ 66c:	3ef6a223          	sw	a5,996(a3) # 1a4c <g_nodeFreeList+0x4>
+ 670:	00001697          	auipc	a3,0x1
+ 674:	3ce6ac23          	sw	a4,984(a3) # 1a48 <g_nodeFreeList>
+ 678:	00001697          	auipc	a3,0x1
+ 67c:	3c06a623          	sw	zero,972(a3) # 1a44 <STACK+0x34>
+ 680:	06300693          	li	a3,99
+ 684:	00001617          	auipc	a2,0x1
+ 688:	3ad62e23          	sw	a3,956(a2) # 1a40 <STACK+0x30>
+ 68c:	00001697          	auipc	a3,0x1
+ 690:	38c68693          	addi	a3,a3,908 # 1a18 <STACK+0x8>
+ 694:	00001617          	auipc	a2,0x1
+ 698:	38d62023          	sw	a3,896(a2) # 1a14 <STACK+0x4>
+ 69c:	00001697          	auipc	a3,0x1
+ 6a0:	3606aa23          	sw	zero,884(a3) # 1a10 <STACK>
+ 6a4:	00001697          	auipc	a3,0x1
+ 6a8:	37c68693          	addi	a3,a3,892 # 1a20 <STACK+0x10>
+ 6ac:	00001617          	auipc	a2,0x1
+ 6b0:	36d62823          	sw	a3,880(a2) # 1a1c <STACK+0xc>
+ 6b4:	00100693          	li	a3,1
+ 6b8:	00001617          	auipc	a2,0x1
+ 6bc:	36d62023          	sw	a3,864(a2) # 1a18 <STACK+0x8>
+ 6c0:	00001697          	auipc	a3,0x1
+ 6c4:	36868693          	addi	a3,a3,872 # 1a28 <STACK+0x18>
+ 6c8:	00001617          	auipc	a2,0x1
+ 6cc:	34d62e23          	sw	a3,860(a2) # 1a24 <STACK+0x14>
+ 6d0:	00200693          	li	a3,2
+ 6d4:	00001617          	auipc	a2,0x1
+ 6d8:	34d62623          	sw	a3,844(a2) # 1a20 <STACK+0x10>
+ 6dc:	00001697          	auipc	a3,0x1
+ 6e0:	35468693          	addi	a3,a3,852 # 1a30 <STACK+0x20>
+ 6e4:	00001617          	auipc	a2,0x1
+ 6e8:	34d62423          	sw	a3,840(a2) # 1a2c <STACK+0x1c>
+ 6ec:	00300693          	li	a3,3
+ 6f0:	00001617          	auipc	a2,0x1
+ 6f4:	32d62c23          	sw	a3,824(a2) # 1a28 <STACK+0x18>
+ 6f8:	00001697          	auipc	a3,0x1
+ 6fc:	34068693          	addi	a3,a3,832 # 1a38 <STACK+0x28>
+ 700:	00001617          	auipc	a2,0x1
+ 704:	32d62a23          	sw	a3,820(a2) # 1a34 <STACK+0x24>
+ 708:	00400693          	li	a3,4
+ 70c:	00001617          	auipc	a2,0x1
+ 710:	32d62223          	sw	a3,804(a2) # 1a30 <STACK+0x20>
+ 714:	00001697          	auipc	a3,0x1
+ 718:	32c68693          	addi	a3,a3,812 # 1a40 <STACK+0x30>
+ 71c:	fd010113          	addi	sp,sp,-48
+ 720:	00001617          	auipc	a2,0x1
+ 724:	30d62e23          	sw	a3,796(a2) # 1a3c <STACK+0x2c>
+ 728:	00500693          	li	a3,5
+ 72c:	00001617          	auipc	a2,0x1
+ 730:	30d62623          	sw	a3,780(a2) # 1a38 <STACK+0x28>
+ 734:	02112623          	sw	ra,44(sp)
+ 738:	00e12023          	sw	a4,0(sp)
+ 73c:	00012223          	sw	zero,4(sp)
+ 740:	00012423          	sw	zero,8(sp)
+ 744:	00012623          	sw	zero,12(sp)
+ 748:	00012823          	sw	zero,16(sp)
+ 74c:	00012a23          	sw	zero,20(sp)
+ 750:	00012c23          	sw	zero,24(sp)
+ 754:	00012e23          	sw	zero,28(sp)
+ 758:	00000693          	li	a3,0
+ 75c:	0080006f          	j	764 <main+0x108>
+ 760:	00080793          	mv	a5,a6
+ 764:	0047a803          	lw	a6,4(a5)
+ 768:	00e7a023          	sw	a4,0(a5)
+ 76c:	00d7a223          	sw	a3,4(a5)
+ 770:	fff70713          	addi	a4,a4,-1
+ 774:	00078693          	mv	a3,a5
+ 778:	fe0714e3          	bnez	a4,760 <main+0x104>
+ 77c:	00700593          	li	a1,7
+ 780:	01810713          	addi	a4,sp,24
+ 784:	01010693          	addi	a3,sp,16
+ 788:	00810613          	addi	a2,sp,8
+ 78c:	00010513          	mv	a0,sp
+ 790:	00f12623          	sw	a5,12(sp)
+ 794:	00700793          	li	a5,7
+ 798:	00f12423          	sw	a5,8(sp)
+ 79c:	00001897          	auipc	a7,0x1
+ 7a0:	2b08a823          	sw	a6,688(a7) # 1a4c <g_nodeFreeList+0x4>
+ 7a4:	badff0ef          	jal	ra,350 <towers_solve_h>
+ 7a8:	00010513          	mv	a0,sp
+ 7ac:	a75ff0ef          	jal	ra,220 <towers_clear>
+ 7b0:	00012583          	lw	a1,0(sp)
+ 7b4:	00010513          	mv	a0,sp
+ 7b8:	01810713          	addi	a4,sp,24
+ 7bc:	01010693          	addi	a3,sp,16
+ 7c0:	00810613          	addi	a2,sp,8
+ 7c4:	b8dff0ef          	jal	ra,350 <towers_solve_h>
+ 7c8:	00812783          	lw	a5,8(sp)
+ 7cc:	00200513          	li	a0,2
+ 7d0:	00079c63          	bnez	a5,7e8 <main+0x18c>
+ 7d4:	01012783          	lw	a5,16(sp)
+ 7d8:	00300513          	li	a0,3
+ 7dc:	00079663          	bnez	a5,7e8 <main+0x18c>
+ 7e0:	00010513          	mv	a0,sp
+ 7e4:	8a9ff0ef          	jal	ra,8c <towers_verify.part.0>
+ 7e8:	02c12083          	lw	ra,44(sp)
+ 7ec:	03010113          	addi	sp,sp,48
+ 7f0:	00008067          	ret
+
+000007f4 <end>:
+ 7f4:	00000013          	nop
+ 7f8:	00000013          	nop
+ 7fc:	00000013          	nop
+ 800:	00000013          	nop
+ 804:	00000013          	nop
+ 808:	00000013          	nop
+
+0000080c <_last>:
+ 80c:	fe9ff06f          	j	7f4 <end>
+
+Disassembly of section .data:
+
+00000910 <STACK-0x1100>:
+     910:	0000                	unimp
+     912:	0000                	unimp
+     914:	0000                	unimp
+     916:	0000                	unimp
+     918:	0000                	unimp
+     91a:	0000                	unimp
+     91c:	0000                	unimp
+     91e:	0000                	unimp
+     920:	0000                	unimp
+     922:	0000                	unimp
+     924:	0000                	unimp
+     926:	0000                	unimp
+     928:	0000                	unimp
+     92a:	0000                	unimp
+     92c:	0000                	unimp
+     92e:	0000                	unimp
+     930:	0000                	unimp
+     932:	0000                	unimp
+     934:	0000                	unimp
+     936:	0000                	unimp
+     938:	0000                	unimp
+     93a:	0000                	unimp
+     93c:	0000                	unimp
+     93e:	0000                	unimp
+     940:	0000                	unimp
+     942:	0000                	unimp
+     944:	0000                	unimp
+     946:	0000                	unimp
+     948:	0000                	unimp
+     94a:	0000                	unimp
+     94c:	0000                	unimp
+     94e:	0000                	unimp
+     950:	0000                	unimp
+     952:	0000                	unimp
+     954:	0000                	unimp
+     956:	0000                	unimp
+     958:	0000                	unimp
+     95a:	0000                	unimp
+     95c:	0000                	unimp
+     95e:	0000                	unimp
+     960:	0000                	unimp
+     962:	0000                	unimp
+     964:	0000                	unimp
+     966:	0000                	unimp
+     968:	0000                	unimp
+     96a:	0000                	unimp
+     96c:	0000                	unimp
+     96e:	0000                	unimp
+     970:	0000                	unimp
+     972:	0000                	unimp
+     974:	0000                	unimp
+     976:	0000                	unimp
+     978:	0000                	unimp
+     97a:	0000                	unimp
+     97c:	0000                	unimp
+     97e:	0000                	unimp
+     980:	0000                	unimp
+     982:	0000                	unimp
+     984:	0000                	unimp
+     986:	0000                	unimp
+     988:	0000                	unimp
+     98a:	0000                	unimp
+     98c:	0000                	unimp
+     98e:	0000                	unimp
+     990:	0000                	unimp
+     992:	0000                	unimp
+     994:	0000                	unimp
+     996:	0000                	unimp
+     998:	0000                	unimp
+     99a:	0000                	unimp
+     99c:	0000                	unimp
+     99e:	0000                	unimp
+     9a0:	0000                	unimp
+     9a2:	0000                	unimp
+     9a4:	0000                	unimp
+     9a6:	0000                	unimp
+     9a8:	0000                	unimp
+     9aa:	0000                	unimp
+     9ac:	0000                	unimp
+     9ae:	0000                	unimp
+     9b0:	0000                	unimp
+     9b2:	0000                	unimp
+     9b4:	0000                	unimp
+     9b6:	0000                	unimp
+     9b8:	0000                	unimp
+     9ba:	0000                	unimp
+     9bc:	0000                	unimp
+     9be:	0000                	unimp
+     9c0:	0000                	unimp
+     9c2:	0000                	unimp
+     9c4:	0000                	unimp
+     9c6:	0000                	unimp
+     9c8:	0000                	unimp
+     9ca:	0000                	unimp
+     9cc:	0000                	unimp
+     9ce:	0000                	unimp
+     9d0:	0000                	unimp
+     9d2:	0000                	unimp
+     9d4:	0000                	unimp
+     9d6:	0000                	unimp
+     9d8:	0000                	unimp
+     9da:	0000                	unimp
+     9dc:	0000                	unimp
+     9de:	0000                	unimp
+     9e0:	0000                	unimp
+     9e2:	0000                	unimp
+     9e4:	0000                	unimp
+     9e6:	0000                	unimp
+     9e8:	0000                	unimp
+     9ea:	0000                	unimp
+     9ec:	0000                	unimp
+     9ee:	0000                	unimp
+     9f0:	0000                	unimp
+     9f2:	0000                	unimp
+     9f4:	0000                	unimp
+     9f6:	0000                	unimp
+     9f8:	0000                	unimp
+     9fa:	0000                	unimp
+     9fc:	0000                	unimp
+     9fe:	0000                	unimp
+     a00:	0000                	unimp
+     a02:	0000                	unimp
+     a04:	0000                	unimp
+     a06:	0000                	unimp
+     a08:	0000                	unimp
+     a0a:	0000                	unimp
+     a0c:	0000                	unimp
+     a0e:	0000                	unimp
+     a10:	ffff                	0xffff
+     a12:	ffff                	0xffff
+     a14:	ffff                	0xffff
+     a16:	ffff                	0xffff
+     a18:	ffff                	0xffff
+     a1a:	ffff                	0xffff
+     a1c:	ffff                	0xffff
+     a1e:	ffff                	0xffff
+     a20:	ffff                	0xffff
+     a22:	ffff                	0xffff
+     a24:	ffff                	0xffff
+     a26:	ffff                	0xffff
+     a28:	ffff                	0xffff
+     a2a:	ffff                	0xffff
+     a2c:	ffff                	0xffff
+     a2e:	ffff                	0xffff
+     a30:	ffff                	0xffff
+     a32:	ffff                	0xffff
+     a34:	ffff                	0xffff
+     a36:	ffff                	0xffff
+     a38:	ffff                	0xffff
+     a3a:	ffff                	0xffff
+     a3c:	ffff                	0xffff
+     a3e:	ffff                	0xffff
+     a40:	ffff                	0xffff
+     a42:	ffff                	0xffff
+     a44:	ffff                	0xffff
+     a46:	ffff                	0xffff
+     a48:	ffff                	0xffff
+     a4a:	ffff                	0xffff
+     a4c:	ffff                	0xffff
+     a4e:	ffff                	0xffff
+     a50:	ffff                	0xffff
+     a52:	ffff                	0xffff
+     a54:	ffff                	0xffff
+     a56:	ffff                	0xffff
+     a58:	ffff                	0xffff
+     a5a:	ffff                	0xffff
+     a5c:	ffff                	0xffff
+     a5e:	ffff                	0xffff
+     a60:	ffff                	0xffff
+     a62:	ffff                	0xffff
+     a64:	ffff                	0xffff
+     a66:	ffff                	0xffff
+     a68:	ffff                	0xffff
+     a6a:	ffff                	0xffff
+     a6c:	ffff                	0xffff
+     a6e:	ffff                	0xffff
+     a70:	ffff                	0xffff
+     a72:	ffff                	0xffff
+     a74:	ffff                	0xffff
+     a76:	ffff                	0xffff
+     a78:	ffff                	0xffff
+     a7a:	ffff                	0xffff
+     a7c:	ffff                	0xffff
+     a7e:	ffff                	0xffff
+     a80:	ffff                	0xffff
+     a82:	ffff                	0xffff
+     a84:	ffff                	0xffff
+     a86:	ffff                	0xffff
+     a88:	ffff                	0xffff
+     a8a:	ffff                	0xffff
+     a8c:	ffff                	0xffff
+     a8e:	ffff                	0xffff
+     a90:	ffff                	0xffff
+     a92:	ffff                	0xffff
+     a94:	ffff                	0xffff
+     a96:	ffff                	0xffff
+     a98:	ffff                	0xffff
+     a9a:	ffff                	0xffff
+     a9c:	ffff                	0xffff
+     a9e:	ffff                	0xffff
+     aa0:	ffff                	0xffff
+     aa2:	ffff                	0xffff
+     aa4:	ffff                	0xffff
+     aa6:	ffff                	0xffff
+     aa8:	ffff                	0xffff
+     aaa:	ffff                	0xffff
+     aac:	ffff                	0xffff
+     aae:	ffff                	0xffff
+     ab0:	ffff                	0xffff
+     ab2:	ffff                	0xffff
+     ab4:	ffff                	0xffff
+     ab6:	ffff                	0xffff
+     ab8:	ffff                	0xffff
+     aba:	ffff                	0xffff
+     abc:	ffff                	0xffff
+     abe:	ffff                	0xffff
+     ac0:	ffff                	0xffff
+     ac2:	ffff                	0xffff
+     ac4:	ffff                	0xffff
+     ac6:	ffff                	0xffff
+     ac8:	ffff                	0xffff
+     aca:	ffff                	0xffff
+     acc:	ffff                	0xffff
+     ace:	ffff                	0xffff
+     ad0:	ffff                	0xffff
+     ad2:	ffff                	0xffff
+     ad4:	ffff                	0xffff
+     ad6:	ffff                	0xffff
+     ad8:	ffff                	0xffff
+     ada:	ffff                	0xffff
+     adc:	ffff                	0xffff
+     ade:	ffff                	0xffff
+     ae0:	ffff                	0xffff
+     ae2:	ffff                	0xffff
+     ae4:	ffff                	0xffff
+     ae6:	ffff                	0xffff
+     ae8:	ffff                	0xffff
+     aea:	ffff                	0xffff
+     aec:	ffff                	0xffff
+     aee:	ffff                	0xffff
+     af0:	ffff                	0xffff
+     af2:	ffff                	0xffff
+     af4:	ffff                	0xffff
+     af6:	ffff                	0xffff
+     af8:	ffff                	0xffff
+     afa:	ffff                	0xffff
+     afc:	ffff                	0xffff
+     afe:	ffff                	0xffff
+     b00:	ffff                	0xffff
+     b02:	ffff                	0xffff
+     b04:	ffff                	0xffff
+     b06:	ffff                	0xffff
+     b08:	ffff                	0xffff
+     b0a:	ffff                	0xffff
+     b0c:	ffff                	0xffff
+     b0e:	ffff                	0xffff
+     b10:	ffff                	0xffff
+     b12:	ffff                	0xffff
+     b14:	ffff                	0xffff
+     b16:	ffff                	0xffff
+     b18:	ffff                	0xffff
+     b1a:	ffff                	0xffff
+     b1c:	ffff                	0xffff
+     b1e:	ffff                	0xffff
+     b20:	ffff                	0xffff
+     b22:	ffff                	0xffff
+     b24:	ffff                	0xffff
+     b26:	ffff                	0xffff
+     b28:	ffff                	0xffff
+     b2a:	ffff                	0xffff
+     b2c:	ffff                	0xffff
+     b2e:	ffff                	0xffff
+     b30:	ffff                	0xffff
+     b32:	ffff                	0xffff
+     b34:	ffff                	0xffff
+     b36:	ffff                	0xffff
+     b38:	ffff                	0xffff
+     b3a:	ffff                	0xffff
+     b3c:	ffff                	0xffff
+     b3e:	ffff                	0xffff
+     b40:	ffff                	0xffff
+     b42:	ffff                	0xffff
+     b44:	ffff                	0xffff
+     b46:	ffff                	0xffff
+     b48:	ffff                	0xffff
+     b4a:	ffff                	0xffff
+     b4c:	ffff                	0xffff
+     b4e:	ffff                	0xffff
+     b50:	ffff                	0xffff
+     b52:	ffff                	0xffff
+     b54:	ffff                	0xffff
+     b56:	ffff                	0xffff
+     b58:	ffff                	0xffff
+     b5a:	ffff                	0xffff
+     b5c:	ffff                	0xffff
+     b5e:	ffff                	0xffff
+     b60:	ffff                	0xffff
+     b62:	ffff                	0xffff
+     b64:	ffff                	0xffff
+     b66:	ffff                	0xffff
+     b68:	ffff                	0xffff
+     b6a:	ffff                	0xffff
+     b6c:	ffff                	0xffff
+     b6e:	ffff                	0xffff
+     b70:	ffff                	0xffff
+     b72:	ffff                	0xffff
+     b74:	ffff                	0xffff
+     b76:	ffff                	0xffff
+     b78:	ffff                	0xffff
+     b7a:	ffff                	0xffff
+     b7c:	ffff                	0xffff
+     b7e:	ffff                	0xffff
+     b80:	ffff                	0xffff
+     b82:	ffff                	0xffff
+     b84:	ffff                	0xffff
+     b86:	ffff                	0xffff
+     b88:	ffff                	0xffff
+     b8a:	ffff                	0xffff
+     b8c:	ffff                	0xffff
+     b8e:	ffff                	0xffff
+     b90:	ffff                	0xffff
+     b92:	ffff                	0xffff
+     b94:	ffff                	0xffff
+     b96:	ffff                	0xffff
+     b98:	ffff                	0xffff
+     b9a:	ffff                	0xffff
+     b9c:	ffff                	0xffff
+     b9e:	ffff                	0xffff
+     ba0:	ffff                	0xffff
+     ba2:	ffff                	0xffff
+     ba4:	ffff                	0xffff
+     ba6:	ffff                	0xffff
+     ba8:	ffff                	0xffff
+     baa:	ffff                	0xffff
+     bac:	ffff                	0xffff
+     bae:	ffff                	0xffff
+     bb0:	ffff                	0xffff
+     bb2:	ffff                	0xffff
+     bb4:	ffff                	0xffff
+     bb6:	ffff                	0xffff
+     bb8:	ffff                	0xffff
+     bba:	ffff                	0xffff
+     bbc:	ffff                	0xffff
+     bbe:	ffff                	0xffff
+     bc0:	ffff                	0xffff
+     bc2:	ffff                	0xffff
+     bc4:	ffff                	0xffff
+     bc6:	ffff                	0xffff
+     bc8:	ffff                	0xffff
+     bca:	ffff                	0xffff
+     bcc:	ffff                	0xffff
+     bce:	ffff                	0xffff
+     bd0:	ffff                	0xffff
+     bd2:	ffff                	0xffff
+     bd4:	ffff                	0xffff
+     bd6:	ffff                	0xffff
+     bd8:	ffff                	0xffff
+     bda:	ffff                	0xffff
+     bdc:	ffff                	0xffff
+     bde:	ffff                	0xffff
+     be0:	ffff                	0xffff
+     be2:	ffff                	0xffff
+     be4:	ffff                	0xffff
+     be6:	ffff                	0xffff
+     be8:	ffff                	0xffff
+     bea:	ffff                	0xffff
+     bec:	ffff                	0xffff
+     bee:	ffff                	0xffff
+     bf0:	ffff                	0xffff
+     bf2:	ffff                	0xffff
+     bf4:	ffff                	0xffff
+     bf6:	ffff                	0xffff
+     bf8:	ffff                	0xffff
+     bfa:	ffff                	0xffff
+     bfc:	ffff                	0xffff
+     bfe:	ffff                	0xffff
+     c00:	ffff                	0xffff
+     c02:	ffff                	0xffff
+     c04:	ffff                	0xffff
+     c06:	ffff                	0xffff
+     c08:	ffff                	0xffff
+     c0a:	ffff                	0xffff
+     c0c:	ffff                	0xffff
+     c0e:	ffff                	0xffff
+     c10:	ffff                	0xffff
+     c12:	ffff                	0xffff
+     c14:	ffff                	0xffff
+     c16:	ffff                	0xffff
+     c18:	ffff                	0xffff
+     c1a:	ffff                	0xffff
+     c1c:	ffff                	0xffff
+     c1e:	ffff                	0xffff
+     c20:	ffff                	0xffff
+     c22:	ffff                	0xffff
+     c24:	ffff                	0xffff
+     c26:	ffff                	0xffff
+     c28:	ffff                	0xffff
+     c2a:	ffff                	0xffff
+     c2c:	ffff                	0xffff
+     c2e:	ffff                	0xffff
+     c30:	ffff                	0xffff
+     c32:	ffff                	0xffff
+     c34:	ffff                	0xffff
+     c36:	ffff                	0xffff
+     c38:	ffff                	0xffff
+     c3a:	ffff                	0xffff
+     c3c:	ffff                	0xffff
+     c3e:	ffff                	0xffff
+     c40:	ffff                	0xffff
+     c42:	ffff                	0xffff
+     c44:	ffff                	0xffff
+     c46:	ffff                	0xffff
+     c48:	ffff                	0xffff
+     c4a:	ffff                	0xffff
+     c4c:	ffff                	0xffff
+     c4e:	ffff                	0xffff
+     c50:	ffff                	0xffff
+     c52:	ffff                	0xffff
+     c54:	ffff                	0xffff
+     c56:	ffff                	0xffff
+     c58:	ffff                	0xffff
+     c5a:	ffff                	0xffff
+     c5c:	ffff                	0xffff
+     c5e:	ffff                	0xffff
+     c60:	ffff                	0xffff
+     c62:	ffff                	0xffff
+     c64:	ffff                	0xffff
+     c66:	ffff                	0xffff
+     c68:	ffff                	0xffff
+     c6a:	ffff                	0xffff
+     c6c:	ffff                	0xffff
+     c6e:	ffff                	0xffff
+     c70:	ffff                	0xffff
+     c72:	ffff                	0xffff
+     c74:	ffff                	0xffff
+     c76:	ffff                	0xffff
+     c78:	ffff                	0xffff
+     c7a:	ffff                	0xffff
+     c7c:	ffff                	0xffff
+     c7e:	ffff                	0xffff
+     c80:	ffff                	0xffff
+     c82:	ffff                	0xffff
+     c84:	ffff                	0xffff
+     c86:	ffff                	0xffff
+     c88:	ffff                	0xffff
+     c8a:	ffff                	0xffff
+     c8c:	ffff                	0xffff
+     c8e:	ffff                	0xffff
+     c90:	ffff                	0xffff
+     c92:	ffff                	0xffff
+     c94:	ffff                	0xffff
+     c96:	ffff                	0xffff
+     c98:	ffff                	0xffff
+     c9a:	ffff                	0xffff
+     c9c:	ffff                	0xffff
+     c9e:	ffff                	0xffff
+     ca0:	ffff                	0xffff
+     ca2:	ffff                	0xffff
+     ca4:	ffff                	0xffff
+     ca6:	ffff                	0xffff
+     ca8:	ffff                	0xffff
+     caa:	ffff                	0xffff
+     cac:	ffff                	0xffff
+     cae:	ffff                	0xffff
+     cb0:	ffff                	0xffff
+     cb2:	ffff                	0xffff
+     cb4:	ffff                	0xffff
+     cb6:	ffff                	0xffff
+     cb8:	ffff                	0xffff
+     cba:	ffff                	0xffff
+     cbc:	ffff                	0xffff
+     cbe:	ffff                	0xffff
+     cc0:	ffff                	0xffff
+     cc2:	ffff                	0xffff
+     cc4:	ffff                	0xffff
+     cc6:	ffff                	0xffff
+     cc8:	ffff                	0xffff
+     cca:	ffff                	0xffff
+     ccc:	ffff                	0xffff
+     cce:	ffff                	0xffff
+     cd0:	ffff                	0xffff
+     cd2:	ffff                	0xffff
+     cd4:	ffff                	0xffff
+     cd6:	ffff                	0xffff
+     cd8:	ffff                	0xffff
+     cda:	ffff                	0xffff
+     cdc:	ffff                	0xffff
+     cde:	ffff                	0xffff
+     ce0:	ffff                	0xffff
+     ce2:	ffff                	0xffff
+     ce4:	ffff                	0xffff
+     ce6:	ffff                	0xffff
+     ce8:	ffff                	0xffff
+     cea:	ffff                	0xffff
+     cec:	ffff                	0xffff
+     cee:	ffff                	0xffff
+     cf0:	ffff                	0xffff
+     cf2:	ffff                	0xffff
+     cf4:	ffff                	0xffff
+     cf6:	ffff                	0xffff
+     cf8:	ffff                	0xffff
+     cfa:	ffff                	0xffff
+     cfc:	ffff                	0xffff
+     cfe:	ffff                	0xffff
+     d00:	ffff                	0xffff
+     d02:	ffff                	0xffff
+     d04:	ffff                	0xffff
+     d06:	ffff                	0xffff
+     d08:	ffff                	0xffff
+     d0a:	ffff                	0xffff
+     d0c:	ffff                	0xffff
+     d0e:	ffff                	0xffff
+     d10:	ffff                	0xffff
+     d12:	ffff                	0xffff
+     d14:	ffff                	0xffff
+     d16:	ffff                	0xffff
+     d18:	ffff                	0xffff
+     d1a:	ffff                	0xffff
+     d1c:	ffff                	0xffff
+     d1e:	ffff                	0xffff
+     d20:	ffff                	0xffff
+     d22:	ffff                	0xffff
+     d24:	ffff                	0xffff
+     d26:	ffff                	0xffff
+     d28:	ffff                	0xffff
+     d2a:	ffff                	0xffff
+     d2c:	ffff                	0xffff
+     d2e:	ffff                	0xffff
+     d30:	ffff                	0xffff
+     d32:	ffff                	0xffff
+     d34:	ffff                	0xffff
+     d36:	ffff                	0xffff
+     d38:	ffff                	0xffff
+     d3a:	ffff                	0xffff
+     d3c:	ffff                	0xffff
+     d3e:	ffff                	0xffff
+     d40:	ffff                	0xffff
+     d42:	ffff                	0xffff
+     d44:	ffff                	0xffff
+     d46:	ffff                	0xffff
+     d48:	ffff                	0xffff
+     d4a:	ffff                	0xffff
+     d4c:	ffff                	0xffff
+     d4e:	ffff                	0xffff
+     d50:	ffff                	0xffff
+     d52:	ffff                	0xffff
+     d54:	ffff                	0xffff
+     d56:	ffff                	0xffff
+     d58:	ffff                	0xffff
+     d5a:	ffff                	0xffff
+     d5c:	ffff                	0xffff
+     d5e:	ffff                	0xffff
+     d60:	ffff                	0xffff
+     d62:	ffff                	0xffff
+     d64:	ffff                	0xffff
+     d66:	ffff                	0xffff
+     d68:	ffff                	0xffff
+     d6a:	ffff                	0xffff
+     d6c:	ffff                	0xffff
+     d6e:	ffff                	0xffff
+     d70:	ffff                	0xffff
+     d72:	ffff                	0xffff
+     d74:	ffff                	0xffff
+     d76:	ffff                	0xffff
+     d78:	ffff                	0xffff
+     d7a:	ffff                	0xffff
+     d7c:	ffff                	0xffff
+     d7e:	ffff                	0xffff
+     d80:	ffff                	0xffff
+     d82:	ffff                	0xffff
+     d84:	ffff                	0xffff
+     d86:	ffff                	0xffff
+     d88:	ffff                	0xffff
+     d8a:	ffff                	0xffff
+     d8c:	ffff                	0xffff
+     d8e:	ffff                	0xffff
+     d90:	ffff                	0xffff
+     d92:	ffff                	0xffff
+     d94:	ffff                	0xffff
+     d96:	ffff                	0xffff
+     d98:	ffff                	0xffff
+     d9a:	ffff                	0xffff
+     d9c:	ffff                	0xffff
+     d9e:	ffff                	0xffff
+     da0:	ffff                	0xffff
+     da2:	ffff                	0xffff
+     da4:	ffff                	0xffff
+     da6:	ffff                	0xffff
+     da8:	ffff                	0xffff
+     daa:	ffff                	0xffff
+     dac:	ffff                	0xffff
+     dae:	ffff                	0xffff
+     db0:	ffff                	0xffff
+     db2:	ffff                	0xffff
+     db4:	ffff                	0xffff
+     db6:	ffff                	0xffff
+     db8:	ffff                	0xffff
+     dba:	ffff                	0xffff
+     dbc:	ffff                	0xffff
+     dbe:	ffff                	0xffff
+     dc0:	ffff                	0xffff
+     dc2:	ffff                	0xffff
+     dc4:	ffff                	0xffff
+     dc6:	ffff                	0xffff
+     dc8:	ffff                	0xffff
+     dca:	ffff                	0xffff
+     dcc:	ffff                	0xffff
+     dce:	ffff                	0xffff
+     dd0:	ffff                	0xffff
+     dd2:	ffff                	0xffff
+     dd4:	ffff                	0xffff
+     dd6:	ffff                	0xffff
+     dd8:	ffff                	0xffff
+     dda:	ffff                	0xffff
+     ddc:	ffff                	0xffff
+     dde:	ffff                	0xffff
+     de0:	ffff                	0xffff
+     de2:	ffff                	0xffff
+     de4:	ffff                	0xffff
+     de6:	ffff                	0xffff
+     de8:	ffff                	0xffff
+     dea:	ffff                	0xffff
+     dec:	ffff                	0xffff
+     dee:	ffff                	0xffff
+     df0:	ffff                	0xffff
+     df2:	ffff                	0xffff
+     df4:	ffff                	0xffff
+     df6:	ffff                	0xffff
+     df8:	ffff                	0xffff
+     dfa:	ffff                	0xffff
+     dfc:	ffff                	0xffff
+     dfe:	ffff                	0xffff
+     e00:	ffff                	0xffff
+     e02:	ffff                	0xffff
+     e04:	ffff                	0xffff
+     e06:	ffff                	0xffff
+     e08:	ffff                	0xffff
+     e0a:	ffff                	0xffff
+     e0c:	ffff                	0xffff
+     e0e:	ffff                	0xffff
+     e10:	ffff                	0xffff
+     e12:	ffff                	0xffff
+     e14:	ffff                	0xffff
+     e16:	ffff                	0xffff
+     e18:	ffff                	0xffff
+     e1a:	ffff                	0xffff
+     e1c:	ffff                	0xffff
+     e1e:	ffff                	0xffff
+     e20:	ffff                	0xffff
+     e22:	ffff                	0xffff
+     e24:	ffff                	0xffff
+     e26:	ffff                	0xffff
+     e28:	ffff                	0xffff
+     e2a:	ffff                	0xffff
+     e2c:	ffff                	0xffff
+     e2e:	ffff                	0xffff
+     e30:	ffff                	0xffff
+     e32:	ffff                	0xffff
+     e34:	ffff                	0xffff
+     e36:	ffff                	0xffff
+     e38:	ffff                	0xffff
+     e3a:	ffff                	0xffff
+     e3c:	ffff                	0xffff
+     e3e:	ffff                	0xffff
+     e40:	ffff                	0xffff
+     e42:	ffff                	0xffff
+     e44:	ffff                	0xffff
+     e46:	ffff                	0xffff
+     e48:	ffff                	0xffff
+     e4a:	ffff                	0xffff
+     e4c:	ffff                	0xffff
+     e4e:	ffff                	0xffff
+     e50:	ffff                	0xffff
+     e52:	ffff                	0xffff
+     e54:	ffff                	0xffff
+     e56:	ffff                	0xffff
+     e58:	ffff                	0xffff
+     e5a:	ffff                	0xffff
+     e5c:	ffff                	0xffff
+     e5e:	ffff                	0xffff
+     e60:	ffff                	0xffff
+     e62:	ffff                	0xffff
+     e64:	ffff                	0xffff
+     e66:	ffff                	0xffff
+     e68:	ffff                	0xffff
+     e6a:	ffff                	0xffff
+     e6c:	ffff                	0xffff
+     e6e:	ffff                	0xffff
+     e70:	ffff                	0xffff
+     e72:	ffff                	0xffff
+     e74:	ffff                	0xffff
+     e76:	ffff                	0xffff
+     e78:	ffff                	0xffff
+     e7a:	ffff                	0xffff
+     e7c:	ffff                	0xffff
+     e7e:	ffff                	0xffff
+     e80:	ffff                	0xffff
+     e82:	ffff                	0xffff
+     e84:	ffff                	0xffff
+     e86:	ffff                	0xffff
+     e88:	ffff                	0xffff
+     e8a:	ffff                	0xffff
+     e8c:	ffff                	0xffff
+     e8e:	ffff                	0xffff
+     e90:	ffff                	0xffff
+     e92:	ffff                	0xffff
+     e94:	ffff                	0xffff
+     e96:	ffff                	0xffff
+     e98:	ffff                	0xffff
+     e9a:	ffff                	0xffff
+     e9c:	ffff                	0xffff
+     e9e:	ffff                	0xffff
+     ea0:	ffff                	0xffff
+     ea2:	ffff                	0xffff
+     ea4:	ffff                	0xffff
+     ea6:	ffff                	0xffff
+     ea8:	ffff                	0xffff
+     eaa:	ffff                	0xffff
+     eac:	ffff                	0xffff
+     eae:	ffff                	0xffff
+     eb0:	ffff                	0xffff
+     eb2:	ffff                	0xffff
+     eb4:	ffff                	0xffff
+     eb6:	ffff                	0xffff
+     eb8:	ffff                	0xffff
+     eba:	ffff                	0xffff
+     ebc:	ffff                	0xffff
+     ebe:	ffff                	0xffff
+     ec0:	ffff                	0xffff
+     ec2:	ffff                	0xffff
+     ec4:	ffff                	0xffff
+     ec6:	ffff                	0xffff
+     ec8:	ffff                	0xffff
+     eca:	ffff                	0xffff
+     ecc:	ffff                	0xffff
+     ece:	ffff                	0xffff
+     ed0:	ffff                	0xffff
+     ed2:	ffff                	0xffff
+     ed4:	ffff                	0xffff
+     ed6:	ffff                	0xffff
+     ed8:	ffff                	0xffff
+     eda:	ffff                	0xffff
+     edc:	ffff                	0xffff
+     ede:	ffff                	0xffff
+     ee0:	ffff                	0xffff
+     ee2:	ffff                	0xffff
+     ee4:	ffff                	0xffff
+     ee6:	ffff                	0xffff
+     ee8:	ffff                	0xffff
+     eea:	ffff                	0xffff
+     eec:	ffff                	0xffff
+     eee:	ffff                	0xffff
+     ef0:	ffff                	0xffff
+     ef2:	ffff                	0xffff
+     ef4:	ffff                	0xffff
+     ef6:	ffff                	0xffff
+     ef8:	ffff                	0xffff
+     efa:	ffff                	0xffff
+     efc:	ffff                	0xffff
+     efe:	ffff                	0xffff
+     f00:	ffff                	0xffff
+     f02:	ffff                	0xffff
+     f04:	ffff                	0xffff
+     f06:	ffff                	0xffff
+     f08:	ffff                	0xffff
+     f0a:	ffff                	0xffff
+     f0c:	ffff                	0xffff
+     f0e:	ffff                	0xffff
+     f10:	ffff                	0xffff
+     f12:	ffff                	0xffff
+     f14:	ffff                	0xffff
+     f16:	ffff                	0xffff
+     f18:	ffff                	0xffff
+     f1a:	ffff                	0xffff
+     f1c:	ffff                	0xffff
+     f1e:	ffff                	0xffff
+     f20:	ffff                	0xffff
+     f22:	ffff                	0xffff
+     f24:	ffff                	0xffff
+     f26:	ffff                	0xffff
+     f28:	ffff                	0xffff
+     f2a:	ffff                	0xffff
+     f2c:	ffff                	0xffff
+     f2e:	ffff                	0xffff
+     f30:	ffff                	0xffff
+     f32:	ffff                	0xffff
+     f34:	ffff                	0xffff
+     f36:	ffff                	0xffff
+     f38:	ffff                	0xffff
+     f3a:	ffff                	0xffff
+     f3c:	ffff                	0xffff
+     f3e:	ffff                	0xffff
+     f40:	ffff                	0xffff
+     f42:	ffff                	0xffff
+     f44:	ffff                	0xffff
+     f46:	ffff                	0xffff
+     f48:	ffff                	0xffff
+     f4a:	ffff                	0xffff
+     f4c:	ffff                	0xffff
+     f4e:	ffff                	0xffff
+     f50:	ffff                	0xffff
+     f52:	ffff                	0xffff
+     f54:	ffff                	0xffff
+     f56:	ffff                	0xffff
+     f58:	ffff                	0xffff
+     f5a:	ffff                	0xffff
+     f5c:	ffff                	0xffff
+     f5e:	ffff                	0xffff
+     f60:	ffff                	0xffff
+     f62:	ffff                	0xffff
+     f64:	ffff                	0xffff
+     f66:	ffff                	0xffff
+     f68:	ffff                	0xffff
+     f6a:	ffff                	0xffff
+     f6c:	ffff                	0xffff
+     f6e:	ffff                	0xffff
+     f70:	ffff                	0xffff
+     f72:	ffff                	0xffff
+     f74:	ffff                	0xffff
+     f76:	ffff                	0xffff
+     f78:	ffff                	0xffff
+     f7a:	ffff                	0xffff
+     f7c:	ffff                	0xffff
+     f7e:	ffff                	0xffff
+     f80:	ffff                	0xffff
+     f82:	ffff                	0xffff
+     f84:	ffff                	0xffff
+     f86:	ffff                	0xffff
+     f88:	ffff                	0xffff
+     f8a:	ffff                	0xffff
+     f8c:	ffff                	0xffff
+     f8e:	ffff                	0xffff
+     f90:	ffff                	0xffff
+     f92:	ffff                	0xffff
+     f94:	ffff                	0xffff
+     f96:	ffff                	0xffff
+     f98:	ffff                	0xffff
+     f9a:	ffff                	0xffff
+     f9c:	ffff                	0xffff
+     f9e:	ffff                	0xffff
+     fa0:	ffff                	0xffff
+     fa2:	ffff                	0xffff
+     fa4:	ffff                	0xffff
+     fa6:	ffff                	0xffff
+     fa8:	ffff                	0xffff
+     faa:	ffff                	0xffff
+     fac:	ffff                	0xffff
+     fae:	ffff                	0xffff
+     fb0:	ffff                	0xffff
+     fb2:	ffff                	0xffff
+     fb4:	ffff                	0xffff
+     fb6:	ffff                	0xffff
+     fb8:	ffff                	0xffff
+     fba:	ffff                	0xffff
+     fbc:	ffff                	0xffff
+     fbe:	ffff                	0xffff
+     fc0:	ffff                	0xffff
+     fc2:	ffff                	0xffff
+     fc4:	ffff                	0xffff
+     fc6:	ffff                	0xffff
+     fc8:	ffff                	0xffff
+     fca:	ffff                	0xffff
+     fcc:	ffff                	0xffff
+     fce:	ffff                	0xffff
+     fd0:	ffff                	0xffff
+     fd2:	ffff                	0xffff
+     fd4:	ffff                	0xffff
+     fd6:	ffff                	0xffff
+     fd8:	ffff                	0xffff
+     fda:	ffff                	0xffff
+     fdc:	ffff                	0xffff
+     fde:	ffff                	0xffff
+     fe0:	ffff                	0xffff
+     fe2:	ffff                	0xffff
+     fe4:	ffff                	0xffff
+     fe6:	ffff                	0xffff
+     fe8:	ffff                	0xffff
+     fea:	ffff                	0xffff
+     fec:	ffff                	0xffff
+     fee:	ffff                	0xffff
+     ff0:	ffff                	0xffff
+     ff2:	ffff                	0xffff
+     ff4:	ffff                	0xffff
+     ff6:	ffff                	0xffff
+     ff8:	ffff                	0xffff
+     ffa:	ffff                	0xffff
+     ffc:	ffff                	0xffff
+     ffe:	ffff                	0xffff
+    1000:	ffff                	0xffff
+    1002:	ffff                	0xffff
+    1004:	ffff                	0xffff
+    1006:	ffff                	0xffff
+    1008:	ffff                	0xffff
+    100a:	ffff                	0xffff
+    100c:	ffff                	0xffff
+    100e:	ffff                	0xffff
+    1010:	ffff                	0xffff
+    1012:	ffff                	0xffff
+    1014:	ffff                	0xffff
+    1016:	ffff                	0xffff
+    1018:	ffff                	0xffff
+    101a:	ffff                	0xffff
+    101c:	ffff                	0xffff
+    101e:	ffff                	0xffff
+    1020:	ffff                	0xffff
+    1022:	ffff                	0xffff
+    1024:	ffff                	0xffff
+    1026:	ffff                	0xffff
+    1028:	ffff                	0xffff
+    102a:	ffff                	0xffff
+    102c:	ffff                	0xffff
+    102e:	ffff                	0xffff
+    1030:	ffff                	0xffff
+    1032:	ffff                	0xffff
+    1034:	ffff                	0xffff
+    1036:	ffff                	0xffff
+    1038:	ffff                	0xffff
+    103a:	ffff                	0xffff
+    103c:	ffff                	0xffff
+    103e:	ffff                	0xffff
+    1040:	ffff                	0xffff
+    1042:	ffff                	0xffff
+    1044:	ffff                	0xffff
+    1046:	ffff                	0xffff
+    1048:	ffff                	0xffff
+    104a:	ffff                	0xffff
+    104c:	ffff                	0xffff
+    104e:	ffff                	0xffff
+    1050:	ffff                	0xffff
+    1052:	ffff                	0xffff
+    1054:	ffff                	0xffff
+    1056:	ffff                	0xffff
+    1058:	ffff                	0xffff
+    105a:	ffff                	0xffff
+    105c:	ffff                	0xffff
+    105e:	ffff                	0xffff
+    1060:	ffff                	0xffff
+    1062:	ffff                	0xffff
+    1064:	ffff                	0xffff
+    1066:	ffff                	0xffff
+    1068:	ffff                	0xffff
+    106a:	ffff                	0xffff
+    106c:	ffff                	0xffff
+    106e:	ffff                	0xffff
+    1070:	ffff                	0xffff
+    1072:	ffff                	0xffff
+    1074:	ffff                	0xffff
+    1076:	ffff                	0xffff
+    1078:	ffff                	0xffff
+    107a:	ffff                	0xffff
+    107c:	ffff                	0xffff
+    107e:	ffff                	0xffff
+    1080:	ffff                	0xffff
+    1082:	ffff                	0xffff
+    1084:	ffff                	0xffff
+    1086:	ffff                	0xffff
+    1088:	ffff                	0xffff
+    108a:	ffff                	0xffff
+    108c:	ffff                	0xffff
+    108e:	ffff                	0xffff
+    1090:	ffff                	0xffff
+    1092:	ffff                	0xffff
+    1094:	ffff                	0xffff
+    1096:	ffff                	0xffff
+    1098:	ffff                	0xffff
+    109a:	ffff                	0xffff
+    109c:	ffff                	0xffff
+    109e:	ffff                	0xffff
+    10a0:	ffff                	0xffff
+    10a2:	ffff                	0xffff
+    10a4:	ffff                	0xffff
+    10a6:	ffff                	0xffff
+    10a8:	ffff                	0xffff
+    10aa:	ffff                	0xffff
+    10ac:	ffff                	0xffff
+    10ae:	ffff                	0xffff
+    10b0:	ffff                	0xffff
+    10b2:	ffff                	0xffff
+    10b4:	ffff                	0xffff
+    10b6:	ffff                	0xffff
+    10b8:	ffff                	0xffff
+    10ba:	ffff                	0xffff
+    10bc:	ffff                	0xffff
+    10be:	ffff                	0xffff
+    10c0:	ffff                	0xffff
+    10c2:	ffff                	0xffff
+    10c4:	ffff                	0xffff
+    10c6:	ffff                	0xffff
+    10c8:	ffff                	0xffff
+    10ca:	ffff                	0xffff
+    10cc:	ffff                	0xffff
+    10ce:	ffff                	0xffff
+    10d0:	ffff                	0xffff
+    10d2:	ffff                	0xffff
+    10d4:	ffff                	0xffff
+    10d6:	ffff                	0xffff
+    10d8:	ffff                	0xffff
+    10da:	ffff                	0xffff
+    10dc:	ffff                	0xffff
+    10de:	ffff                	0xffff
+    10e0:	ffff                	0xffff
+    10e2:	ffff                	0xffff
+    10e4:	ffff                	0xffff
+    10e6:	ffff                	0xffff
+    10e8:	ffff                	0xffff
+    10ea:	ffff                	0xffff
+    10ec:	ffff                	0xffff
+    10ee:	ffff                	0xffff
+    10f0:	ffff                	0xffff
+    10f2:	ffff                	0xffff
+    10f4:	ffff                	0xffff
+    10f6:	ffff                	0xffff
+    10f8:	ffff                	0xffff
+    10fa:	ffff                	0xffff
+    10fc:	ffff                	0xffff
+    10fe:	ffff                	0xffff
+    1100:	ffff                	0xffff
+    1102:	ffff                	0xffff
+    1104:	ffff                	0xffff
+    1106:	ffff                	0xffff
+    1108:	ffff                	0xffff
+    110a:	ffff                	0xffff
+    110c:	ffff                	0xffff
+    110e:	ffff                	0xffff
+    1110:	ffff                	0xffff
+    1112:	ffff                	0xffff
+    1114:	ffff                	0xffff
+    1116:	ffff                	0xffff
+    1118:	ffff                	0xffff
+    111a:	ffff                	0xffff
+    111c:	ffff                	0xffff
+    111e:	ffff                	0xffff
+    1120:	ffff                	0xffff
+    1122:	ffff                	0xffff
+    1124:	ffff                	0xffff
+    1126:	ffff                	0xffff
+    1128:	ffff                	0xffff
+    112a:	ffff                	0xffff
+    112c:	ffff                	0xffff
+    112e:	ffff                	0xffff
+    1130:	ffff                	0xffff
+    1132:	ffff                	0xffff
+    1134:	ffff                	0xffff
+    1136:	ffff                	0xffff
+    1138:	ffff                	0xffff
+    113a:	ffff                	0xffff
+    113c:	ffff                	0xffff
+    113e:	ffff                	0xffff
+    1140:	ffff                	0xffff
+    1142:	ffff                	0xffff
+    1144:	ffff                	0xffff
+    1146:	ffff                	0xffff
+    1148:	ffff                	0xffff
+    114a:	ffff                	0xffff
+    114c:	ffff                	0xffff
+    114e:	ffff                	0xffff
+    1150:	ffff                	0xffff
+    1152:	ffff                	0xffff
+    1154:	ffff                	0xffff
+    1156:	ffff                	0xffff
+    1158:	ffff                	0xffff
+    115a:	ffff                	0xffff
+    115c:	ffff                	0xffff
+    115e:	ffff                	0xffff
+    1160:	ffff                	0xffff
+    1162:	ffff                	0xffff
+    1164:	ffff                	0xffff
+    1166:	ffff                	0xffff
+    1168:	ffff                	0xffff
+    116a:	ffff                	0xffff
+    116c:	ffff                	0xffff
+    116e:	ffff                	0xffff
+    1170:	ffff                	0xffff
+    1172:	ffff                	0xffff
+    1174:	ffff                	0xffff
+    1176:	ffff                	0xffff
+    1178:	ffff                	0xffff
+    117a:	ffff                	0xffff
+    117c:	ffff                	0xffff
+    117e:	ffff                	0xffff
+    1180:	ffff                	0xffff
+    1182:	ffff                	0xffff
+    1184:	ffff                	0xffff
+    1186:	ffff                	0xffff
+    1188:	ffff                	0xffff
+    118a:	ffff                	0xffff
+    118c:	ffff                	0xffff
+    118e:	ffff                	0xffff
+    1190:	ffff                	0xffff
+    1192:	ffff                	0xffff
+    1194:	ffff                	0xffff
+    1196:	ffff                	0xffff
+    1198:	ffff                	0xffff
+    119a:	ffff                	0xffff
+    119c:	ffff                	0xffff
+    119e:	ffff                	0xffff
+    11a0:	ffff                	0xffff
+    11a2:	ffff                	0xffff
+    11a4:	ffff                	0xffff
+    11a6:	ffff                	0xffff
+    11a8:	ffff                	0xffff
+    11aa:	ffff                	0xffff
+    11ac:	ffff                	0xffff
+    11ae:	ffff                	0xffff
+    11b0:	ffff                	0xffff
+    11b2:	ffff                	0xffff
+    11b4:	ffff                	0xffff
+    11b6:	ffff                	0xffff
+    11b8:	ffff                	0xffff
+    11ba:	ffff                	0xffff
+    11bc:	ffff                	0xffff
+    11be:	ffff                	0xffff
+    11c0:	ffff                	0xffff
+    11c2:	ffff                	0xffff
+    11c4:	ffff                	0xffff
+    11c6:	ffff                	0xffff
+    11c8:	ffff                	0xffff
+    11ca:	ffff                	0xffff
+    11cc:	ffff                	0xffff
+    11ce:	ffff                	0xffff
+    11d0:	ffff                	0xffff
+    11d2:	ffff                	0xffff
+    11d4:	ffff                	0xffff
+    11d6:	ffff                	0xffff
+    11d8:	ffff                	0xffff
+    11da:	ffff                	0xffff
+    11dc:	ffff                	0xffff
+    11de:	ffff                	0xffff
+    11e0:	ffff                	0xffff
+    11e2:	ffff                	0xffff
+    11e4:	ffff                	0xffff
+    11e6:	ffff                	0xffff
+    11e8:	ffff                	0xffff
+    11ea:	ffff                	0xffff
+    11ec:	ffff                	0xffff
+    11ee:	ffff                	0xffff
+    11f0:	ffff                	0xffff
+    11f2:	ffff                	0xffff
+    11f4:	ffff                	0xffff
+    11f6:	ffff                	0xffff
+    11f8:	ffff                	0xffff
+    11fa:	ffff                	0xffff
+    11fc:	ffff                	0xffff
+    11fe:	ffff                	0xffff
+    1200:	ffff                	0xffff
+    1202:	ffff                	0xffff
+    1204:	ffff                	0xffff
+    1206:	ffff                	0xffff
+    1208:	ffff                	0xffff
+    120a:	ffff                	0xffff
+    120c:	ffff                	0xffff
+    120e:	ffff                	0xffff
+    1210:	ffff                	0xffff
+    1212:	ffff                	0xffff
+    1214:	ffff                	0xffff
+    1216:	ffff                	0xffff
+    1218:	ffff                	0xffff
+    121a:	ffff                	0xffff
+    121c:	ffff                	0xffff
+    121e:	ffff                	0xffff
+    1220:	ffff                	0xffff
+    1222:	ffff                	0xffff
+    1224:	ffff                	0xffff
+    1226:	ffff                	0xffff
+    1228:	ffff                	0xffff
+    122a:	ffff                	0xffff
+    122c:	ffff                	0xffff
+    122e:	ffff                	0xffff
+    1230:	ffff                	0xffff
+    1232:	ffff                	0xffff
+    1234:	ffff                	0xffff
+    1236:	ffff                	0xffff
+    1238:	ffff                	0xffff
+    123a:	ffff                	0xffff
+    123c:	ffff                	0xffff
+    123e:	ffff                	0xffff
+    1240:	ffff                	0xffff
+    1242:	ffff                	0xffff
+    1244:	ffff                	0xffff
+    1246:	ffff                	0xffff
+    1248:	ffff                	0xffff
+    124a:	ffff                	0xffff
+    124c:	ffff                	0xffff
+    124e:	ffff                	0xffff
+    1250:	ffff                	0xffff
+    1252:	ffff                	0xffff
+    1254:	ffff                	0xffff
+    1256:	ffff                	0xffff
+    1258:	ffff                	0xffff
+    125a:	ffff                	0xffff
+    125c:	ffff                	0xffff
+    125e:	ffff                	0xffff
+    1260:	ffff                	0xffff
+    1262:	ffff                	0xffff
+    1264:	ffff                	0xffff
+    1266:	ffff                	0xffff
+    1268:	ffff                	0xffff
+    126a:	ffff                	0xffff
+    126c:	ffff                	0xffff
+    126e:	ffff                	0xffff
+    1270:	ffff                	0xffff
+    1272:	ffff                	0xffff
+    1274:	ffff                	0xffff
+    1276:	ffff                	0xffff
+    1278:	ffff                	0xffff
+    127a:	ffff                	0xffff
+    127c:	ffff                	0xffff
+    127e:	ffff                	0xffff
+    1280:	ffff                	0xffff
+    1282:	ffff                	0xffff
+    1284:	ffff                	0xffff
+    1286:	ffff                	0xffff
+    1288:	ffff                	0xffff
+    128a:	ffff                	0xffff
+    128c:	ffff                	0xffff
+    128e:	ffff                	0xffff
+    1290:	ffff                	0xffff
+    1292:	ffff                	0xffff
+    1294:	ffff                	0xffff
+    1296:	ffff                	0xffff
+    1298:	ffff                	0xffff
+    129a:	ffff                	0xffff
+    129c:	ffff                	0xffff
+    129e:	ffff                	0xffff
+    12a0:	ffff                	0xffff
+    12a2:	ffff                	0xffff
+    12a4:	ffff                	0xffff
+    12a6:	ffff                	0xffff
+    12a8:	ffff                	0xffff
+    12aa:	ffff                	0xffff
+    12ac:	ffff                	0xffff
+    12ae:	ffff                	0xffff
+    12b0:	ffff                	0xffff
+    12b2:	ffff                	0xffff
+    12b4:	ffff                	0xffff
+    12b6:	ffff                	0xffff
+    12b8:	ffff                	0xffff
+    12ba:	ffff                	0xffff
+    12bc:	ffff                	0xffff
+    12be:	ffff                	0xffff
+    12c0:	ffff                	0xffff
+    12c2:	ffff                	0xffff
+    12c4:	ffff                	0xffff
+    12c6:	ffff                	0xffff
+    12c8:	ffff                	0xffff
+    12ca:	ffff                	0xffff
+    12cc:	ffff                	0xffff
+    12ce:	ffff                	0xffff
+    12d0:	ffff                	0xffff
+    12d2:	ffff                	0xffff
+    12d4:	ffff                	0xffff
+    12d6:	ffff                	0xffff
+    12d8:	ffff                	0xffff
+    12da:	ffff                	0xffff
+    12dc:	ffff                	0xffff
+    12de:	ffff                	0xffff
+    12e0:	ffff                	0xffff
+    12e2:	ffff                	0xffff
+    12e4:	ffff                	0xffff
+    12e6:	ffff                	0xffff
+    12e8:	ffff                	0xffff
+    12ea:	ffff                	0xffff
+    12ec:	ffff                	0xffff
+    12ee:	ffff                	0xffff
+    12f0:	ffff                	0xffff
+    12f2:	ffff                	0xffff
+    12f4:	ffff                	0xffff
+    12f6:	ffff                	0xffff
+    12f8:	ffff                	0xffff
+    12fa:	ffff                	0xffff
+    12fc:	ffff                	0xffff
+    12fe:	ffff                	0xffff
+    1300:	ffff                	0xffff
+    1302:	ffff                	0xffff
+    1304:	ffff                	0xffff
+    1306:	ffff                	0xffff
+    1308:	ffff                	0xffff
+    130a:	ffff                	0xffff
+    130c:	ffff                	0xffff
+    130e:	ffff                	0xffff
+    1310:	ffff                	0xffff
+    1312:	ffff                	0xffff
+    1314:	ffff                	0xffff
+    1316:	ffff                	0xffff
+    1318:	ffff                	0xffff
+    131a:	ffff                	0xffff
+    131c:	ffff                	0xffff
+    131e:	ffff                	0xffff
+    1320:	ffff                	0xffff
+    1322:	ffff                	0xffff
+    1324:	ffff                	0xffff
+    1326:	ffff                	0xffff
+    1328:	ffff                	0xffff
+    132a:	ffff                	0xffff
+    132c:	ffff                	0xffff
+    132e:	ffff                	0xffff
+    1330:	ffff                	0xffff
+    1332:	ffff                	0xffff
+    1334:	ffff                	0xffff
+    1336:	ffff                	0xffff
+    1338:	ffff                	0xffff
+    133a:	ffff                	0xffff
+    133c:	ffff                	0xffff
+    133e:	ffff                	0xffff
+    1340:	ffff                	0xffff
+    1342:	ffff                	0xffff
+    1344:	ffff                	0xffff
+    1346:	ffff                	0xffff
+    1348:	ffff                	0xffff
+    134a:	ffff                	0xffff
+    134c:	ffff                	0xffff
+    134e:	ffff                	0xffff
+    1350:	ffff                	0xffff
+    1352:	ffff                	0xffff
+    1354:	ffff                	0xffff
+    1356:	ffff                	0xffff
+    1358:	ffff                	0xffff
+    135a:	ffff                	0xffff
+    135c:	ffff                	0xffff
+    135e:	ffff                	0xffff
+    1360:	ffff                	0xffff
+    1362:	ffff                	0xffff
+    1364:	ffff                	0xffff
+    1366:	ffff                	0xffff
+    1368:	ffff                	0xffff
+    136a:	ffff                	0xffff
+    136c:	ffff                	0xffff
+    136e:	ffff                	0xffff
+    1370:	ffff                	0xffff
+    1372:	ffff                	0xffff
+    1374:	ffff                	0xffff
+    1376:	ffff                	0xffff
+    1378:	ffff                	0xffff
+    137a:	ffff                	0xffff
+    137c:	ffff                	0xffff
+    137e:	ffff                	0xffff
+    1380:	ffff                	0xffff
+    1382:	ffff                	0xffff
+    1384:	ffff                	0xffff
+    1386:	ffff                	0xffff
+    1388:	ffff                	0xffff
+    138a:	ffff                	0xffff
+    138c:	ffff                	0xffff
+    138e:	ffff                	0xffff
+    1390:	ffff                	0xffff
+    1392:	ffff                	0xffff
+    1394:	ffff                	0xffff
+    1396:	ffff                	0xffff
+    1398:	ffff                	0xffff
+    139a:	ffff                	0xffff
+    139c:	ffff                	0xffff
+    139e:	ffff                	0xffff
+    13a0:	ffff                	0xffff
+    13a2:	ffff                	0xffff
+    13a4:	ffff                	0xffff
+    13a6:	ffff                	0xffff
+    13a8:	ffff                	0xffff
+    13aa:	ffff                	0xffff
+    13ac:	ffff                	0xffff
+    13ae:	ffff                	0xffff
+    13b0:	ffff                	0xffff
+    13b2:	ffff                	0xffff
+    13b4:	ffff                	0xffff
+    13b6:	ffff                	0xffff
+    13b8:	ffff                	0xffff
+    13ba:	ffff                	0xffff
+    13bc:	ffff                	0xffff
+    13be:	ffff                	0xffff
+    13c0:	ffff                	0xffff
+    13c2:	ffff                	0xffff
+    13c4:	ffff                	0xffff
+    13c6:	ffff                	0xffff
+    13c8:	ffff                	0xffff
+    13ca:	ffff                	0xffff
+    13cc:	ffff                	0xffff
+    13ce:	ffff                	0xffff
+    13d0:	ffff                	0xffff
+    13d2:	ffff                	0xffff
+    13d4:	ffff                	0xffff
+    13d6:	ffff                	0xffff
+    13d8:	ffff                	0xffff
+    13da:	ffff                	0xffff
+    13dc:	ffff                	0xffff
+    13de:	ffff                	0xffff
+    13e0:	ffff                	0xffff
+    13e2:	ffff                	0xffff
+    13e4:	ffff                	0xffff
+    13e6:	ffff                	0xffff
+    13e8:	ffff                	0xffff
+    13ea:	ffff                	0xffff
+    13ec:	ffff                	0xffff
+    13ee:	ffff                	0xffff
+    13f0:	ffff                	0xffff
+    13f2:	ffff                	0xffff
+    13f4:	ffff                	0xffff
+    13f6:	ffff                	0xffff
+    13f8:	ffff                	0xffff
+    13fa:	ffff                	0xffff
+    13fc:	ffff                	0xffff
+    13fe:	ffff                	0xffff
+    1400:	ffff                	0xffff
+    1402:	ffff                	0xffff
+    1404:	ffff                	0xffff
+    1406:	ffff                	0xffff
+    1408:	ffff                	0xffff
+    140a:	ffff                	0xffff
+    140c:	ffff                	0xffff
+    140e:	ffff                	0xffff
+    1410:	ffff                	0xffff
+    1412:	ffff                	0xffff
+    1414:	ffff                	0xffff
+    1416:	ffff                	0xffff
+    1418:	ffff                	0xffff
+    141a:	ffff                	0xffff
+    141c:	ffff                	0xffff
+    141e:	ffff                	0xffff
+    1420:	ffff                	0xffff
+    1422:	ffff                	0xffff
+    1424:	ffff                	0xffff
+    1426:	ffff                	0xffff
+    1428:	ffff                	0xffff
+    142a:	ffff                	0xffff
+    142c:	ffff                	0xffff
+    142e:	ffff                	0xffff
+    1430:	ffff                	0xffff
+    1432:	ffff                	0xffff
+    1434:	ffff                	0xffff
+    1436:	ffff                	0xffff
+    1438:	ffff                	0xffff
+    143a:	ffff                	0xffff
+    143c:	ffff                	0xffff
+    143e:	ffff                	0xffff
+    1440:	ffff                	0xffff
+    1442:	ffff                	0xffff
+    1444:	ffff                	0xffff
+    1446:	ffff                	0xffff
+    1448:	ffff                	0xffff
+    144a:	ffff                	0xffff
+    144c:	ffff                	0xffff
+    144e:	ffff                	0xffff
+    1450:	ffff                	0xffff
+    1452:	ffff                	0xffff
+    1454:	ffff                	0xffff
+    1456:	ffff                	0xffff
+    1458:	ffff                	0xffff
+    145a:	ffff                	0xffff
+    145c:	ffff                	0xffff
+    145e:	ffff                	0xffff
+    1460:	ffff                	0xffff
+    1462:	ffff                	0xffff
+    1464:	ffff                	0xffff
+    1466:	ffff                	0xffff
+    1468:	ffff                	0xffff
+    146a:	ffff                	0xffff
+    146c:	ffff                	0xffff
+    146e:	ffff                	0xffff
+    1470:	ffff                	0xffff
+    1472:	ffff                	0xffff
+    1474:	ffff                	0xffff
+    1476:	ffff                	0xffff
+    1478:	ffff                	0xffff
+    147a:	ffff                	0xffff
+    147c:	ffff                	0xffff
+    147e:	ffff                	0xffff
+    1480:	ffff                	0xffff
+    1482:	ffff                	0xffff
+    1484:	ffff                	0xffff
+    1486:	ffff                	0xffff
+    1488:	ffff                	0xffff
+    148a:	ffff                	0xffff
+    148c:	ffff                	0xffff
+    148e:	ffff                	0xffff
+    1490:	ffff                	0xffff
+    1492:	ffff                	0xffff
+    1494:	ffff                	0xffff
+    1496:	ffff                	0xffff
+    1498:	ffff                	0xffff
+    149a:	ffff                	0xffff
+    149c:	ffff                	0xffff
+    149e:	ffff                	0xffff
+    14a0:	ffff                	0xffff
+    14a2:	ffff                	0xffff
+    14a4:	ffff                	0xffff
+    14a6:	ffff                	0xffff
+    14a8:	ffff                	0xffff
+    14aa:	ffff                	0xffff
+    14ac:	ffff                	0xffff
+    14ae:	ffff                	0xffff
+    14b0:	ffff                	0xffff
+    14b2:	ffff                	0xffff
+    14b4:	ffff                	0xffff
+    14b6:	ffff                	0xffff
+    14b8:	ffff                	0xffff
+    14ba:	ffff                	0xffff
+    14bc:	ffff                	0xffff
+    14be:	ffff                	0xffff
+    14c0:	ffff                	0xffff
+    14c2:	ffff                	0xffff
+    14c4:	ffff                	0xffff
+    14c6:	ffff                	0xffff
+    14c8:	ffff                	0xffff
+    14ca:	ffff                	0xffff
+    14cc:	ffff                	0xffff
+    14ce:	ffff                	0xffff
+    14d0:	ffff                	0xffff
+    14d2:	ffff                	0xffff
+    14d4:	ffff                	0xffff
+    14d6:	ffff                	0xffff
+    14d8:	ffff                	0xffff
+    14da:	ffff                	0xffff
+    14dc:	ffff                	0xffff
+    14de:	ffff                	0xffff
+    14e0:	ffff                	0xffff
+    14e2:	ffff                	0xffff
+    14e4:	ffff                	0xffff
+    14e6:	ffff                	0xffff
+    14e8:	ffff                	0xffff
+    14ea:	ffff                	0xffff
+    14ec:	ffff                	0xffff
+    14ee:	ffff                	0xffff
+    14f0:	ffff                	0xffff
+    14f2:	ffff                	0xffff
+    14f4:	ffff                	0xffff
+    14f6:	ffff                	0xffff
+    14f8:	ffff                	0xffff
+    14fa:	ffff                	0xffff
+    14fc:	ffff                	0xffff
+    14fe:	ffff                	0xffff
+    1500:	ffff                	0xffff
+    1502:	ffff                	0xffff
+    1504:	ffff                	0xffff
+    1506:	ffff                	0xffff
+    1508:	ffff                	0xffff
+    150a:	ffff                	0xffff
+    150c:	ffff                	0xffff
+    150e:	ffff                	0xffff
+    1510:	ffff                	0xffff
+    1512:	ffff                	0xffff
+    1514:	ffff                	0xffff
+    1516:	ffff                	0xffff
+    1518:	ffff                	0xffff
+    151a:	ffff                	0xffff
+    151c:	ffff                	0xffff
+    151e:	ffff                	0xffff
+    1520:	ffff                	0xffff
+    1522:	ffff                	0xffff
+    1524:	ffff                	0xffff
+    1526:	ffff                	0xffff
+    1528:	ffff                	0xffff
+    152a:	ffff                	0xffff
+    152c:	ffff                	0xffff
+    152e:	ffff                	0xffff
+    1530:	ffff                	0xffff
+    1532:	ffff                	0xffff
+    1534:	ffff                	0xffff
+    1536:	ffff                	0xffff
+    1538:	ffff                	0xffff
+    153a:	ffff                	0xffff
+    153c:	ffff                	0xffff
+    153e:	ffff                	0xffff
+    1540:	ffff                	0xffff
+    1542:	ffff                	0xffff
+    1544:	ffff                	0xffff
+    1546:	ffff                	0xffff
+    1548:	ffff                	0xffff
+    154a:	ffff                	0xffff
+    154c:	ffff                	0xffff
+    154e:	ffff                	0xffff
+    1550:	ffff                	0xffff
+    1552:	ffff                	0xffff
+    1554:	ffff                	0xffff
+    1556:	ffff                	0xffff
+    1558:	ffff                	0xffff
+    155a:	ffff                	0xffff
+    155c:	ffff                	0xffff
+    155e:	ffff                	0xffff
+    1560:	ffff                	0xffff
+    1562:	ffff                	0xffff
+    1564:	ffff                	0xffff
+    1566:	ffff                	0xffff
+    1568:	ffff                	0xffff
+    156a:	ffff                	0xffff
+    156c:	ffff                	0xffff
+    156e:	ffff                	0xffff
+    1570:	ffff                	0xffff
+    1572:	ffff                	0xffff
+    1574:	ffff                	0xffff
+    1576:	ffff                	0xffff
+    1578:	ffff                	0xffff
+    157a:	ffff                	0xffff
+    157c:	ffff                	0xffff
+    157e:	ffff                	0xffff
+    1580:	ffff                	0xffff
+    1582:	ffff                	0xffff
+    1584:	ffff                	0xffff
+    1586:	ffff                	0xffff
+    1588:	ffff                	0xffff
+    158a:	ffff                	0xffff
+    158c:	ffff                	0xffff
+    158e:	ffff                	0xffff
+    1590:	ffff                	0xffff
+    1592:	ffff                	0xffff
+    1594:	ffff                	0xffff
+    1596:	ffff                	0xffff
+    1598:	ffff                	0xffff
+    159a:	ffff                	0xffff
+    159c:	ffff                	0xffff
+    159e:	ffff                	0xffff
+    15a0:	ffff                	0xffff
+    15a2:	ffff                	0xffff
+    15a4:	ffff                	0xffff
+    15a6:	ffff                	0xffff
+    15a8:	ffff                	0xffff
+    15aa:	ffff                	0xffff
+    15ac:	ffff                	0xffff
+    15ae:	ffff                	0xffff
+    15b0:	ffff                	0xffff
+    15b2:	ffff                	0xffff
+    15b4:	ffff                	0xffff
+    15b6:	ffff                	0xffff
+    15b8:	ffff                	0xffff
+    15ba:	ffff                	0xffff
+    15bc:	ffff                	0xffff
+    15be:	ffff                	0xffff
+    15c0:	ffff                	0xffff
+    15c2:	ffff                	0xffff
+    15c4:	ffff                	0xffff
+    15c6:	ffff                	0xffff
+    15c8:	ffff                	0xffff
+    15ca:	ffff                	0xffff
+    15cc:	ffff                	0xffff
+    15ce:	ffff                	0xffff
+    15d0:	ffff                	0xffff
+    15d2:	ffff                	0xffff
+    15d4:	ffff                	0xffff
+    15d6:	ffff                	0xffff
+    15d8:	ffff                	0xffff
+    15da:	ffff                	0xffff
+    15dc:	ffff                	0xffff
+    15de:	ffff                	0xffff
+    15e0:	ffff                	0xffff
+    15e2:	ffff                	0xffff
+    15e4:	ffff                	0xffff
+    15e6:	ffff                	0xffff
+    15e8:	ffff                	0xffff
+    15ea:	ffff                	0xffff
+    15ec:	ffff                	0xffff
+    15ee:	ffff                	0xffff
+    15f0:	ffff                	0xffff
+    15f2:	ffff                	0xffff
+    15f4:	ffff                	0xffff
+    15f6:	ffff                	0xffff
+    15f8:	ffff                	0xffff
+    15fa:	ffff                	0xffff
+    15fc:	ffff                	0xffff
+    15fe:	ffff                	0xffff
+    1600:	ffff                	0xffff
+    1602:	ffff                	0xffff
+    1604:	ffff                	0xffff
+    1606:	ffff                	0xffff
+    1608:	ffff                	0xffff
+    160a:	ffff                	0xffff
+    160c:	ffff                	0xffff
+    160e:	ffff                	0xffff
+    1610:	ffff                	0xffff
+    1612:	ffff                	0xffff
+    1614:	ffff                	0xffff
+    1616:	ffff                	0xffff
+    1618:	ffff                	0xffff
+    161a:	ffff                	0xffff
+    161c:	ffff                	0xffff
+    161e:	ffff                	0xffff
+    1620:	ffff                	0xffff
+    1622:	ffff                	0xffff
+    1624:	ffff                	0xffff
+    1626:	ffff                	0xffff
+    1628:	ffff                	0xffff
+    162a:	ffff                	0xffff
+    162c:	ffff                	0xffff
+    162e:	ffff                	0xffff
+    1630:	ffff                	0xffff
+    1632:	ffff                	0xffff
+    1634:	ffff                	0xffff
+    1636:	ffff                	0xffff
+    1638:	ffff                	0xffff
+    163a:	ffff                	0xffff
+    163c:	ffff                	0xffff
+    163e:	ffff                	0xffff
+    1640:	ffff                	0xffff
+    1642:	ffff                	0xffff
+    1644:	ffff                	0xffff
+    1646:	ffff                	0xffff
+    1648:	ffff                	0xffff
+    164a:	ffff                	0xffff
+    164c:	ffff                	0xffff
+    164e:	ffff                	0xffff
+    1650:	ffff                	0xffff
+    1652:	ffff                	0xffff
+    1654:	ffff                	0xffff
+    1656:	ffff                	0xffff
+    1658:	ffff                	0xffff
+    165a:	ffff                	0xffff
+    165c:	ffff                	0xffff
+    165e:	ffff                	0xffff
+    1660:	ffff                	0xffff
+    1662:	ffff                	0xffff
+    1664:	ffff                	0xffff
+    1666:	ffff                	0xffff
+    1668:	ffff                	0xffff
+    166a:	ffff                	0xffff
+    166c:	ffff                	0xffff
+    166e:	ffff                	0xffff
+    1670:	ffff                	0xffff
+    1672:	ffff                	0xffff
+    1674:	ffff                	0xffff
+    1676:	ffff                	0xffff
+    1678:	ffff                	0xffff
+    167a:	ffff                	0xffff
+    167c:	ffff                	0xffff
+    167e:	ffff                	0xffff
+    1680:	ffff                	0xffff
+    1682:	ffff                	0xffff
+    1684:	ffff                	0xffff
+    1686:	ffff                	0xffff
+    1688:	ffff                	0xffff
+    168a:	ffff                	0xffff
+    168c:	ffff                	0xffff
+    168e:	ffff                	0xffff
+    1690:	ffff                	0xffff
+    1692:	ffff                	0xffff
+    1694:	ffff                	0xffff
+    1696:	ffff                	0xffff
+    1698:	ffff                	0xffff
+    169a:	ffff                	0xffff
+    169c:	ffff                	0xffff
+    169e:	ffff                	0xffff
+    16a0:	ffff                	0xffff
+    16a2:	ffff                	0xffff
+    16a4:	ffff                	0xffff
+    16a6:	ffff                	0xffff
+    16a8:	ffff                	0xffff
+    16aa:	ffff                	0xffff
+    16ac:	ffff                	0xffff
+    16ae:	ffff                	0xffff
+    16b0:	ffff                	0xffff
+    16b2:	ffff                	0xffff
+    16b4:	ffff                	0xffff
+    16b6:	ffff                	0xffff
+    16b8:	ffff                	0xffff
+    16ba:	ffff                	0xffff
+    16bc:	ffff                	0xffff
+    16be:	ffff                	0xffff
+    16c0:	ffff                	0xffff
+    16c2:	ffff                	0xffff
+    16c4:	ffff                	0xffff
+    16c6:	ffff                	0xffff
+    16c8:	ffff                	0xffff
+    16ca:	ffff                	0xffff
+    16cc:	ffff                	0xffff
+    16ce:	ffff                	0xffff
+    16d0:	ffff                	0xffff
+    16d2:	ffff                	0xffff
+    16d4:	ffff                	0xffff
+    16d6:	ffff                	0xffff
+    16d8:	ffff                	0xffff
+    16da:	ffff                	0xffff
+    16dc:	ffff                	0xffff
+    16de:	ffff                	0xffff
+    16e0:	ffff                	0xffff
+    16e2:	ffff                	0xffff
+    16e4:	ffff                	0xffff
+    16e6:	ffff                	0xffff
+    16e8:	ffff                	0xffff
+    16ea:	ffff                	0xffff
+    16ec:	ffff                	0xffff
+    16ee:	ffff                	0xffff
+    16f0:	ffff                	0xffff
+    16f2:	ffff                	0xffff
+    16f4:	ffff                	0xffff
+    16f6:	ffff                	0xffff
+    16f8:	ffff                	0xffff
+    16fa:	ffff                	0xffff
+    16fc:	ffff                	0xffff
+    16fe:	ffff                	0xffff
+    1700:	ffff                	0xffff
+    1702:	ffff                	0xffff
+    1704:	ffff                	0xffff
+    1706:	ffff                	0xffff
+    1708:	ffff                	0xffff
+    170a:	ffff                	0xffff
+    170c:	ffff                	0xffff
+    170e:	ffff                	0xffff
+    1710:	ffff                	0xffff
+    1712:	ffff                	0xffff
+    1714:	ffff                	0xffff
+    1716:	ffff                	0xffff
+    1718:	ffff                	0xffff
+    171a:	ffff                	0xffff
+    171c:	ffff                	0xffff
+    171e:	ffff                	0xffff
+    1720:	ffff                	0xffff
+    1722:	ffff                	0xffff
+    1724:	ffff                	0xffff
+    1726:	ffff                	0xffff
+    1728:	ffff                	0xffff
+    172a:	ffff                	0xffff
+    172c:	ffff                	0xffff
+    172e:	ffff                	0xffff
+    1730:	ffff                	0xffff
+    1732:	ffff                	0xffff
+    1734:	ffff                	0xffff
+    1736:	ffff                	0xffff
+    1738:	ffff                	0xffff
+    173a:	ffff                	0xffff
+    173c:	ffff                	0xffff
+    173e:	ffff                	0xffff
+    1740:	ffff                	0xffff
+    1742:	ffff                	0xffff
+    1744:	ffff                	0xffff
+    1746:	ffff                	0xffff
+    1748:	ffff                	0xffff
+    174a:	ffff                	0xffff
+    174c:	ffff                	0xffff
+    174e:	ffff                	0xffff
+    1750:	ffff                	0xffff
+    1752:	ffff                	0xffff
+    1754:	ffff                	0xffff
+    1756:	ffff                	0xffff
+    1758:	ffff                	0xffff
+    175a:	ffff                	0xffff
+    175c:	ffff                	0xffff
+    175e:	ffff                	0xffff
+    1760:	ffff                	0xffff
+    1762:	ffff                	0xffff
+    1764:	ffff                	0xffff
+    1766:	ffff                	0xffff
+    1768:	ffff                	0xffff
+    176a:	ffff                	0xffff
+    176c:	ffff                	0xffff
+    176e:	ffff                	0xffff
+    1770:	ffff                	0xffff
+    1772:	ffff                	0xffff
+    1774:	ffff                	0xffff
+    1776:	ffff                	0xffff
+    1778:	ffff                	0xffff
+    177a:	ffff                	0xffff
+    177c:	ffff                	0xffff
+    177e:	ffff                	0xffff
+    1780:	ffff                	0xffff
+    1782:	ffff                	0xffff
+    1784:	ffff                	0xffff
+    1786:	ffff                	0xffff
+    1788:	ffff                	0xffff
+    178a:	ffff                	0xffff
+    178c:	ffff                	0xffff
+    178e:	ffff                	0xffff
+    1790:	ffff                	0xffff
+    1792:	ffff                	0xffff
+    1794:	ffff                	0xffff
+    1796:	ffff                	0xffff
+    1798:	ffff                	0xffff
+    179a:	ffff                	0xffff
+    179c:	ffff                	0xffff
+    179e:	ffff                	0xffff
+    17a0:	ffff                	0xffff
+    17a2:	ffff                	0xffff
+    17a4:	ffff                	0xffff
+    17a6:	ffff                	0xffff
+    17a8:	ffff                	0xffff
+    17aa:	ffff                	0xffff
+    17ac:	ffff                	0xffff
+    17ae:	ffff                	0xffff
+    17b0:	ffff                	0xffff
+    17b2:	ffff                	0xffff
+    17b4:	ffff                	0xffff
+    17b6:	ffff                	0xffff
+    17b8:	ffff                	0xffff
+    17ba:	ffff                	0xffff
+    17bc:	ffff                	0xffff
+    17be:	ffff                	0xffff
+    17c0:	ffff                	0xffff
+    17c2:	ffff                	0xffff
+    17c4:	ffff                	0xffff
+    17c6:	ffff                	0xffff
+    17c8:	ffff                	0xffff
+    17ca:	ffff                	0xffff
+    17cc:	ffff                	0xffff
+    17ce:	ffff                	0xffff
+    17d0:	ffff                	0xffff
+    17d2:	ffff                	0xffff
+    17d4:	ffff                	0xffff
+    17d6:	ffff                	0xffff
+    17d8:	ffff                	0xffff
+    17da:	ffff                	0xffff
+    17dc:	ffff                	0xffff
+    17de:	ffff                	0xffff
+    17e0:	ffff                	0xffff
+    17e2:	ffff                	0xffff
+    17e4:	ffff                	0xffff
+    17e6:	ffff                	0xffff
+    17e8:	ffff                	0xffff
+    17ea:	ffff                	0xffff
+    17ec:	ffff                	0xffff
+    17ee:	ffff                	0xffff
+    17f0:	ffff                	0xffff
+    17f2:	ffff                	0xffff
+    17f4:	ffff                	0xffff
+    17f6:	ffff                	0xffff
+    17f8:	ffff                	0xffff
+    17fa:	ffff                	0xffff
+    17fc:	ffff                	0xffff
+    17fe:	ffff                	0xffff
+    1800:	ffff                	0xffff
+    1802:	ffff                	0xffff
+    1804:	ffff                	0xffff
+    1806:	ffff                	0xffff
+    1808:	ffff                	0xffff
+    180a:	ffff                	0xffff
+    180c:	ffff                	0xffff
+    180e:	ffff                	0xffff
+    1810:	ffff                	0xffff
+    1812:	ffff                	0xffff
+    1814:	ffff                	0xffff
+    1816:	ffff                	0xffff
+    1818:	ffff                	0xffff
+    181a:	ffff                	0xffff
+    181c:	ffff                	0xffff
+    181e:	ffff                	0xffff
+    1820:	ffff                	0xffff
+    1822:	ffff                	0xffff
+    1824:	ffff                	0xffff
+    1826:	ffff                	0xffff
+    1828:	ffff                	0xffff
+    182a:	ffff                	0xffff
+    182c:	ffff                	0xffff
+    182e:	ffff                	0xffff
+    1830:	ffff                	0xffff
+    1832:	ffff                	0xffff
+    1834:	ffff                	0xffff
+    1836:	ffff                	0xffff
+    1838:	ffff                	0xffff
+    183a:	ffff                	0xffff
+    183c:	ffff                	0xffff
+    183e:	ffff                	0xffff
+    1840:	ffff                	0xffff
+    1842:	ffff                	0xffff
+    1844:	ffff                	0xffff
+    1846:	ffff                	0xffff
+    1848:	ffff                	0xffff
+    184a:	ffff                	0xffff
+    184c:	ffff                	0xffff
+    184e:	ffff                	0xffff
+    1850:	ffff                	0xffff
+    1852:	ffff                	0xffff
+    1854:	ffff                	0xffff
+    1856:	ffff                	0xffff
+    1858:	ffff                	0xffff
+    185a:	ffff                	0xffff
+    185c:	ffff                	0xffff
+    185e:	ffff                	0xffff
+    1860:	ffff                	0xffff
+    1862:	ffff                	0xffff
+    1864:	ffff                	0xffff
+    1866:	ffff                	0xffff
+    1868:	ffff                	0xffff
+    186a:	ffff                	0xffff
+    186c:	ffff                	0xffff
+    186e:	ffff                	0xffff
+    1870:	ffff                	0xffff
+    1872:	ffff                	0xffff
+    1874:	ffff                	0xffff
+    1876:	ffff                	0xffff
+    1878:	ffff                	0xffff
+    187a:	ffff                	0xffff
+    187c:	ffff                	0xffff
+    187e:	ffff                	0xffff
+    1880:	ffff                	0xffff
+    1882:	ffff                	0xffff
+    1884:	ffff                	0xffff
+    1886:	ffff                	0xffff
+    1888:	ffff                	0xffff
+    188a:	ffff                	0xffff
+    188c:	ffff                	0xffff
+    188e:	ffff                	0xffff
+    1890:	ffff                	0xffff
+    1892:	ffff                	0xffff
+    1894:	ffff                	0xffff
+    1896:	ffff                	0xffff
+    1898:	ffff                	0xffff
+    189a:	ffff                	0xffff
+    189c:	ffff                	0xffff
+    189e:	ffff                	0xffff
+    18a0:	ffff                	0xffff
+    18a2:	ffff                	0xffff
+    18a4:	ffff                	0xffff
+    18a6:	ffff                	0xffff
+    18a8:	ffff                	0xffff
+    18aa:	ffff                	0xffff
+    18ac:	ffff                	0xffff
+    18ae:	ffff                	0xffff
+    18b0:	ffff                	0xffff
+    18b2:	ffff                	0xffff
+    18b4:	ffff                	0xffff
+    18b6:	ffff                	0xffff
+    18b8:	ffff                	0xffff
+    18ba:	ffff                	0xffff
+    18bc:	ffff                	0xffff
+    18be:	ffff                	0xffff
+    18c0:	ffff                	0xffff
+    18c2:	ffff                	0xffff
+    18c4:	ffff                	0xffff
+    18c6:	ffff                	0xffff
+    18c8:	ffff                	0xffff
+    18ca:	ffff                	0xffff
+    18cc:	ffff                	0xffff
+    18ce:	ffff                	0xffff
+    18d0:	ffff                	0xffff
+    18d2:	ffff                	0xffff
+    18d4:	ffff                	0xffff
+    18d6:	ffff                	0xffff
+    18d8:	ffff                	0xffff
+    18da:	ffff                	0xffff
+    18dc:	ffff                	0xffff
+    18de:	ffff                	0xffff
+    18e0:	ffff                	0xffff
+    18e2:	ffff                	0xffff
+    18e4:	ffff                	0xffff
+    18e6:	ffff                	0xffff
+    18e8:	ffff                	0xffff
+    18ea:	ffff                	0xffff
+    18ec:	ffff                	0xffff
+    18ee:	ffff                	0xffff
+    18f0:	ffff                	0xffff
+    18f2:	ffff                	0xffff
+    18f4:	ffff                	0xffff
+    18f6:	ffff                	0xffff
+    18f8:	ffff                	0xffff
+    18fa:	ffff                	0xffff
+    18fc:	ffff                	0xffff
+    18fe:	ffff                	0xffff
+    1900:	ffff                	0xffff
+    1902:	ffff                	0xffff
+    1904:	ffff                	0xffff
+    1906:	ffff                	0xffff
+    1908:	ffff                	0xffff
+    190a:	ffff                	0xffff
+    190c:	ffff                	0xffff
+    190e:	ffff                	0xffff
+    1910:	ffff                	0xffff
+    1912:	ffff                	0xffff
+    1914:	ffff                	0xffff
+    1916:	ffff                	0xffff
+    1918:	ffff                	0xffff
+    191a:	ffff                	0xffff
+    191c:	ffff                	0xffff
+    191e:	ffff                	0xffff
+    1920:	ffff                	0xffff
+    1922:	ffff                	0xffff
+    1924:	ffff                	0xffff
+    1926:	ffff                	0xffff
+    1928:	ffff                	0xffff
+    192a:	ffff                	0xffff
+    192c:	ffff                	0xffff
+    192e:	ffff                	0xffff
+    1930:	ffff                	0xffff
+    1932:	ffff                	0xffff
+    1934:	ffff                	0xffff
+    1936:	ffff                	0xffff
+    1938:	ffff                	0xffff
+    193a:	ffff                	0xffff
+    193c:	ffff                	0xffff
+    193e:	ffff                	0xffff
+    1940:	ffff                	0xffff
+    1942:	ffff                	0xffff
+    1944:	ffff                	0xffff
+    1946:	ffff                	0xffff
+    1948:	ffff                	0xffff
+    194a:	ffff                	0xffff
+    194c:	ffff                	0xffff
+    194e:	ffff                	0xffff
+    1950:	ffff                	0xffff
+    1952:	ffff                	0xffff
+    1954:	ffff                	0xffff
+    1956:	ffff                	0xffff
+    1958:	ffff                	0xffff
+    195a:	ffff                	0xffff
+    195c:	ffff                	0xffff
+    195e:	ffff                	0xffff
+    1960:	ffff                	0xffff
+    1962:	ffff                	0xffff
+    1964:	ffff                	0xffff
+    1966:	ffff                	0xffff
+    1968:	ffff                	0xffff
+    196a:	ffff                	0xffff
+    196c:	ffff                	0xffff
+    196e:	ffff                	0xffff
+    1970:	ffff                	0xffff
+    1972:	ffff                	0xffff
+    1974:	ffff                	0xffff
+    1976:	ffff                	0xffff
+    1978:	ffff                	0xffff
+    197a:	ffff                	0xffff
+    197c:	ffff                	0xffff
+    197e:	ffff                	0xffff
+    1980:	ffff                	0xffff
+    1982:	ffff                	0xffff
+    1984:	ffff                	0xffff
+    1986:	ffff                	0xffff
+    1988:	ffff                	0xffff
+    198a:	ffff                	0xffff
+    198c:	ffff                	0xffff
+    198e:	ffff                	0xffff
+    1990:	ffff                	0xffff
+    1992:	ffff                	0xffff
+    1994:	ffff                	0xffff
+    1996:	ffff                	0xffff
+    1998:	ffff                	0xffff
+    199a:	ffff                	0xffff
+    199c:	ffff                	0xffff
+    199e:	ffff                	0xffff
+    19a0:	ffff                	0xffff
+    19a2:	ffff                	0xffff
+    19a4:	ffff                	0xffff
+    19a6:	ffff                	0xffff
+    19a8:	ffff                	0xffff
+    19aa:	ffff                	0xffff
+    19ac:	ffff                	0xffff
+    19ae:	ffff                	0xffff
+    19b0:	ffff                	0xffff
+    19b2:	ffff                	0xffff
+    19b4:	ffff                	0xffff
+    19b6:	ffff                	0xffff
+    19b8:	ffff                	0xffff
+    19ba:	ffff                	0xffff
+    19bc:	ffff                	0xffff
+    19be:	ffff                	0xffff
+    19c0:	ffff                	0xffff
+    19c2:	ffff                	0xffff
+    19c4:	ffff                	0xffff
+    19c6:	ffff                	0xffff
+    19c8:	ffff                	0xffff
+    19ca:	ffff                	0xffff
+    19cc:	ffff                	0xffff
+    19ce:	ffff                	0xffff
+    19d0:	ffff                	0xffff
+    19d2:	ffff                	0xffff
+    19d4:	ffff                	0xffff
+    19d6:	ffff                	0xffff
+    19d8:	ffff                	0xffff
+    19da:	ffff                	0xffff
+    19dc:	ffff                	0xffff
+    19de:	ffff                	0xffff
+    19e0:	ffff                	0xffff
+    19e2:	ffff                	0xffff
+    19e4:	ffff                	0xffff
+    19e6:	ffff                	0xffff
+    19e8:	ffff                	0xffff
+    19ea:	ffff                	0xffff
+    19ec:	ffff                	0xffff
+    19ee:	ffff                	0xffff
+    19f0:	ffff                	0xffff
+    19f2:	ffff                	0xffff
+    19f4:	ffff                	0xffff
+    19f6:	ffff                	0xffff
+    19f8:	ffff                	0xffff
+    19fa:	ffff                	0xffff
+    19fc:	ffff                	0xffff
+    19fe:	ffff                	0xffff
+    1a00:	ffff                	0xffff
+    1a02:	ffff                	0xffff
+    1a04:	ffff                	0xffff
+    1a06:	ffff                	0xffff
+    1a08:	ffff                	0xffff
+    1a0a:	ffff                	0xffff
+    1a0c:	ffff                	0xffff
+    1a0e:	ffff                	0xffff
+
+Disassembly of section .bss:
+
+00001a10 <g_nodePool>:
+    1a10:	0000                	unimp
+    1a12:	0000                	unimp
+    1a14:	0000                	unimp
+    1a16:	0000                	unimp
+    1a18:	0000                	unimp
+    1a1a:	0000                	unimp
+    1a1c:	0000                	unimp
+    1a1e:	0000                	unimp
+    1a20:	0000                	unimp
+    1a22:	0000                	unimp
+    1a24:	0000                	unimp
+    1a26:	0000                	unimp
+    1a28:	0000                	unimp
+    1a2a:	0000                	unimp
+    1a2c:	0000                	unimp
+    1a2e:	0000                	unimp
+    1a30:	0000                	unimp
+    1a32:	0000                	unimp
+    1a34:	0000                	unimp
+    1a36:	0000                	unimp
+    1a38:	0000                	unimp
+    1a3a:	0000                	unimp
+    1a3c:	0000                	unimp
+    1a3e:	0000                	unimp
+    1a40:	0000                	unimp
+    1a42:	0000                	unimp
+    1a44:	0000                	unimp
+    1a46:	0000                	unimp
+
+Disassembly of section .sbss:
+
+00001a48 <g_nodeFreeList>:
+    1a48:	0000                	unimp
+    1a4a:	0000                	unimp
+    1a4c:	0000                	unimp
+    1a4e:	0000                	unimp
+
+Disassembly of section .comment:
+
+00000000 <.comment>:
+   0:	3a434347          	fmsub.d	ft6,ft6,ft4,ft7,rmm
+   4:	2820                	fld	fs0,80(s0)
+   6:	29554e47          	fmsub.s	ft8,fa0,fs5,ft5,rmm
+   a:	3720                	fld	fs0,104(a4)
+   c:	322e                	fld	ft4,232(sp)
+   e:	302e                	fld	ft0,232(sp)
+  10:	00              	Address 0x0000000000000010 is out of bounds.
+
