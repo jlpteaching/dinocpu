@@ -106,7 +106,19 @@ object simulate {
 
     // Create the CPU config. This sets the type of CPU and the binary to load
     val conf = new CPUConfig()
-    conf.cpuType = args(1)
+
+    val params = args(1).split(":")
+    val cpuType = params(0)
+
+    val predictor =
+    if (params.length == 2) {
+      params(1)
+    } else {
+      "always-not-taken"
+    }
+
+    conf.cpuType = cpuType
+    conf.branchPredictor = predictor
     conf.memFile = hexName
 
     // This compiles the chisel to firrtl
