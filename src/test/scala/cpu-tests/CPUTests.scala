@@ -60,7 +60,7 @@ class PipelinedBPTakenCPUTester extends CPUFlatSpec {
   val mytests = Map(
     "branch" -> InstTests.branch,
     "jump" -> InstTests.jump,
-		"applications" -> InstTests.applications
+		"applications" -> InstTests.smallApplications
   )
   behavior of "Pipelined CPU with always-taken branch predictor"
   for ((group, tests) <- mytests) {
@@ -77,7 +77,7 @@ class PipelinedBPLocalCPUTester extends CPUFlatSpec {
   val mytests = Map(
     "branch" -> InstTests.branch,
     "jump" -> InstTests.jump,
-		"applications" -> InstTests.applications
+		"applications" -> InstTests.smallApplications
   )
   behavior of "Pipelined CPU with local branch predictor"
   for ((group, tests) <- mytests) {
@@ -94,7 +94,7 @@ class PipelinedBPGlobalCPUTester extends CPUFlatSpec {
   val mytests = Map(
     "branch" -> InstTests.branch,
     "jump" -> InstTests.jump,
-		"applications" -> InstTests.applications
+		"applications" -> InstTests.smallApplications
   )
   behavior of "Pipelined CPU with global branch predictor"
   for ((group, tests) <- mytests) {

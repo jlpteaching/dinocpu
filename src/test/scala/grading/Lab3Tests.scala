@@ -246,7 +246,7 @@ class Lab3Grader extends JUnitSuite {
 
       var success = true
       var error = ""
-      for (test <- InstTests.applications) {
+      for (test <- InstTests.smallApplications) {
         success = CPUTesterDriver(test, "pipelined") && success
         if (!success) {
           error = "Errored on test " + test.name() + "\n"

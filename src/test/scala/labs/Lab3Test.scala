@@ -103,7 +103,7 @@ class MemoryMultiCycleTesterLab3 extends CPUFlatSpec {
 
 class ApplicationsTesterLab3 extends CPUFlatSpec {
   behavior of "Pipelined CPU"
-  for (test <- InstTests.applications) {
+  for (test <- InstTests.smallApplications) {
     it should s"run application ${test.binary}${test.extraName}" in {
       CPUTesterDriver(test, "pipelined") should be(true)
     }
