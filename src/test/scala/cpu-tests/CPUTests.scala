@@ -105,3 +105,12 @@ class PipelinedBPGlobalCPUTester extends CPUFlatSpec {
     }
   }
 }
+
+class PipelinedFullApplicationTester extends CPUFlatSpec {
+  behavior of "Pipelined CPU running full applications"
+  for (test <- InstTests.fullApplications) {
+    it should s"run ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined") should be(true)
+    }
+  }
+}

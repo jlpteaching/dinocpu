@@ -434,34 +434,39 @@ object InstTests {
 
 	val fullApplications =  List[CPUTestCase](
 		CPUTestCase("multiply.riscv",
-								Map("single-cycle" -> 42342, "five-cycle" -> 0, "pipelined" -> 79189),
+								Map("single-cycle" -> 42342, "five-cycle" -> 0, "pipelined" -> 100000),
 								Map(),
-								Map(10->0),
+								Map(10->12345678),
 								Map(), Map()),
 		CPUTestCase("median.riscv",
-								Map("single-cycle" -> 9433, "five-cycle" -> 0, "pipelined" -> 16408),
+								Map("single-cycle" -> 9433, "five-cycle" -> 0, "pipelined" -> 100000),
 								Map(),
-								Map(10->0),
+								Map(10->12345678),
 								Map(), Map()),
 		CPUTestCase("qsort.riscv",
-								Map("single-cycle" -> 263290, "five-cycle" -> 0, "pipelined" -> 447309),
+								Map("single-cycle" -> 263290, "five-cycle" -> 0, "pipelined" -> 300000),
 								Map(),
-								Map(10->0),
+								Map(10->12345678),
+								Map(), Map()),
+		CPUTestCase("rsort.riscv",
+								Map("single-cycle" -> 263290, "five-cycle" -> 0, "pipelined" -> 250000),
+								Map(),
+								Map(10->12345678),
 								Map(), Map()),
 		CPUTestCase("towers.riscv",
-								Map("single-cycle" -> 12653, "five-cycle" -> 0, "pipelined" -> 15501),
+								Map("single-cycle" -> 12653, "five-cycle" -> 0, "pipelined" -> 50000),
 								Map(),
-								Map(10->0),
+								Map(10->12345678),
 								Map(), Map()),
 		CPUTestCase("vvadd.riscv",
-								Map("single-cycle" -> 5484, "five-cycle" -> 0, "pipelined" -> 7479),
+								Map("single-cycle" -> 5484, "five-cycle" -> 0, "pipelined" -> 10000),
 								Map(),
-								Map(10->0),
+								Map(10->12345678),
 								Map(), Map()),
 		CPUTestCase("spmv.riscv",
 								Map("single-cycle" ->0 , "five-cycle" -> 0, "pipelined" -> 0),
 								Map(),
-								Map(10->0),
+								Map(10->12345678),
 								Map(), Map())
 	)
 
@@ -484,5 +489,5 @@ object InstTests {
 								 memory ++ memoryMultiCycle ++ utype ++ jump ++ smallApplications
 
 	// Mapping from full name of test to test
-	val nameMap = allTests.map(x => x.name() -> x).toMap
+	val nameMap = (allTests ++ fullApplications).map(x => x.name() -> x).toMap
 }
