@@ -462,11 +462,6 @@ object InstTests {
 								Map("single-cycle" -> 5484, "five-cycle" -> 0, "pipelined" -> 10000),
 								Map(),
 								Map(10->12345678),
-								Map(), Map()),
-		CPUTestCase("spmv.riscv",
-								Map("single-cycle" ->0 , "five-cycle" -> 0, "pipelined" -> 0),
-								Map(),
-								Map(10->12345678),
 								Map(), Map())
 	)
 
