@@ -60,6 +60,7 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
     }
   }
 
+  printf(p"BP correct: $correctCounter; incorrect: $incorrectCounter\n")
 }
 
 /**
@@ -143,6 +144,8 @@ class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPre
     // Make sure to use the value of a branch in the next stage
     currentHistory := Cat(history(historyBits - 1, 1), io.taken)
 
+    trackStats(branchHistoryTable(history)(conf.saturatingCounterBits - 1))
+
     history := currentHistory // update the history register at the end of the cycle
     // Update the prediction for this branch history
     when (io.taken) {
@@ -155,5 +158,5 @@ class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPre
     currentHistory := history
   }
 
-  io.prediction := branchHistoryTable(currentHistory)
+  io.prediction := branchHistoryTable(currentHistory)(conf.saturatingCounterBits - 1)
 }
