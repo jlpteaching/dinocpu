@@ -56,7 +56,7 @@ class Control extends Module {
       // auipc
       BitPat("b0010111") -> List(false.B, false.B, 0.U,   true.B,  false.B,  true.B,  true.B,     2.U,    0.U),
       // jal
-      BitPat("b1101111") -> List(true.B,  false.B, 2.U,   false.B, false.B,  false.B, true.B,     1.U,    2.U),
+      BitPat("b1101111") -> List(false.B, false.B, 2.U,   false.B, false.B,  false.B, true.B,     1.U,    2.U),
       // jalr
       BitPat("b1100111") -> List(false.B, false.B, 2.U,   false.B, false.B,  true.B,  true.B,     0.U,    3.U)
       ) // Array
