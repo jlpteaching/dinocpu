@@ -9,6 +9,7 @@ import chisel3.{ChiselExecutionFailure,ChiselExecutionSuccess,HasChiselExecution
 import net.fornwall.jelf.ElfFile
 
 import scala.collection.SortedMap
+import scala.util.control.NonFatal
 
 /**
  * Simple object with only a main function to run the treadle simulation.
@@ -136,11 +137,21 @@ object simulate {
 
     // This is the actual simulation
     var cycles = 0
-    val maxCycles = if (optionsManager.simulatorOptions.maxCycles > 0) optionsManager.simulatorOptions.maxCycles else 500000
+    val maxCycles = if (optionsManager.simulatorOptions.maxCycles > 0) optionsManager.simulatorOptions.maxCycles else 2000000
     // Simulate until the pc is the "endPC" or until max cycles has been reached
     while (simulator.peek("cpu.pc") != endPC && cycles < maxCycles) {
       simulator.step(1)
       cycles += 1
+    }
+    println(s"CYCLES: $cycles")
+    try {
+      val correct = simulator.peek("cpu.predictor.correctCounter")
+      val incorrect = simulator.peek("cpu.predictor.incorrectCounter")
+      println(s"BP correct: $correct. incorrect: $incorrect")
+    } catch { case NonFatal(t) => }
+    println(s"Verification: ${simulator.peek("cpu.registers.regs_10")}")
+    if (simulator.peek("cpu.registers.regs_10") != 12345678) {
+      println("VERIFICATION FAILED")
     }
   }
 }

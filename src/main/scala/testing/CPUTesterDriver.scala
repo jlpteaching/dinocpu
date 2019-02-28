@@ -29,7 +29,12 @@ class CPUTesterDriver(cpuType: String, branchPredictor: String, binary: String, 
 
   // Convert the binary to a hex file that can be loaded by treadle
   // (Do this after compiling the firrtl so the directory is created)
-  val endPC = elfToHex(s"src/test/resources/risc-v/${binary}", hexName)
+  val path = if (binary.endsWith(".riscv")) {
+    s"src/test/resources/c/${binary}"
+  } else {
+    s"src/test/resources/risc-v/${binary}"
+  }
+  val endPC = elfToHex(path, hexName)
 
   // Instantiate the simulator
   val simulator = TreadleTester(compiledFirrtl, optionsManager)
@@ -90,7 +95,7 @@ class CPUTesterDriver(cpuType: String, branchPredictor: String, binary: String, 
 
   def step(cycles: Int = 0): Unit = {
     val start = cycle
-    while (cycle < start + cycles) {
+    while (simulator.peek("cpu.pc") != endPC && cycle < start + cycles) {
       simulator.step(1)
       cycle += 1
     }
