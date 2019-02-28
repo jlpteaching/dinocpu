@@ -22,7 +22,7 @@ static int verify(int n, const volatile int* test, const int* verify)
   }
   if (n % 2 != 0 && test[n-1] != verify[n-1])
     return n;
-  return 0;
+  return 12345678;
 }
 
 static int verifyDouble(int n, const volatile double* test, const double* verify)

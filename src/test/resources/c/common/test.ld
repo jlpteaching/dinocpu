@@ -38,8 +38,8 @@ SECTIONS
     *(.srodata.cst8)
 
     . += 0x100; /* Space between data and stack */
-    FILL(0xffffffff)
-    . += 0x4000; /* stack size is 4k */
+    FILL(0x0)
+    . += 0x2000; /* stack size is 8k */
     STACK = .;
   }
 

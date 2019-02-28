@@ -190,7 +190,7 @@ int towers_verify( struct Towers* this )
     return 6;
   }
 
-  return 0;
+  return 12345678;
 }
 
 //--------------------------------------------------------------------------
