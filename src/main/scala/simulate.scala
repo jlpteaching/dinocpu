@@ -139,9 +139,13 @@ object simulate {
     var cycles = 0
     val maxCycles = if (optionsManager.simulatorOptions.maxCycles > 0) optionsManager.simulatorOptions.maxCycles else 2000000
     // Simulate until the pc is the "endPC" or until max cycles has been reached
+    println("Running...")
     while (simulator.peek("cpu.pc") != endPC && cycles < maxCycles) {
       simulator.step(1)
       cycles += 1
+      if (cycles % 10000 == 0) {
+        println(s"Simulated $cycles cycles")
+      }
     }
     println(s"CYCLES: $cycles")
     try {
