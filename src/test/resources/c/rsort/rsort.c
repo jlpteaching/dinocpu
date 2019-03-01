@@ -4,7 +4,7 @@
 // Quicksort benchmark
 //--------------------------------------------------------------------------
 //
-// This benchmark uses quicksort to sort an array of integers. The
+// This benchmark uses radix sort to sort an array of integers. The
 // implementation is largely adapted from Numerical Recipes for C. The
 // input data (and reference data) should be generated using the
 // qsort_gendata.pl perl script and dumped to a file named
@@ -37,7 +37,7 @@ void sort(size_t n, type* arrIn, type* scratchIn)
   asm("":"+r"(bucket));
   type *arr = arrIn, *scratch = scratchIn, *p;
   size_t *b;
- 
+
   while (log_exp < CHAR_BIT * sizeof(type))
   {
     for (b = bucket; b < bucket + BASE; b++)
