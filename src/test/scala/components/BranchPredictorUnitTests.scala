@@ -21,6 +21,20 @@ class LocalPredictorUnitTester(p: LocalPredictor, stream: List[(Int,Boolean,Bool
     step += 1
   }
 }
+class GlobalPredictorUnitTester(p: GlobalHistoryPredictor, stream: List[(Int,Boolean,Boolean)]) extends PeekPokeTester(p) {
+  var step = 0
+  for ((addr, taken, pred) <- stream) {
+    poke(p.io.update, false)
+    poke(p.io.pc, addr)
+    step(1)
+    expect(p.io.prediction, pred)
+    step(1)
+    poke(p.io.update, true)
+    poke(p.io.taken, taken)
+    step(1)
+    step += 1
+  }
+}
 
 /**
   * This is a trivial example of how to run this Specification
@@ -115,6 +129,40 @@ class LocalPredictorTester extends ChiselFlatSpec {
     conf.branchPredTableEntries = 2
     Driver(() => new LocalPredictor) {
       p => new LocalPredictorUnitTester(p, stream)
+    } should be (true)
+  }
+}
+
+class GlobalPredictorTester extends ChiselFlatSpec {
+
+  "Global Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {
+    val stream = List(
+      /* pc, taken, prediction */
+      (0x0,  true, true),  // 00: 11
+      (0x0,  true, true), // 01: 11
+      (0x0,  false, true), // 11: 01
+      (0x0,  true, true), // 10: 11
+      (0x0,  true, true), // 01: 11
+      (0x0,  false, false), // 11: 00
+      (0x0,  true, true), // 10: 11
+      (0x0,  true, true), // 01: 11
+      (0x0,  true, false),  // 11: 01
+      (0x0,  true, false), // 11
+      (0x0,  true, true), // 11
+      (0x0,  true, true),  // 11: 11
+      (0x0,  true, true),
+      (0x0,  true, true),
+      (0x0,  true, true),  // 11: 11
+      (0x0,  true, true), // 11: 10
+      (0x0,  true, true), // 11: 11
+      (0x0,  false, true)  // 11: 10
+    )
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "global"
+    conf.saturatingCounterBits = 2
+    conf.branchPredTableEntries = 4
+    Driver(() => new GlobalHistoryPredictor) {
+      p => new GlobalPredictorUnitTester(p, stream)
     } should be (true)
   }
 }
