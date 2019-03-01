@@ -66,7 +66,10 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
     }
   }
 
-  printf(p"BP correct: $correctCounter; incorrect: $incorrectCounter\n")
+  when (correctCounter > (1.U << 20)) {
+    // Force these wires not to disappear
+    printf(p"BP correct: $correctCounter; incorrect: $incorrectCounter\n")
+  }
 }
 
 /**

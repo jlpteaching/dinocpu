@@ -19,6 +19,7 @@ class CPUTesterDriver(cpuType: String, branchPredictor: String, binary: String, 
   val conf = new CPUConfig()
   conf.cpuType = cpuType
   conf.memFile = hexName
+  conf.debug = true // always run with debug print statements
 
   if (!branchPredictor.isEmpty) {
     conf.branchPredictor = branchPredictor

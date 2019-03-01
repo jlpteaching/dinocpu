@@ -107,7 +107,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   val ex_mem     = RegInit(0.U.asTypeOf(new EXMEMBundle))
   val mem_wb     = RegInit(0.U.asTypeOf(new MEMWBBundle))
 
-  printf("Cycle=%d ", cycleCount)
+  if (conf.debug) { printf("Cycle=%d ", cycleCount) }
 
   // Forward declaration of wires that connect different stages
 
@@ -132,7 +132,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
                 (hazard.io.pcwrite === 2.U) -> pc,
                 (hazard.io.pcwrite === 3.U) -> id_next_pc))
 
-  printf(p"PC: $pc\n")
+  if (conf.debug) { printf(p"PC: $pc\n") }
 
   // Send the PC to the instruction memory port to get the instruction
   io.imem.address := pc
@@ -156,7 +156,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     if_id.pcplusfour  := 0.U
   }
 
-  printf(p"IF/ID: $if_id\n")
+  if (conf.debug) { printf(p"IF/ID: $if_id\n") }
 
   /////////////////////////////////////////////////////////////////////////////
   // ID STAGE
@@ -231,8 +231,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   }
 
-  printf("DASM(%x)\n", if_id.instruction)
-  printf(p"ID/EX: $id_ex\n")
+  if (conf.debug) { printf("DASM(%x)\n", if_id.instruction) }
+  if (conf.debug) { printf(p"ID/EX: $id_ex\n") }
 
   /////////////////////////////////////////////////////////////////////////////
   // EX STAGE
@@ -341,7 +341,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     ex_mem.wbcontrol := 0.U.asTypeOf(new WBControl)
   }
 
-  printf(p"EX/MEM: $ex_mem\n")
+  if (conf.debug) { printf(p"EX/MEM: $ex_mem\n") }
 
   /////////////////////////////////////////////////////////////////////////////
   // MEM STAGE
@@ -372,7 +372,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   mem_wb.readdata   := io.dmem.readdata
   mem_wb.wbcontrol  := ex_mem.wbcontrol
 
-  printf(p"MEM/WB: $mem_wb\n")
+  if (conf.debug) { printf(p"MEM/WB: $mem_wb\n") }
 
   /////////////////////////////////////////////////////////////////////////////
   // WB STAGE
@@ -393,5 +393,5 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   forwarding.io.memwbrd := mem_wb.writereg
   forwarding.io.memwbrw := mem_wb.wbcontrol.regwrite
 
-  printf("---------------------------------------------\n")
+  if (conf.debug) { printf("---------------------------------------------\n") }
 }

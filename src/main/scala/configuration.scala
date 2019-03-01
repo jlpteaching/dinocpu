@@ -26,6 +26,9 @@ class CPUConfig
   /** The memory file location */
   var memFile = "test"
 
+  /** For debugging output */
+  var debug = false
+
   /**
    * Returns the CPU that we will be elaborating
    *

@@ -109,13 +109,15 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
     (branchAdd, "branchAdd")
   )
 
-  printf("DASM(%x)\n", instruction)
-  printf(p"CYCLE=$cycleCount\n")
-  printf(p"pc: $pc\n")
-  for (structure <- structures) {
-    printf(p"${structure._2}: ${structure._1.io}\n")
+  if (conf.debug) {
+    printf("DASM(%x)\n", instruction)
+    printf(p"CYCLE=$cycleCount\n")
+    printf(p"pc: $pc\n")
+    for (structure <- structures) {
+      printf(p"${structure._2}: ${structure._1.io}\n")
+    }
+    printf("\n")
   }
-  printf("\n")
 
   pc := next_pc
 
