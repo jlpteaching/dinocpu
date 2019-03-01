@@ -137,26 +137,19 @@ class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPre
   val historyBits = log2Floor(conf.branchPredTableEntries)
   val history = RegInit(0.U(historyBits.W))
 
-  // when updating, grab the latest history
-  val currentHistory = Wire(UInt(historyBits.W))
-
   when(io.update) {
-    // Make sure to use the value of a branch in the next stage
-    currentHistory := Cat(history(historyBits - 1, 1), io.taken)
-
     trackStats(branchHistoryTable(history)(conf.saturatingCounterBits - 1))
 
-    history := currentHistory // update the history register at the end of the cycle
     // Update the prediction for this branch history
     when (io.taken) {
-      incrCounter(branchHistoryTable(currentHistory))
+      incrCounter(branchHistoryTable(history))
     } .otherwise {
-      decrCounter(branchHistoryTable(currentHistory))
+      decrCounter(branchHistoryTable(history))
     }
 
-  } .otherwise {
-    currentHistory := history
+    history := Cat(history(historyBits - 1, 1), io.taken) // update the history register at the end of the cycle
+
   }
 
-  io.prediction := branchHistoryTable(currentHistory)(conf.saturatingCounterBits - 1)
+  io.prediction := branchHistoryTable(history)(conf.saturatingCounterBits - 1)
 }
