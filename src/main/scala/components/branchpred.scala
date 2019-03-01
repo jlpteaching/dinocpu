@@ -29,6 +29,12 @@ class BranchPredIO extends Bundle {
 class BaseBranchPredictor(val c: CPUConfig) extends Module {
   val io = IO(new BranchPredIO)
 
+  // Default value is weakly taken for each branch
+  val defaultSaturatingCounter = (1 << c.saturatingCounterBits - 1)
+  // Create a register file with c.branchPredTableEntries
+  // Each entry is c.saturatingCounterBits.W bits wide
+  val branchHistoryTable = RegInit(VecInit(Seq.fill(c.branchPredTableEntries)(defaultSaturatingCounter.U(c.saturatingCounterBits.W))))
+
   // A counter to track the prediction statistics
   val correctCounter   = RegInit(0.U(32.W))
   val incorrectCounter = RegInit(0.U(32.W))
@@ -56,7 +62,7 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
   // Function to decrement a saturating counter
   def decrCounter(counter: UInt) {
     when (counter =/= 0.U) {
-      counter := counter + 1.U
+      counter := counter - 1.U
     }
   }
 
@@ -92,12 +98,6 @@ class AlwaysTakenPredictor(implicit val conf: CPUConfig) extends BaseBranchPredi
  */
 class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
 
-  // Default value is weakly taken for each branch
-  val defaultSaturatingCounter = (1 << conf.saturatingCounterBits - 1)
-  // Create a register file with conf.branchPredTableEntries
-  // Each entry is conf.saturatingCounterBits.W bits wide
-  val branchHistoryTable = RegInit(VecInit(Seq.fill(conf.branchPredTableEntries)(defaultSaturatingCounter.U(conf.saturatingCounterBits.W))))
-
   // Register to store the last branch predicted so we can update the tables.
   // This will also work for back to back branches since we resolve them in
   // execute (one cycle later)
@@ -116,7 +116,7 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
   // +2 since we ignore the bottom two bits
   val tableIndex = io.pc(log2Floor(conf.branchPredTableEntries) + 2, 2)
 
-  // Return the high-order bit
+  // Return the high-order
   io.prediction := branchHistoryTable(tableIndex)(conf.saturatingCounterBits - 1)
 
   lastBranch := tableIndex
@@ -126,12 +126,6 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
  * A simple global history predictor
  */
 class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
-
-  // Default value is weakly taken for each branch
-  val defaultSaturatingCounter = (1 << conf.saturatingCounterBits - 1)
-  // Create a register file with conf.branchPredTableEntries
-  // Each entry is conf.saturatingCounterBits.W bits wide
-  val branchHistoryTable = RegInit(VecInit(Seq.fill(conf.branchPredTableEntries)(defaultSaturatingCounter.U(conf.saturatingCounterBits.W))))
 
   // The length is based on the size of the branch history table
   val historyBits = log2Floor(conf.branchPredTableEntries)
