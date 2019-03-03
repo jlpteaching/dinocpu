@@ -24,7 +24,7 @@ class BranchPredIO extends Bundle {
 
 /**
  * Base class for all branch predictors. Simply declares the IO and has some
- * simple counters for tracking statistics
+ * simple functions for updating saturating counters
  */
 class BaseBranchPredictor(val c: CPUConfig) extends Module {
   val io = IO(new BranchPredIO)
@@ -34,22 +34,6 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
   // Create a register file with c.branchPredTableEntries
   // Each entry is c.saturatingCounterBits.W bits wide
   val branchHistoryTable = RegInit(VecInit(Seq.fill(c.branchPredTableEntries)(defaultSaturatingCounter.U(c.saturatingCounterBits.W))))
-
-  // A counter to track the prediction statistics
-  val correctCounter   = RegInit(0.U(32.W))
-  val incorrectCounter = RegInit(0.U(32.W))
-
-  /**
-   * Updates the statistics for the branch predictor based on the origin
-   * prediction
-   */
-  def trackStats(original_prediction: Bool) {
-    when (original_prediction === io.taken) {
-      correctCounter   := correctCounter   + 1.U
-    } .otherwise {
-      incorrectCounter := incorrectCounter + 1.U
-    }
-  }
 
   // Function to increment a saturating counter
   def incrCounter(counter: UInt) {
@@ -65,11 +49,6 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
       counter := counter - 1.U
     }
   }
-
-  when (correctCounter > (1.U << 20)) {
-    // Force these wires not to disappear
-    printf(p"BP correct: $correctCounter; incorrect: $incorrectCounter\n")
-  }
 }
 
 /**
@@ -78,10 +57,6 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
  */
 class AlwaysNotTakenPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
   io.prediction := false.B
-
-  when (io.update) {
-    trackStats(false.B)
-  }
 }
 
 /**
@@ -90,10 +65,6 @@ class AlwaysNotTakenPredictor(implicit val conf: CPUConfig) extends BaseBranchPr
  */
 class AlwaysTakenPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
   io.prediction := true.B
-
-  when (io.update) {
-    trackStats(true.B)
-  }
 }
 
 /**
@@ -107,7 +78,6 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
   val lastBranch = Reg(UInt())
 
   when (io.update) {
-    trackStats(branchHistoryTable(lastBranch)(conf.saturatingCounterBits - 1))
     when (io.taken) {
       incrCounter(branchHistoryTable(lastBranch))
     } .otherwise {
@@ -119,9 +89,10 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
   // +2 since we ignore the bottom two bits
   val tableIndex = io.pc(log2Floor(conf.branchPredTableEntries) + 2, 2)
 
-  // Return the high-order
+  // Return the high-order bit
   io.prediction := branchHistoryTable(tableIndex)(conf.saturatingCounterBits - 1)
 
+  // Remember the last branch to update the table later
   lastBranch := tableIndex
 }
 
@@ -136,8 +107,6 @@ class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPre
   val history = RegInit(0.U((historyBits+1).W))
 
   when(io.update) {
-    trackStats(branchHistoryTable(history(historyBits-1,0))(conf.saturatingCounterBits - 1))
-
     // Update the prediction for this branch history
     // Use the last branch history.
     val curhist = history(historyBits-1,0)

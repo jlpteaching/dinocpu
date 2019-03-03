@@ -149,8 +149,8 @@ object simulate {
     }
     println(s"CYCLES: $cycles")
     try {
-      val correct = simulator.peek("cpu.predictor.correctCounter")
-      val incorrect = simulator.peek("cpu.predictor.incorrectCounter")
+      val correct = simulator.peek("cpu.bpCorrect")
+      val incorrect = simulator.peek("cpu.bpIncorrect")
       println(s"BP correct: $correct. incorrect: $incorrect")
     } catch { case NonFatal(t) => }
     println(s"Verification: ${simulator.peek("cpu.registers.regs_10")}")

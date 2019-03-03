@@ -109,6 +109,14 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   if (conf.debug) { printf("Cycle=%d ", cycleCount) }
 
+  // For tracking branch predictor stats
+  val bpCorrect   = RegInit(0.U(32.W))
+  val bpIncorrect = RegInit(0.U(32.W))
+  when (bpCorrect > (1.U << 20)) {
+    // Force these wires not to disappear
+    printf(p"BP correct: $bpCorrect; incorrect: $bpIncorrect\n")
+  }
+
   // Forward declaration of wires that connect different stages
 
   // From memory back to fetch. Since we don't decide whether to take a branch or not until the memory stage.
@@ -304,6 +312,15 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     // when it's a branch, update the branch predictor
     predictor.io.update := true.B
     predictor.io.taken  := branchCtrl.io.taken
+
+    // Update the branch predictor stats
+    when ((id_ex.excontrol.prediction && branchCtrl.io.taken) ||
+          (!id_ex.excontrol.prediction && !branchCtrl.io.taken)) {
+      bpCorrect   := bpCorrect + 1.U
+    } .otherwise {
+      bpIncorrect := bpIncorrect + 1.U
+    }
+
   } .otherwise {
     // If not a branch, don't update
     predictor.io.update := false.B
