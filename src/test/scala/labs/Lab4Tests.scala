@@ -128,6 +128,19 @@ class GlobalPredictorUnitTesterLab4 extends ChiselFlatSpec {
   }
 }
 
+class GlobalPredictorRandomTesterLab4 extends ChiselFlatSpec {
+
+  "Global Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "global"
+    conf.saturatingCounterBits = 2
+    conf.branchPredTableEntries = 8
+    Driver(() => new GlobalHistoryPredictor) {
+      p => new GlobalPredictorRandomUnitTester(p)
+    } should be (true)
+  }
+}
+
 class SmallApplicationsNotTakenTesterLab4 extends CPUFlatSpec {
   behavior of "Pipelined CPU with an always not taken predictor"
   for (test <- InstTests.smallApplications) {

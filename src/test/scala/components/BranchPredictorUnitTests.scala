@@ -7,6 +7,8 @@ import chisel3._
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
+import scala.collection.mutable.Map
+import scala.util.Random
 
 class LocalPredictorUnitTester(p: LocalPredictor, stream: List[(Int,Boolean,Boolean)]) extends PeekPokeTester(p) {
   var step = 0
@@ -22,6 +24,7 @@ class LocalPredictorUnitTester(p: LocalPredictor, stream: List[(Int,Boolean,Bool
   }
 }
 class GlobalPredictorUnitTester(p: GlobalHistoryPredictor, stream: List[(Int,Boolean,Boolean)]) extends PeekPokeTester(p) {
+
   var step = 0
   for ((addr, taken, pred) <- stream) {
     poke(p.io.update, false)
@@ -33,6 +36,36 @@ class GlobalPredictorUnitTester(p: GlobalHistoryPredictor, stream: List[(Int,Boo
     poke(p.io.taken, taken)
     step(1)
     step += 1
+  }
+}
+
+class GlobalPredictorRandomUnitTester(p: GlobalHistoryPredictor) extends PeekPokeTester(p) {
+  val table = Map[Int,Int](
+    0 -> 2, 1 -> 2, 2 -> 2, 3 -> 2,
+    4 -> 2, 5 -> 2, 6 -> 2, 7 -> 2
+  )
+
+  val r = new Random()
+
+  var last = 0
+
+  for (i <- 1 to 100) {
+    poke(p.io.update, false)
+    poke(p.io.pc, r.nextInt(1000000))
+    expect(p.io.prediction, table(last) >= 2)
+    step(1)
+    val taken = r.nextInt(2)
+    poke(p.io.update, true)
+    poke(p.io.taken, taken)
+
+    if (taken == 1) table(last) += 1
+    else table(last) -= 1
+
+    if (table(last) > 3) table(last) = 3
+    if (table(last) < 0) table(last) = 0
+
+    last = (last << 1 | taken) & 7
+    step(1)
   }
 }
 
@@ -163,6 +196,19 @@ class GlobalPredictorTester extends ChiselFlatSpec {
     conf.branchPredTableEntries = 4
     Driver(() => new GlobalHistoryPredictor) {
       p => new GlobalPredictorUnitTester(p, stream)
+    } should be (true)
+  }
+}
+
+class GlobalPredictorRandomTester extends ChiselFlatSpec {
+
+  "Global Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "global"
+    conf.saturatingCounterBits = 2
+    conf.branchPredTableEntries = 8
+    Driver(() => new GlobalHistoryPredictor) {
+      p => new GlobalPredictorRandomUnitTester(p)
     } should be (true)
   }
 }
