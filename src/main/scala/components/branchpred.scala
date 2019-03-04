@@ -92,7 +92,7 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
   // Return the high-order bit
   io.prediction := branchHistoryTable(tableIndex)(conf.saturatingCounterBits - 1)
 
-  // Remember the last branch to update the table later
+  // Remember the last pc to update the table later
   lastBranch := tableIndex
 }
 
@@ -106,18 +106,18 @@ class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPre
   // Need one extra bit for the "last" history
   val history = RegInit(0.U((historyBits+1).W))
 
+  val curhist = history(historyBits,0)
   when(io.update) {
     // Update the prediction for this branch history
     // Use the last branch history.
-    val curhist = history(historyBits-1,0)
     when (io.taken) {
       incrCounter(branchHistoryTable(curhist))
     } .otherwise {
       decrCounter(branchHistoryTable(curhist))
     }
 
-    history := Cat(history(historyBits, 0), io.taken) // update the history register at the end of the cycle
+    history := Cat(curhist, io.taken) // update the history register at the end of the cycle
   }
 
-  io.prediction := branchHistoryTable(history(historyBits-1,0))(conf.saturatingCounterBits - 1)
+  io.prediction := branchHistoryTable(curhist)(conf.saturatingCounterBits - 1)
 }
