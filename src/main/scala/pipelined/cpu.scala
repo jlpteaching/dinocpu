@@ -314,8 +314,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     predictor.io.taken  := branchCtrl.io.taken
 
     // Update the branch predictor stats
-    when ((id_ex.excontrol.prediction && branchCtrl.io.taken) ||
-          (!id_ex.excontrol.prediction && !branchCtrl.io.taken)) {
+    when (id_ex.excontrol.prediction === branchCtrl.io.taken) {
       bpCorrect   := bpCorrect + 1.U
     } .otherwise {
       bpIncorrect := bpIncorrect + 1.U
