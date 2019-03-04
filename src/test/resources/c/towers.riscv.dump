@@ -37,9 +37,9 @@ Disassembly of section .text:
   74:	00000f13          	li	t5,0
   78:	00000f93          	li	t6,0
   7c:	00003117          	auipc	sp,0x3
-  80:	98010113          	addi	sp,sp,-1664 # 29fc <STACK>
+  80:	91010113          	addi	sp,sp,-1776 # 298c <STACK>
   84:	5dc000ef          	jal	ra,660 <main>
-  88:	7580006f          	j	7e0 <end>
+  88:	6e80006f          	j	770 <end>
 
 0000008c <towers_verify.part.0>:
   8c:	01852603          	lw	a2,24(a0)
@@ -66,7 +66,7 @@ Disassembly of section .text:
   e0:	00c70463          	beq	a4,a2,e8 <towers_verify.part.0+0x5c>
   e4:	00008067          	ret
   e8:	00bc6537          	lui	a0,0xbc6
-  ec:	14e50513          	addi	a0,a0,334 # bc614e <g_nodeFreeList+0xbc371a>
+  ec:	14e50513          	addi	a0,a0,334 # bc614e <g_nodeFreeList+0xbc3772>
   f0:	00008067          	ret
   f4:	00500513          	li	a0,5
   f8:	00008067          	ret
@@ -82,7 +82,7 @@ Disassembly of section .text:
 
 00000110 <list_push>:
  110:	00003697          	auipc	a3,0x3
- 114:	92468693          	addi	a3,a3,-1756 # 2a34 <g_nodeFreeList>
+ 114:	8cc68693          	addi	a3,a3,-1844 # 29dc <g_nodeFreeList>
  118:	0046a783          	lw	a5,4(a3)
  11c:	00052703          	lw	a4,0(a0)
  120:	0047a603          	lw	a2,4(a5)
@@ -102,7 +102,7 @@ Disassembly of section .text:
  150:	00472583          	lw	a1,4(a4)
  154:	00072503          	lw	a0,0(a4)
  158:	00003617          	auipc	a2,0x3
- 15c:	8dc60613          	addi	a2,a2,-1828 # 2a34 <g_nodeFreeList>
+ 15c:	88460613          	addi	a2,a2,-1916 # 29dc <g_nodeFreeList>
  160:	00b7a223          	sw	a1,4(a5)
  164:	00462583          	lw	a1,4(a2)
  168:	fff68693          	addi	a3,a3,-1
@@ -115,7 +115,7 @@ Disassembly of section .text:
  17c:	00052703          	lw	a4,0(a0)
  180:	02e05a63          	blez	a4,1b4 <list_clear+0x38>
  184:	00003617          	auipc	a2,0x3
- 188:	8b060613          	addi	a2,a2,-1872 # 2a34 <g_nodeFreeList>
+ 188:	85860613          	addi	a2,a2,-1960 # 29dc <g_nodeFreeList>
  18c:	00452783          	lw	a5,4(a0)
  190:	fff70713          	addi	a4,a4,-1
  194:	0047a683          	lw	a3,4(a5)
@@ -123,7 +123,7 @@ Disassembly of section .text:
  19c:	00462683          	lw	a3,4(a2)
  1a0:	00d7a223          	sw	a3,4(a5)
  1a4:	00003697          	auipc	a3,0x3
- 1a8:	88f6aa23          	sw	a5,-1900(a3) # 2a38 <g_nodeFreeList+0x4>
+ 1a8:	82f6ae23          	sw	a5,-1988(a3) # 29e0 <g_nodeFreeList+0x4>
  1ac:	fe0710e3          	bnez	a4,18c <list_clear+0x10>
  1b0:	00052023          	sw	zero,0(a0)
  1b4:	00008067          	ret
@@ -139,7 +139,7 @@ Disassembly of section .text:
  1d4:	00052e23          	sw	zero,28(a0)
  1d8:	04b05463          	blez	a1,220 <towers_init+0x68>
  1dc:	00003797          	auipc	a5,0x3
- 1e0:	85878793          	addi	a5,a5,-1960 # 2a34 <g_nodeFreeList>
+ 1e0:	80078793          	addi	a5,a5,-2048 # 29dc <g_nodeFreeList>
  1e4:	0047a783          	lw	a5,4(a5)
  1e8:	00058713          	mv	a4,a1
  1ec:	00000693          	li	a3,0
@@ -151,8 +151,8 @@ Disassembly of section .text:
  204:	fff70713          	addi	a4,a4,-1
  208:	00078693          	mv	a3,a5
  20c:	fe0714e3          	bnez	a4,1f4 <towers_init+0x3c>
- 210:	00003717          	auipc	a4,0x3
- 214:	82c72423          	sw	a2,-2008(a4) # 2a38 <g_nodeFreeList+0x4>
+ 210:	00002717          	auipc	a4,0x2
+ 214:	7cc72823          	sw	a2,2000(a4) # 29e0 <g_nodeFreeList+0x4>
  218:	00f52623          	sw	a5,12(a0)
  21c:	00b52423          	sw	a1,8(a0)
  220:	00008067          	ret
@@ -160,8 +160,8 @@ Disassembly of section .text:
 00000224 <towers_clear>:
  224:	00852703          	lw	a4,8(a0)
  228:	04e05063          	blez	a4,268 <towers_clear+0x44>
- 22c:	00003697          	auipc	a3,0x3
- 230:	80868693          	addi	a3,a3,-2040 # 2a34 <g_nodeFreeList>
+ 22c:	00002697          	auipc	a3,0x2
+ 230:	7b068693          	addi	a3,a3,1968 # 29dc <g_nodeFreeList>
  234:	00c52783          	lw	a5,12(a0)
  238:	0046a683          	lw	a3,4(a3)
  23c:	0080006f          	j	244 <towers_clear+0x20>
@@ -172,13 +172,13 @@ Disassembly of section .text:
  250:	00078693          	mv	a3,a5
  254:	fe0716e3          	bnez	a4,240 <towers_clear+0x1c>
  258:	00002717          	auipc	a4,0x2
- 25c:	7ef72023          	sw	a5,2016(a4) # 2a38 <g_nodeFreeList+0x4>
+ 25c:	78f72423          	sw	a5,1928(a4) # 29e0 <g_nodeFreeList+0x4>
  260:	00c52623          	sw	a2,12(a0)
  264:	00052423          	sw	zero,8(a0)
  268:	01052703          	lw	a4,16(a0)
  26c:	04e05063          	blez	a4,2ac <towers_clear+0x88>
  270:	00002697          	auipc	a3,0x2
- 274:	7c468693          	addi	a3,a3,1988 # 2a34 <g_nodeFreeList>
+ 274:	76c68693          	addi	a3,a3,1900 # 29dc <g_nodeFreeList>
  278:	01452783          	lw	a5,20(a0)
  27c:	0046a683          	lw	a3,4(a3)
  280:	0080006f          	j	288 <towers_clear+0x64>
@@ -189,13 +189,13 @@ Disassembly of section .text:
  294:	00078693          	mv	a3,a5
  298:	fe0716e3          	bnez	a4,284 <towers_clear+0x60>
  29c:	00002717          	auipc	a4,0x2
- 2a0:	78f72e23          	sw	a5,1948(a4) # 2a38 <g_nodeFreeList+0x4>
+ 2a0:	74f72223          	sw	a5,1860(a4) # 29e0 <g_nodeFreeList+0x4>
  2a4:	00c52a23          	sw	a2,20(a0)
  2a8:	00052823          	sw	zero,16(a0)
  2ac:	01852703          	lw	a4,24(a0)
  2b0:	02e05c63          	blez	a4,2e8 <towers_clear+0xc4>
  2b4:	00002697          	auipc	a3,0x2
- 2b8:	78068693          	addi	a3,a3,1920 # 2a34 <g_nodeFreeList>
+ 2b8:	72868693          	addi	a3,a3,1832 # 29dc <g_nodeFreeList>
  2bc:	01c52783          	lw	a5,28(a0)
  2c0:	0046a683          	lw	a3,4(a3)
  2c4:	0080006f          	j	2cc <towers_clear+0xa8>
@@ -206,7 +206,7 @@ Disassembly of section .text:
  2d8:	00078693          	mv	a3,a5
  2dc:	fe0716e3          	bnez	a4,2c8 <towers_clear+0xa4>
  2e0:	00002717          	auipc	a4,0x2
- 2e4:	74f72c23          	sw	a5,1880(a4) # 2a38 <g_nodeFreeList+0x4>
+ 2e4:	70f72023          	sw	a5,1792(a4) # 29e0 <g_nodeFreeList+0x4>
  2e8:	00052583          	lw	a1,0(a0)
  2ec:	00052223          	sw	zero,4(a0)
  2f0:	00052423          	sw	zero,8(a0)
@@ -217,7 +217,7 @@ Disassembly of section .text:
  304:	00052e23          	sw	zero,28(a0)
  308:	04b05463          	blez	a1,350 <towers_clear+0x12c>
  30c:	00002797          	auipc	a5,0x2
- 310:	72878793          	addi	a5,a5,1832 # 2a34 <g_nodeFreeList>
+ 310:	6d078793          	addi	a5,a5,1744 # 29dc <g_nodeFreeList>
  314:	0047a783          	lw	a5,4(a5)
  318:	00058713          	mv	a4,a1
  31c:	00000693          	li	a3,0
@@ -230,7 +230,7 @@ Disassembly of section .text:
  338:	00078693          	mv	a3,a5
  33c:	fe0714e3          	bnez	a4,324 <towers_clear+0x100>
  340:	00002717          	auipc	a4,0x2
- 344:	6ec72c23          	sw	a2,1784(a4) # 2a38 <g_nodeFreeList+0x4>
+ 344:	6ac72023          	sw	a2,1696(a4) # 29e0 <g_nodeFreeList+0x4>
  348:	00f52623          	sw	a5,12(a0)
  34c:	00b52423          	sw	a1,8(a0)
  350:	00008067          	ret
@@ -453,117 +453,145 @@ Disassembly of section .text:
  65c:	00008067          	ret
 
 00000660 <main>:
- 660:	00700713          	li	a4,7
- 664:	00002797          	auipc	a5,0x2
- 668:	39878793          	addi	a5,a5,920 # 29fc <STACK>
- 66c:	00002697          	auipc	a3,0x2
- 670:	3cf6a623          	sw	a5,972(a3) # 2a38 <g_nodeFreeList+0x4>
- 674:	00002697          	auipc	a3,0x2
- 678:	3ce6a023          	sw	a4,960(a3) # 2a34 <g_nodeFreeList>
- 67c:	00002697          	auipc	a3,0x2
- 680:	3a06aa23          	sw	zero,948(a3) # 2a30 <STACK+0x34>
- 684:	06300693          	li	a3,99
- 688:	00002617          	auipc	a2,0x2
- 68c:	3ad62223          	sw	a3,932(a2) # 2a2c <STACK+0x30>
- 690:	00002697          	auipc	a3,0x2
- 694:	37468693          	addi	a3,a3,884 # 2a04 <STACK+0x8>
- 698:	00002617          	auipc	a2,0x2
- 69c:	36d62423          	sw	a3,872(a2) # 2a00 <STACK+0x4>
- 6a0:	00002697          	auipc	a3,0x2
- 6a4:	3406ae23          	sw	zero,860(a3) # 29fc <STACK>
- 6a8:	00002697          	auipc	a3,0x2
- 6ac:	36468693          	addi	a3,a3,868 # 2a0c <STACK+0x10>
- 6b0:	00002617          	auipc	a2,0x2
- 6b4:	34d62c23          	sw	a3,856(a2) # 2a08 <STACK+0xc>
- 6b8:	00100693          	li	a3,1
- 6bc:	00002617          	auipc	a2,0x2
- 6c0:	34d62423          	sw	a3,840(a2) # 2a04 <STACK+0x8>
- 6c4:	00002697          	auipc	a3,0x2
- 6c8:	35068693          	addi	a3,a3,848 # 2a14 <STACK+0x18>
- 6cc:	00002617          	auipc	a2,0x2
- 6d0:	34d62223          	sw	a3,836(a2) # 2a10 <STACK+0x14>
- 6d4:	00200693          	li	a3,2
- 6d8:	00002617          	auipc	a2,0x2
- 6dc:	32d62a23          	sw	a3,820(a2) # 2a0c <STACK+0x10>
- 6e0:	00002697          	auipc	a3,0x2
- 6e4:	33c68693          	addi	a3,a3,828 # 2a1c <STACK+0x20>
- 6e8:	00002617          	auipc	a2,0x2
- 6ec:	32d62823          	sw	a3,816(a2) # 2a18 <STACK+0x1c>
- 6f0:	00300693          	li	a3,3
- 6f4:	00002617          	auipc	a2,0x2
- 6f8:	32d62023          	sw	a3,800(a2) # 2a14 <STACK+0x18>
- 6fc:	00002697          	auipc	a3,0x2
- 700:	32868693          	addi	a3,a3,808 # 2a24 <STACK+0x28>
- 704:	00002617          	auipc	a2,0x2
- 708:	30d62e23          	sw	a3,796(a2) # 2a20 <STACK+0x24>
- 70c:	00400693          	li	a3,4
- 710:	00002617          	auipc	a2,0x2
- 714:	30d62623          	sw	a3,780(a2) # 2a1c <STACK+0x20>
- 718:	00002697          	auipc	a3,0x2
- 71c:	31468693          	addi	a3,a3,788 # 2a2c <STACK+0x30>
- 720:	fd010113          	addi	sp,sp,-48
- 724:	00002617          	auipc	a2,0x2
- 728:	30d62223          	sw	a3,772(a2) # 2a28 <STACK+0x2c>
- 72c:	00500693          	li	a3,5
- 730:	00002617          	auipc	a2,0x2
- 734:	2ed62a23          	sw	a3,756(a2) # 2a24 <STACK+0x28>
- 738:	02112623          	sw	ra,44(sp)
- 73c:	00e12023          	sw	a4,0(sp)
- 740:	00012223          	sw	zero,4(sp)
- 744:	00012423          	sw	zero,8(sp)
- 748:	00012623          	sw	zero,12(sp)
- 74c:	00012823          	sw	zero,16(sp)
- 750:	00012a23          	sw	zero,20(sp)
- 754:	00012c23          	sw	zero,24(sp)
- 758:	00012e23          	sw	zero,28(sp)
- 75c:	00000693          	li	a3,0
- 760:	0080006f          	j	768 <main+0x108>
- 764:	00060793          	mv	a5,a2
- 768:	0047a603          	lw	a2,4(a5)
- 76c:	00e7a023          	sw	a4,0(a5)
- 770:	00d7a223          	sw	a3,4(a5)
- 774:	fff70713          	addi	a4,a4,-1
- 778:	00078693          	mv	a3,a5
- 77c:	fe0714e3          	bnez	a4,764 <main+0x104>
- 780:	00010513          	mv	a0,sp
- 784:	00f12623          	sw	a5,12(sp)
- 788:	00700793          	li	a5,7
- 78c:	00002717          	auipc	a4,0x2
- 790:	2ac72623          	sw	a2,684(a4) # 2a38 <g_nodeFreeList+0x4>
- 794:	00f12423          	sw	a5,8(sp)
- 798:	a8dff0ef          	jal	ra,224 <towers_clear>
- 79c:	00012583          	lw	a1,0(sp)
- 7a0:	00010513          	mv	a0,sp
- 7a4:	01810713          	addi	a4,sp,24
- 7a8:	01010693          	addi	a3,sp,16
- 7ac:	00810613          	addi	a2,sp,8
- 7b0:	ba5ff0ef          	jal	ra,354 <towers_solve_h>
- 7b4:	00812783          	lw	a5,8(sp)
- 7b8:	00200513          	li	a0,2
- 7bc:	00079c63          	bnez	a5,7d4 <main+0x174>
- 7c0:	01012783          	lw	a5,16(sp)
- 7c4:	00300513          	li	a0,3
- 7c8:	00079663          	bnez	a5,7d4 <main+0x174>
- 7cc:	00010513          	mv	a0,sp
- 7d0:	8bdff0ef          	jal	ra,8c <towers_verify.part.0>
- 7d4:	02c12083          	lw	ra,44(sp)
- 7d8:	03010113          	addi	sp,sp,48
- 7dc:	00008067          	ret
+ 660:	00002797          	auipc	a5,0x2
+ 664:	32c78793          	addi	a5,a5,812 # 298c <STACK>
+ 668:	00002717          	auipc	a4,0x2
+ 66c:	36f72c23          	sw	a5,888(a4) # 29e0 <g_nodeFreeList+0x4>
+ 670:	00a00793          	li	a5,10
+ 674:	00002717          	auipc	a4,0x2
+ 678:	36f72423          	sw	a5,872(a4) # 29dc <g_nodeFreeList>
+ 67c:	00002797          	auipc	a5,0x2
+ 680:	3407ae23          	sw	zero,860(a5) # 29d8 <STACK+0x4c>
+ 684:	06300793          	li	a5,99
+ 688:	00002717          	auipc	a4,0x2
+ 68c:	34f72623          	sw	a5,844(a4) # 29d4 <STACK+0x48>
+ 690:	fd010113          	addi	sp,sp,-48
+ 694:	02112623          	sw	ra,44(sp)
+ 698:	00002797          	auipc	a5,0x2
+ 69c:	2fc78793          	addi	a5,a5,764 # 2994 <STACK+0x8>
+ 6a0:	00000713          	li	a4,0
+ 6a4:	00900693          	li	a3,9
+ 6a8:	fee7ac23          	sw	a4,-8(a5)
+ 6ac:	fef7ae23          	sw	a5,-4(a5)
+ 6b0:	00170713          	addi	a4,a4,1
+ 6b4:	00878793          	addi	a5,a5,8
+ 6b8:	fed718e3          	bne	a4,a3,6a8 <main+0x48>
+ 6bc:	00a00793          	li	a5,10
+ 6c0:	00f12023          	sw	a5,0(sp)
+ 6c4:	00012223          	sw	zero,4(sp)
+ 6c8:	00012423          	sw	zero,8(sp)
+ 6cc:	00012623          	sw	zero,12(sp)
+ 6d0:	00012823          	sw	zero,16(sp)
+ 6d4:	00012a23          	sw	zero,20(sp)
+ 6d8:	00012c23          	sw	zero,24(sp)
+ 6dc:	00012e23          	sw	zero,28(sp)
+ 6e0:	00a00713          	li	a4,10
+ 6e4:	00000693          	li	a3,0
+ 6e8:	00002797          	auipc	a5,0x2
+ 6ec:	2a478793          	addi	a5,a5,676 # 298c <STACK>
+ 6f0:	0080006f          	j	6f8 <main+0x98>
+ 6f4:	00060793          	mv	a5,a2
+ 6f8:	0047a603          	lw	a2,4(a5)
+ 6fc:	00e7a023          	sw	a4,0(a5)
+ 700:	00d7a223          	sw	a3,4(a5)
+ 704:	fff70713          	addi	a4,a4,-1
+ 708:	00078693          	mv	a3,a5
+ 70c:	fe0714e3          	bnez	a4,6f4 <main+0x94>
+ 710:	00010513          	mv	a0,sp
+ 714:	00f12623          	sw	a5,12(sp)
+ 718:	00a00793          	li	a5,10
+ 71c:	00002717          	auipc	a4,0x2
+ 720:	2cc72223          	sw	a2,708(a4) # 29e0 <g_nodeFreeList+0x4>
+ 724:	00f12423          	sw	a5,8(sp)
+ 728:	afdff0ef          	jal	ra,224 <towers_clear>
+ 72c:	00012583          	lw	a1,0(sp)
+ 730:	00010513          	mv	a0,sp
+ 734:	01810713          	addi	a4,sp,24
+ 738:	01010693          	addi	a3,sp,16
+ 73c:	00810613          	addi	a2,sp,8
+ 740:	c15ff0ef          	jal	ra,354 <towers_solve_h>
+ 744:	00812783          	lw	a5,8(sp)
+ 748:	00200513          	li	a0,2
+ 74c:	00079c63          	bnez	a5,764 <main+0x104>
+ 750:	01012783          	lw	a5,16(sp)
+ 754:	00300513          	li	a0,3
+ 758:	00079663          	bnez	a5,764 <main+0x104>
+ 75c:	00010513          	mv	a0,sp
+ 760:	92dff0ef          	jal	ra,8c <towers_verify.part.0>
+ 764:	02c12083          	lw	ra,44(sp)
+ 768:	03010113          	addi	sp,sp,48
+ 76c:	00008067          	ret
 
-000007e0 <end>:
- 7e0:	00000013          	nop
- 7e4:	00000013          	nop
- 7e8:	00000013          	nop
- 7ec:	00000013          	nop
- 7f0:	00000013          	nop
- 7f4:	00000013          	nop
+00000770 <end>:
+ 770:	00000013          	nop
+ 774:	00000013          	nop
+ 778:	00000013          	nop
+ 77c:	00000013          	nop
+ 780:	00000013          	nop
+ 784:	00000013          	nop
 
-000007f8 <_last>:
- 7f8:	fe9ff06f          	j	7e0 <end>
+00000788 <_last>:
+ 788:	fe9ff06f          	j	770 <end>
 
 Disassembly of section .data:
 
-000008fc <STACK-0x2100>:
+0000088c <STACK-0x2100>:
+     88c:	0000                	unimp
+     88e:	0000                	unimp
+     890:	0000                	unimp
+     892:	0000                	unimp
+     894:	0000                	unimp
+     896:	0000                	unimp
+     898:	0000                	unimp
+     89a:	0000                	unimp
+     89c:	0000                	unimp
+     89e:	0000                	unimp
+     8a0:	0000                	unimp
+     8a2:	0000                	unimp
+     8a4:	0000                	unimp
+     8a6:	0000                	unimp
+     8a8:	0000                	unimp
+     8aa:	0000                	unimp
+     8ac:	0000                	unimp
+     8ae:	0000                	unimp
+     8b0:	0000                	unimp
+     8b2:	0000                	unimp
+     8b4:	0000                	unimp
+     8b6:	0000                	unimp
+     8b8:	0000                	unimp
+     8ba:	0000                	unimp
+     8bc:	0000                	unimp
+     8be:	0000                	unimp
+     8c0:	0000                	unimp
+     8c2:	0000                	unimp
+     8c4:	0000                	unimp
+     8c6:	0000                	unimp
+     8c8:	0000                	unimp
+     8ca:	0000                	unimp
+     8cc:	0000                	unimp
+     8ce:	0000                	unimp
+     8d0:	0000                	unimp
+     8d2:	0000                	unimp
+     8d4:	0000                	unimp
+     8d6:	0000                	unimp
+     8d8:	0000                	unimp
+     8da:	0000                	unimp
+     8dc:	0000                	unimp
+     8de:	0000                	unimp
+     8e0:	0000                	unimp
+     8e2:	0000                	unimp
+     8e4:	0000                	unimp
+     8e6:	0000                	unimp
+     8e8:	0000                	unimp
+     8ea:	0000                	unimp
+     8ec:	0000                	unimp
+     8ee:	0000                	unimp
+     8f0:	0000                	unimp
+     8f2:	0000                	unimp
+     8f4:	0000                	unimp
+     8f6:	0000                	unimp
+     8f8:	0000                	unimp
+     8fa:	0000                	unimp
      8fc:	0000                	unimp
      8fe:	0000                	unimp
      900:	0000                	unimp
@@ -4732,6 +4760,10 @@ Disassembly of section .data:
     2986:	0000                	unimp
     2988:	0000                	unimp
     298a:	0000                	unimp
+
+Disassembly of section .bss:
+
+0000298c <g_nodePool>:
     298c:	0000                	unimp
     298e:	0000                	unimp
     2990:	0000                	unimp
@@ -4772,62 +4804,14 @@ Disassembly of section .data:
     29d6:	0000                	unimp
     29d8:	0000                	unimp
     29da:	0000                	unimp
+
+Disassembly of section .sbss:
+
+000029dc <g_nodeFreeList>:
     29dc:	0000                	unimp
     29de:	0000                	unimp
     29e0:	0000                	unimp
     29e2:	0000                	unimp
-    29e4:	0000                	unimp
-    29e6:	0000                	unimp
-    29e8:	0000                	unimp
-    29ea:	0000                	unimp
-    29ec:	0000                	unimp
-    29ee:	0000                	unimp
-    29f0:	0000                	unimp
-    29f2:	0000                	unimp
-    29f4:	0000                	unimp
-    29f6:	0000                	unimp
-    29f8:	0000                	unimp
-    29fa:	0000                	unimp
-
-Disassembly of section .bss:
-
-000029fc <g_nodePool>:
-    29fc:	0000                	unimp
-    29fe:	0000                	unimp
-    2a00:	0000                	unimp
-    2a02:	0000                	unimp
-    2a04:	0000                	unimp
-    2a06:	0000                	unimp
-    2a08:	0000                	unimp
-    2a0a:	0000                	unimp
-    2a0c:	0000                	unimp
-    2a0e:	0000                	unimp
-    2a10:	0000                	unimp
-    2a12:	0000                	unimp
-    2a14:	0000                	unimp
-    2a16:	0000                	unimp
-    2a18:	0000                	unimp
-    2a1a:	0000                	unimp
-    2a1c:	0000                	unimp
-    2a1e:	0000                	unimp
-    2a20:	0000                	unimp
-    2a22:	0000                	unimp
-    2a24:	0000                	unimp
-    2a26:	0000                	unimp
-    2a28:	0000                	unimp
-    2a2a:	0000                	unimp
-    2a2c:	0000                	unimp
-    2a2e:	0000                	unimp
-    2a30:	0000                	unimp
-    2a32:	0000                	unimp
-
-Disassembly of section .sbss:
-
-00002a34 <g_nodeFreeList>:
-    2a34:	0000                	unimp
-    2a36:	0000                	unimp
-    2a38:	0000                	unimp
-    2a3a:	0000                	unimp
 
 Disassembly of section .comment:
 
