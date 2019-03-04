@@ -25,9 +25,6 @@ class CPUTesterDriver(cpuType: String, branchPredictor: String, binary: String, 
     conf.branchPredictor = branchPredictor
   }
 
-  // This compiles the chisel to firrtl
-  val compiledFirrtl = build(optionsManager, conf)
-
   // Convert the binary to a hex file that can be loaded by treadle
   // (Do this after compiling the firrtl so the directory is created)
   val path = if (binary.endsWith(".riscv")) {
@@ -35,6 +32,17 @@ class CPUTesterDriver(cpuType: String, branchPredictor: String, binary: String, 
   } else {
     s"src/test/resources/risc-v/${binary}"
   }
+
+  if (path.endsWith(".riscv")) {
+    // This is a long test, suppress the debugging output
+    println("WARNING: Suppressing debug output for long test.")
+    println("Modify CPUTesterDriver or use singlestep for debugging ouput.")
+    conf.debug = false
+  }
+
+  // This compiles the chisel to firrtl
+  val compiledFirrtl = build(optionsManager, conf)
+
   val endPC = elfToHex(path, hexName)
 
   // Instantiate the simulator
