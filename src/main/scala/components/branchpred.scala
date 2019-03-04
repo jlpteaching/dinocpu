@@ -35,6 +35,9 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
   // Each entry is c.saturatingCounterBits.W bits wide
   val branchHistoryTable = RegInit(VecInit(Seq.fill(c.branchPredTableEntries)(defaultSaturatingCounter.U(c.saturatingCounterBits.W))))
 
+  // Convenvience for indexing the branch history table
+  val tableIndexBits = log2Floor(conf.branchPredTableEntries)
+
   // Function to increment a saturating counter
   def incrCounter(counter: UInt) {
     val max = (1 << c.saturatingCounterBits) - 1
@@ -71,53 +74,12 @@ class AlwaysTakenPredictor(implicit val conf: CPUConfig) extends BaseBranchPredi
  * A simple local predictor
  */
 class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
-
-  // Register to store the last branch predicted so we can update the tables.
-  // This will also work for back to back branches since we resolve them in
-  // execute (one cycle later)
-  val lastBranch = Reg(UInt())
-
-  when (io.update) {
-    when (io.taken) {
-      incrCounter(branchHistoryTable(lastBranch))
-    } .otherwise {
-      decrCounter(branchHistoryTable(lastBranch))
-    }
-  }
-
-  // The first bit for the table access is based on the number of entries.
-  // +2 since we ignore the bottom two bits
-  val tableIndex = io.pc(log2Floor(conf.branchPredTableEntries) + 2, 2)
-
-  // Return the high-order bit
-  io.prediction := branchHistoryTable(tableIndex)(conf.saturatingCounterBits - 1)
-
-  // Remember the last branch to update the table later
-  lastBranch := tableIndex
+  // Implement a local predictor here
 }
 
 /**
  * A simple global history predictor
  */
 class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
-
-  // The length is based on the size of the branch history table
-  val historyBits = log2Floor(conf.branchPredTableEntries)
-  // Need one extra bit for the "last" history
-  val history = RegInit(0.U((historyBits+1).W))
-
-  when(io.update) {
-    // Update the prediction for this branch history
-    // Use the last branch history.
-    val curhist = history(historyBits-1,0)
-    when (io.taken) {
-      incrCounter(branchHistoryTable(curhist))
-    } .otherwise {
-      decrCounter(branchHistoryTable(curhist))
-    }
-
-    history := Cat(history(historyBits, 0), io.taken) // update the history register at the end of the cycle
-  }
-
-  io.prediction := branchHistoryTable(history(historyBits-1,0))(conf.saturatingCounterBits - 1)
+  // Implement a global predictor
 }
