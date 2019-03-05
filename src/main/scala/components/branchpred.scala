@@ -36,7 +36,7 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
   val predictionTable = RegInit(VecInit(Seq.fill(c.branchPredTableEntries)(defaultSaturatingCounter.U(c.saturatingCounterBits.W))))
 
   // Convenvience for indexing the branch history table
-  val tableIndexBits = log2Floor(conf.branchPredTableEntries)
+  val tableIndexBits = log2Floor(c.branchPredTableEntries)
 
   // Function to increment a saturating counter
   def incrCounter(counter: UInt) {
@@ -75,6 +75,8 @@ class AlwaysTakenPredictor(implicit val conf: CPUConfig) extends BaseBranchPredi
  */
 class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
   // Implement a local predictor here
+  io := DontCare
+  io.prediction := false.B
 }
 
 /**
@@ -82,4 +84,6 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
  */
 class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
   // Implement a global predictor
+  io := DontCare
+  io.prediction := false.B
 }
