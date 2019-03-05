@@ -1,0 +1,21 @@
+BootStrap: docker
+From: openjdk:8
+
+%files
+    install-intellij.sh /
+
+%post
+    touch /usr/lib/jvm/java-8-openjdk-amd64/release
+    curl -L -o sbt-0.13.16.deb http://dl.bintray.com/sbt/debian/sbt-0.13.16.deb
+    dpkg -i sbt-0.13.16.deb
+    rm sbt-0.13.16.deb
+    apt-get -y update
+    apt-get -y install perl verilator make g++ graphviz
+    /install-intellij.sh
+
+
+%runscript
+    sbt
+
+%labels
+    Author Jason Lowe-Power
