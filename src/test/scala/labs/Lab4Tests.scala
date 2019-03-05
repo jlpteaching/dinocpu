@@ -126,11 +126,8 @@ class GlobalPredictorUnitTesterLab4 extends ChiselFlatSpec {
       p => new GlobalPredictorUnitTester(p, stream)
     } should be (true)
   }
-}
 
-class GlobalPredictorRandomTesterLab4 extends ChiselFlatSpec {
-
-  "Global Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {
+  "Global Branch predictor" should s"match expectations for random tests" in {
     implicit val conf = new CPUConfig()
     conf.branchPredictor = "global"
     conf.saturatingCounterBits = 2

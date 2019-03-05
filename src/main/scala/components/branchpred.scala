@@ -33,7 +33,7 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
   val defaultSaturatingCounter = (1 << c.saturatingCounterBits - 1)
   // Create a register file with c.branchPredTableEntries
   // Each entry is c.saturatingCounterBits.W bits wide
-  val branchHistoryTable = RegInit(VecInit(Seq.fill(c.branchPredTableEntries)(defaultSaturatingCounter.U(c.saturatingCounterBits.W))))
+  val predictionTable = RegInit(VecInit(Seq.fill(c.branchPredTableEntries)(defaultSaturatingCounter.U(c.saturatingCounterBits.W))))
 
   // Function to increment a saturating counter
   def incrCounter(counter: UInt) {
@@ -79,9 +79,9 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
 
   when (io.update) {
     when (io.taken) {
-      incrCounter(branchHistoryTable(lastBranch))
+      incrCounter(predictionTable(lastBranch))
     } .otherwise {
-      decrCounter(branchHistoryTable(lastBranch))
+      decrCounter(predictionTable(lastBranch))
     }
   }
 
@@ -90,7 +90,7 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
   val tableIndex = io.pc(log2Floor(conf.branchPredTableEntries) + 2, 2)
 
   // Return the high-order bit
-  io.prediction := branchHistoryTable(tableIndex)(conf.saturatingCounterBits - 1)
+  io.prediction := predictionTable(tableIndex)(conf.saturatingCounterBits - 1)
 
   // Remember the last pc to update the table later
   lastBranch := tableIndex
@@ -111,13 +111,13 @@ class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPre
     // Update the prediction for this branch history
     // Use the last branch history.
     when (io.taken) {
-      incrCounter(branchHistoryTable(curhist))
+      incrCounter(predictionTable(curhist))
     } .otherwise {
-      decrCounter(branchHistoryTable(curhist))
+      decrCounter(predictionTable(curhist))
     }
 
     history := Cat(curhist, io.taken) // update the history register at the end of the cycle
   }
 
-  io.prediction := branchHistoryTable(curhist)(conf.saturatingCounterBits - 1)
+  io.prediction := predictionTable(curhist)(conf.saturatingCounterBits - 1)
 }
