@@ -1,87 +1,15 @@
-// Unit tests for the Branch predictors
+// Tests for Lab 4. Feel free to modify and add more tests here.
+// If you name your test class something that ends with "TesterLab4" it will
+// automatically be run when you use `Lab3 / test` at the sbt prompt.
+
 
 package dinocpu
 
 import chisel3._
 
-import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
-import scala.collection.mutable.Map
-import scala.util.Random
-
-class LocalPredictorUnitTester(p: LocalPredictor, stream: List[(Int,Boolean,Boolean)]) extends PeekPokeTester(p) {
-  var step = 0
-  for ((addr, taken, pred) <- stream) {
-    poke(p.io.update, false)
-    poke(p.io.pc, addr)
-    expect(p.io.prediction, pred)
-    step(1)
-    poke(p.io.update, true)
-    poke(p.io.taken, taken)
-    step(1)
-    step += 1
-  }
-}
-class GlobalPredictorUnitTester(p: GlobalHistoryPredictor, stream: List[(Int,Boolean,Boolean)]) extends PeekPokeTester(p) {
-
-  var step = 0
-  for ((addr, taken, pred) <- stream) {
-    poke(p.io.update, false)
-    poke(p.io.pc, addr)
-    step(1)
-    expect(p.io.prediction, pred)
-    step(1)
-    poke(p.io.update, true)
-    poke(p.io.taken, taken)
-    step(1)
-    step += 1
-  }
-}
-
-class GlobalPredictorRandomUnitTester(p: GlobalHistoryPredictor) extends PeekPokeTester(p) {
-  val table = Map[Int,Int](
-    0 -> 2, 1 -> 2, 2 -> 2, 3 -> 2,
-    4 -> 2, 5 -> 2, 6 -> 2, 7 -> 2
-  )
-
-  val r = new Random()
-
-  var last = 0
-
-  for (i <- 1 to 100) {
-    poke(p.io.update, false)
-    poke(p.io.pc, r.nextInt(1000000))
-    expect(p.io.prediction, table(last) >= 2)
-    step(1)
-    val taken = r.nextInt(2)
-    poke(p.io.update, true)
-    poke(p.io.taken, taken)
-
-    if (taken == 1) table(last) += 1
-    else table(last) -= 1
-
-    if (table(last) > 3) table(last) = 3
-    if (table(last) < 0) table(last) = 0
-
-    last = (last << 1 | taken) & 7
-    step(1)
-  }
-}
-
-/**
-  * This is a trivial example of how to run this Specification
-  * From within sbt use:
-  * {{{
-  * testOnly dinocpu.LocalPredictorTester
-  * }}}
-  * From a terminal shell use:
-  * {{{
-  * sbt 'testOnly dinocpu.LocalPredictorTester'
-  * }}}
-  */
-class LocalPredictorTester extends ChiselFlatSpec {
-
+class LocalPredictorUnitTesterLab4 extends CPUFlatSpec {
   "Local Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {
     val stream = List(
       /* pc, taken, prediction */
@@ -166,7 +94,7 @@ class LocalPredictorTester extends ChiselFlatSpec {
   }
 }
 
-class GlobalPredictorTester extends ChiselFlatSpec {
+class GlobalPredictorUnitTesterLab4 extends ChiselFlatSpec {
 
   "Global Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {
     val stream = List(
@@ -198,11 +126,8 @@ class GlobalPredictorTester extends ChiselFlatSpec {
       p => new GlobalPredictorUnitTester(p, stream)
     } should be (true)
   }
-}
 
-class GlobalPredictorRandomTester extends ChiselFlatSpec {
-
-  "Global Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {
+  "Global Branch predictor" should s"match expectations for random tests" in {
     implicit val conf = new CPUConfig()
     conf.branchPredictor = "global"
     conf.saturatingCounterBits = 2
@@ -210,5 +135,77 @@ class GlobalPredictorRandomTester extends ChiselFlatSpec {
     Driver(() => new GlobalHistoryPredictor) {
       p => new GlobalPredictorRandomUnitTester(p)
     } should be (true)
+  }
+}
+
+class SmallApplicationsNotTakenTesterLab4 extends CPUFlatSpec {
+  behavior of "Pipelined CPU with an always not taken predictor"
+  for (test <- InstTests.smallApplications) {
+    it should s"run application ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined", "always-not-taken") should be(true)
+    }
+  }
+}
+
+class LargeApplicationsNotTakenTesterLab4 extends CPUFlatSpec {
+  behavior of "Pipelined CPU with an always not taken predictor"
+  for (test <- InstTests.fullApplications) {
+    it should s"run application ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined", "always-not-taken") should be(true)
+    }
+  }
+}
+
+class SmallApplicationsTakenTesterLab4 extends CPUFlatSpec {
+  behavior of "Pipelined CPU with an always taken predictor"
+  for (test <- InstTests.smallApplications) {
+    it should s"run application ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined", "always-taken") should be(true)
+    }
+  }
+}
+
+class LargeApplicationsTakenTesterLab4 extends CPUFlatSpec {
+  behavior of "Pipelined CPU with an always taken predictor"
+  for (test <- InstTests.fullApplications) {
+    it should s"run application ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined", "always-taken") should be(true)
+    }
+  }
+}
+
+class SmallApplicationsLocalTesterLab4 extends CPUFlatSpec {
+  behavior of "Pipelined CPU with a local history predictor"
+  for (test <- InstTests.smallApplications) {
+    it should s"run application ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined", "local") should be(true)
+    }
+  }
+}
+
+class LargeApplicationsLocalTesterLab4 extends CPUFlatSpec {
+  behavior of "Pipelined CPU with a local history predictor"
+  for (test <- InstTests.fullApplications) {
+    it should s"run application ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined", "local") should be(true)
+    }
+  }
+}
+
+class SmallApplicationsGlobalTesterLab4 extends CPUFlatSpec {
+  behavior of "Pipelined CPU with a global history predictor"
+  for (test <- InstTests.smallApplications) {
+    it should s"run application ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined", "global") should be(true)
+    }
+  }
+}
+
+class LargeApplicationsGlobalTesterLab4 extends CPUFlatSpec {
+  behavior of "Pipelined CPU with a global history predictor"
+  for (test <- InstTests.fullApplications) {
+    it should s"run application ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined", "global") should be(true)
+    }
   }
 }

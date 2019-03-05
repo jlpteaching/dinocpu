@@ -33,7 +33,7 @@ class BaseBranchPredictor(val c: CPUConfig) extends Module {
   val defaultSaturatingCounter = (1 << c.saturatingCounterBits - 1)
   // Create a register file with c.branchPredTableEntries
   // Each entry is c.saturatingCounterBits.W bits wide
-  val branchHistoryTable = RegInit(VecInit(Seq.fill(c.branchPredTableEntries)(defaultSaturatingCounter.U(c.saturatingCounterBits.W))))
+  val predictionTable = RegInit(VecInit(Seq.fill(c.branchPredTableEntries)(defaultSaturatingCounter.U(c.saturatingCounterBits.W))))
 
   // Convenvience for indexing the branch history table
   val tableIndexBits = log2Floor(conf.branchPredTableEntries)
