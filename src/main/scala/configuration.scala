@@ -19,7 +19,7 @@ class CPUConfig
   /** The type of branch predictor to use */
   var branchPredictor = "always-not-taken"
   /** Number of bits for the saturating counters */
-  var saturatingCounterBits = 4
+  var saturatingCounterBits = 2
   /** Number of entries in the branch predictor table */
   var branchPredTableEntries = 32
 
