@@ -5,6 +5,12 @@ package dinocpu
 object singlestep {
   val helptext = "usage: singlestep <test name> <CPU type>"
 
+  val commands = """
+    | ?       : print this help
+    | q       : quit
+    | number  : move forward this many cycles""".stripMargin
+    //| p <str> : evaluate the <str> as a print statement in scala""".stripMargin
+
   def main(args: Array[String]): Unit = {
     require(args.length >= 2, "Error: Expected at least two argument\n" + helptext)
 
@@ -21,23 +27,22 @@ object singlestep {
       ""
     }
 
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName)
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
     println("How many cycles to you want to run? \"Q\" to quit.")
     var done = false
     while (!done) {
-      val command = readLine("Cycles > ")
-      try {
-        driver.step(command.toInt)
-      } catch {
-        case e: NumberFormatException => {
-          if (command.toLowerCase() == "q") done = true
-          else println("Must give a number")
-        }
+      readLine("Cycles > ") match {
+        case "?" => println(commands)
+        case "q" | "Q" => done = true
+        case command => try {
+            driver.step(command.toInt)
+          } catch {
+            case e: NumberFormatException => println("Must give a number or ?")
+          }
       }
     }
-
     if (driver.checkRegs(test.checkRegs) && driver.checkMemory(test.checkMem)) {
       println("Test passed!")
     } else {

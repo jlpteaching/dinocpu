@@ -1,0 +1,21 @@
+FROM openjdk:8
+MAINTAINER Jason Lowe-Power <jason@lowepower.com>
+
+ENV SBT_VERSION 0.13.16
+
+RUN touch /usr/lib/jvm/java-8-openjdk-amd64/release
+
+# Install sbt
+RUN \
+  curl -L -o sbt-$SBT_VERSION.deb http://dl.bintray.com/sbt/debian/sbt-$SBT_VERSION.deb && \
+  dpkg -i sbt-$SBT_VERSION.deb && \
+  rm sbt-$SBT_VERSION.deb
+
+RUN \
+  apt-get update -y && \
+  apt-get install -y \
+    verilator
+
+ADD install-intellij.sh /
+
+RUN /install-intellij.sh

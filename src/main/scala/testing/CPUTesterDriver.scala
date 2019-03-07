@@ -7,7 +7,12 @@ import treadle.executable.TreadleException
 
 class CPUFlatSpec extends FlatSpec with Matchers
 
-class CPUTesterDriver(cpuType: String, branchPredictor: String, binary: String, extraName: String = "") {
+class CPUTesterDriver(cpuType: String,
+                      branchPredictor: String,
+                      binary: String,
+                      extraName: String = "",
+                      forceDebug: Boolean = false) {
+
   val optionsManager = new SimulatorOptionsManager()
 
   if (optionsManager.targetDirName == ".") {
@@ -39,6 +44,8 @@ class CPUTesterDriver(cpuType: String, branchPredictor: String, binary: String, 
     println("Modify CPUTesterDriver or use singlestep for debugging ouput.")
     conf.debug = false
   }
+
+  if (forceDebug) conf.debug = true
 
   // This compiles the chisel to firrtl
   val compiledFirrtl = build(optionsManager, conf)
