@@ -73,7 +73,7 @@ class LocalPredictorUnitTesterLab4 extends CPUFlatSpec {
     implicit val conf = new CPUConfig()
     conf.branchPredictor = "local"
     conf.saturatingCounterBits = 2
-    conf.branchPredTableEntries = 5
+    conf.branchPredTableEntries = 8
     Driver(() => new LocalPredictor) {
       p => new LocalPredictorUnitTester(p, stream)
     } should be (true)
