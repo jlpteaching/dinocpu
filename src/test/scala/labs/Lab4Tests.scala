@@ -92,6 +92,34 @@ class LocalPredictorUnitTesterLab4 extends CPUFlatSpec {
       p => new LocalPredictorUnitTester(p, stream)
     } should be (true)
   }
+
+  "Local branch predictory" should "match expectations for random 2-bit 8 entry tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "local"
+    conf.saturatingCounterBits = 2
+    conf.branchPredTableEntries = 8
+    Driver(() => new LocalPredictor) {
+      p => new LocalPredictorRandomUnitTester(p, 8, 2)
+    } should be (true)
+  }
+  "Local branch predictory" should "match expectations for random 1-bit 2 entry tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "local"
+    conf.saturatingCounterBits = 1
+    conf.branchPredTableEntries = 2
+    Driver(() => new LocalPredictor) {
+      p => new LocalPredictorRandomUnitTester(p, 2, 1)
+    } should be (true)
+  }
+  "Local branch predictory" should "match expectations for random 3-bit 256 entry tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "local"
+    conf.saturatingCounterBits = 3
+    conf.branchPredTableEntries = 256
+    Driver(() => new LocalPredictor) {
+      p => new LocalPredictorRandomUnitTester(p, 256, 3, 1000)
+    } should be (true)
+  }
 }
 
 class GlobalPredictorUnitTesterLab4 extends ChiselFlatSpec {
@@ -134,6 +162,26 @@ class GlobalPredictorUnitTesterLab4 extends ChiselFlatSpec {
     conf.branchPredTableEntries = 8
     Driver(() => new GlobalHistoryPredictor) {
       p => new GlobalPredictorRandomUnitTester(p, 8, 2)
+    } should be (true)
+  }
+
+  "Global Branch predictor" should s"match expectations for 1-bit saturating counter tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "global"
+    conf.saturatingCounterBits = 1
+    conf.branchPredTableEntries = 8
+    Driver(() => new GlobalHistoryPredictor) {
+      p => new GlobalPredictorRandomUnitTester(p, 8, 1)
+    } should be (true)
+  }
+
+  "Global Branch predictor" should s"match expectations for 3-bit saturating counter tests 16 entries" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "global"
+    conf.saturatingCounterBits = 3
+    conf.branchPredTableEntries = 16
+    Driver(() => new GlobalHistoryPredictor) {
+      p => new GlobalPredictorRandomUnitTester(p, 16, 3)
     } should be (true)
   }
 }
