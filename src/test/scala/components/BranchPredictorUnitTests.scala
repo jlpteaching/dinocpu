@@ -23,6 +23,41 @@ class LocalPredictorUnitTester(p: LocalPredictor, stream: List[(Int,Boolean,Bool
     step += 1
   }
 }
+
+class LocalPredictorRandomUnitTester(p: LocalPredictor,
+                                      entries: Int,
+                                      bits: Int,
+                                      tests: Int = 100)
+          extends PeekPokeTester(p) {
+  val table = Array.fill(entries)(1 << (bits-1))
+  val max = (1 << bits) - 1
+
+  val r = new Random()
+
+  var last = 0
+
+  for (i <- 1 to tests) {
+    poke(p.io.update, false)
+    val pc = r.nextInt(1000000) & 0xfffffff7
+    poke(p.io.pc, pc)
+    val entry = (pc >> 2) & (entries - 1)
+    expect(p.io.prediction, table(entry) >= (1 << (bits-1)))
+    step(1)
+    val taken = r.nextInt(2)
+    poke(p.io.pc, r.nextInt(1000000) & 0xfffffff7) // should ignore this value
+    poke(p.io.update, true)
+    poke(p.io.taken, taken)
+
+    if (taken == 1) table(entry) += 1
+    else table(entry) -= 1
+
+    if (table(entry) > max) table(entry) = max
+    if (table(entry) < 0) table(entry) = 0
+
+    step(1)
+  }
+}
+
 class GlobalPredictorUnitTester(p: GlobalHistoryPredictor, stream: List[(Int,Boolean,Boolean)]) extends PeekPokeTester(p) {
 
   var step = 0
@@ -38,8 +73,6 @@ class GlobalPredictorUnitTester(p: GlobalHistoryPredictor, stream: List[(Int,Boo
     step += 1
   }
 }
-
-
 
 class GlobalPredictorRandomUnitTester(p: GlobalHistoryPredictor,
                                       entries: Int,
@@ -165,6 +198,36 @@ class LocalPredictorTester extends ChiselFlatSpec {
     conf.branchPredTableEntries = 2
     Driver(() => new LocalPredictor) {
       p => new LocalPredictorUnitTester(p, stream)
+    } should be (true)
+  }
+}
+
+class LocalPredictorRandomTester extends ChiselFlatSpec {
+  "Local branch predictory" should "match expectations for random 2-bit 8 entry tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "local"
+    conf.saturatingCounterBits = 2
+    conf.branchPredTableEntries = 8
+    Driver(() => new LocalPredictor) {
+      p => new LocalPredictorRandomUnitTester(p, 8, 2)
+    } should be (true)
+  }
+  "Local branch predictory" should "match expectations for random 1-bit 2 entry tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "local"
+    conf.saturatingCounterBits = 1
+    conf.branchPredTableEntries = 2
+    Driver(() => new LocalPredictor) {
+      p => new LocalPredictorRandomUnitTester(p, 2, 1)
+    } should be (true)
+  }
+  "Local branch predictory" should "match expectations for random 3-bit 256 entry tests" in {
+    implicit val conf = new CPUConfig()
+    conf.branchPredictor = "local"
+    conf.saturatingCounterBits = 3
+    conf.branchPredTableEntries = 256
+    Driver(() => new LocalPredictor) {
+      p => new LocalPredictorRandomUnitTester(p, 256, 3, 1000)
     } should be (true)
   }
 }
