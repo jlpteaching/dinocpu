@@ -133,7 +133,7 @@ class GlobalPredictorUnitTesterLab4 extends ChiselFlatSpec {
     conf.saturatingCounterBits = 2
     conf.branchPredTableEntries = 8
     Driver(() => new GlobalHistoryPredictor) {
-      p => new GlobalPredictorRandomUnitTester(p)
+      p => new GlobalPredictorRandomUnitTester(p, 8, 2)
     } should be (true)
   }
 }

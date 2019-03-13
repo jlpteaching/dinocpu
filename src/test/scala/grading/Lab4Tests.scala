@@ -202,7 +202,7 @@ class Lab4Grader extends JUnitSuite {
       conf.branchPredTableEntries = 8
 
       val success = Driver(() => new GlobalHistoryPredictor) {
-        p => new GlobalPredictorRandomUnitTester(p)
+        p => new GlobalPredictorRandomUnitTester(p, 8, 2)
       }
 
       // Dump the output of the driver above onto the system out so that the
