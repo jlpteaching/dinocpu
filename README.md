@@ -284,9 +284,6 @@ When you run `make` in that directory, it will create both a RISC-V binary (`*.r
 Note: Not all workloads are currently supported.
 Some care is needed for different code sections and the size of the stack.
 
-## sbt hints
-
-
 # Testing for grading
 
 ## How to do it
