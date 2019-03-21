@@ -30,7 +30,7 @@ dinocpu:sbt> testOnly dinocpu.SingleCycleCPUTester -- -z sub
 
 # CPU Test Case
 
-The `InstTests` object in`src/test/scala/cput-tests/InstTests.scala`contains lists of different instruction test cases for use with different CPU models.Each list is a different set of instruction types and corresponds to a RISC-V program in `src/test/resources/risc-v`.
+The `InstTests` object in`src/test/scala/cpu-tests/InstTests.scala`contains lists of different instruction test cases for use with different CPU models.Each list is a different set of instruction types and corresponds to a RISC-V program in `src/test/resources/risc-v`.
 
 Each test case looks like:
  - binary to run in src/test/resources/risc-v
