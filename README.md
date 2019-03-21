@@ -271,7 +271,10 @@ Disassembly of section .data:
 
 ```
 
-### Using C programs
+## Compiling C programs
+
+The DINO CPU's simulator makes some assumptions about the initial PC and when to stop executing.
+In order to build an application that will work with the DINO CPU's simulator you need to jump through some hoops.
 
 There is now an automated way to do the above for C programs.
 You can add a new benchmark by adding a C file in `src/test/resources/c`.
