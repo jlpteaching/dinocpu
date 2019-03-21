@@ -170,7 +170,7 @@ In the meantime, you can use pipe to automatically convert the `DASM` statements
 
 ## Compiling into Verilog
 
-To compile your Chisel design into Verilog, you can run the `` main function and pass a parameter for which design you want to compile.
+To compile your Chisel design into Verilog, you can run the `elaborate` main function and pass a parameter for which design you want to compile.
 As an example:
 
 ```
