@@ -2,14 +2,15 @@ jdk: openjdk8
 language: scala
 scala:
   - 2.12.2
-
+  
+# https://www.scala-sbt.org/1.0/docs/Travis-CI-with-sbt.html
 cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
     - /opt/iv2
 
-before_cache:
+before_cache: 
   # Cleanup the cached directories to avoid unnecessary cache updates
   - rm -fv $HOME/.ivy2/.sbt.ivy.lock
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
