@@ -7,6 +7,7 @@ scala:
 
 before_script:
   - sudo ./get_and_build_deps.sh
+  - ls /home/travis/.sbt/boot
 
 script:
   sbt test
