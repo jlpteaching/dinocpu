@@ -2,7 +2,7 @@ jdk: openjdk8
 
 install:
  - curl -L -o sbt.deb http://dl.bintray.com/sbt/debian/sbt-0.13.16.deb
- - dpkg -i sbt.deb
+ - sudo dpkg -i sbt.deb
  - sudo ./get_and_build_deps.sh
  
 script:
