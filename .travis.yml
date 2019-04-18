@@ -1,9 +1,10 @@
 jdk: openjdk8
+language: scala
+scala:
+   - 2.12.2
 
 install:
- - curl -L -o sbt.deb http://dl.bintray.com/sbt/debian/sbt-0.13.16.deb
- - sudo dpkg -i sbt.deb
  - sudo ./get_and_build_deps.sh
  
 script:
- - sbt test
+ - sbt ++$TRAVIS_SCALA_VERSION test
