@@ -1,11 +1,8 @@
-language: scala
 jdk: openjdk8
-dist: xenial
-
-scala:
-  - 2.12.2
 
 install:
+ - curl -L -o sbt.deb http://dl.bintray.com/sbt/debian/sbt-0.13.16.deb
+ - dpkg -i sbt.deb
  - sudo ./get_and_build_deps.sh
  
 script:
