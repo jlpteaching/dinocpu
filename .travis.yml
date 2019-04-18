@@ -8,7 +8,7 @@ cache:
   directories:
     - $HOME/.ivy2/cache
     - $HOME/.sbt
-    - /opt/iv2
+    - /opt/ivy2
 
 before_cache: 
   # Cleanup the cached directories to avoid unnecessary cache updates
