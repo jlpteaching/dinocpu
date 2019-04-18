@@ -7,7 +7,6 @@ scala:
 
 before_script:
   - sudo ./get_and_build_deps.sh
-  - mkdir /home/travis/.sbt
   - mkdir /home/travis/.sbt/boot
   - ls /home/travis/.sbt/boot
 
