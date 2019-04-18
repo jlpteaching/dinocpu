@@ -5,10 +5,7 @@ dist: xenial
 scala:
   - 2.12.2
 
-before_script:
-  - ls /home/travis/.sbt
-  - mkdir /home/travis/.sbt/boot
-  - ls /home/travis/.sbt/boot
+install:
 
 script:
   sbt test
