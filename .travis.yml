@@ -5,6 +5,7 @@ scala:
 
 install:
  - sudo ./get_and_build_deps.sh
+ - sudo chown $USER -R ~/.sbt
  
 script:
  - sbt ++$TRAVIS_SCALA_VERSION test
