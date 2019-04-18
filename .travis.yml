@@ -6,6 +6,7 @@ scala:
   - 2.12.2
 
 install:
-
+ - sudo ./get_and_build_deps.sh
+ 
 script:
-  sbt test
+ - sbt test
