@@ -93,7 +93,7 @@ class MemoryTester extends ChiselFlatSpec {
 
   "DualPortedMemory" should s"store and load words (with treadle)" in {
     Driver(() => new DualPortedMemory(2048, "src/test/resources/raw/ascending.hex"), "treadle") {
-      m => new MemoryUnitReadTester(m, 2048)
+      m => new MemoryUnitWriteTester(m, 2048)
     } should be (true)
   }
 
