@@ -239,7 +239,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   }
 
-  if (conf.debug) { printf("DASM(%x)\n", if_id.instruction) }
+  val d = new Disassembler()
+  if (conf.debug) { printf(d.dissamble(if_id.instruction)) }
   if (conf.debug) { printf(p"ID/EX: $id_ex\n") }
 
   /////////////////////////////////////////////////////////////////////////////
