@@ -49,20 +49,20 @@ class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTest
   poke(m.io.dmem.memwrite, 0)
 
   // Expect ascending bytes on instruction port and data port
-  for (j <- 0 to size/4 - 1) {
-    poke(m.io.dmem.address, j*4)
+  for (i <- 0 to size/4 - 1) {
+    poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
     poke(m.io.dmem.maskmode, 2)
     poke(m.io.dmem.sext, 0)
-    poke(m.io.imem.address, j*4)
+    poke(m.io.imem.address, i*4)
 
     step(1)
-    if (j < size/8) {
-      expect(m.io.imem.instruction, j+100)
-      expect(m.io.dmem.readdata, j+100)
+    if (i < size/8) {
+      expect(m.io.imem.instruction, i+100)
+      expect(m.io.dmem.readdata, i+100)
     } else { 
-      expect(m.io.imem.instruction, j)
-      expect(m.io.dmem.readdata, j) 
+      expect(m.io.imem.instruction, i)
+      expect(m.io.dmem.readdata, i) 
     }
   }
 }
