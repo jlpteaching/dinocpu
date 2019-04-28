@@ -36,9 +36,8 @@ class MemoryUnitReadTester(m: DualPortedMemory, size: Int) extends PeekPokeTeste
 }
 
 class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTester(m) {
-
   // Expect ascending bytes on instruction port
-  for (i <- 0 to size/4/2 - 1) {
+  for (i <- 0 to size/8 - 1) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memwrite, 1)
     poke(m.io.dmem.maskmode, 2)
@@ -47,6 +46,8 @@ class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTest
     step(1)
   }
 
+  poke(m.io.dmem.memwrite, 0)
+
   // Expect ascending bytes on instruction port and data port
   for (i <- 0 to size/4 - 1) {
     poke(m.io.dmem.address, i*4)
@@ -54,13 +55,14 @@ class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTest
     poke(m.io.dmem.maskmode, 2)
     poke(m.io.dmem.sext, 0)
     poke(m.io.imem.address, i*4)
+
     step(1)
-    if (i < size/2) {
+    if (i < size/8) {
       expect(m.io.imem.instruction, i+100)
       expect(m.io.dmem.readdata, i+100)
-    } else {
+    } else { 
       expect(m.io.imem.instruction, i)
-      expect(m.io.dmem.readdata, i)
+      expect(m.io.dmem.readdata, i) 
     }
   }
 }
@@ -93,7 +95,7 @@ class MemoryTester extends ChiselFlatSpec {
 
   "DualPortedMemory" should s"store and load words (with treadle)" in {
     Driver(() => new DualPortedMemory(2048, "src/test/resources/raw/ascending.hex"), "treadle") {
-      m => new MemoryUnitReadTester(m, 2048)
+      m => new MemoryUnitWriteTester(m, 2048)
     } should be (true)
   }
 
