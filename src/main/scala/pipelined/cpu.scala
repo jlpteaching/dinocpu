@@ -240,7 +240,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   }
 
   val d = new Disassembler()
-  if (conf.debug) { printf(d.dissamble(if_id.instruction)) }
+  if (conf.debug) { printf(d.disassemble(if_id.instruction)) }
   if (conf.debug) { printf(p"ID/EX: $id_ex\n") }
 
   /////////////////////////////////////////////////////////////////////////////
