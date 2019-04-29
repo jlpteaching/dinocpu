@@ -59,7 +59,7 @@ class AsyncMemoryUnitTester$IMemWrite(m: DualPortedAsyncMemory, size: Int, laten
     poke(m.io.imem.address, i*4)
     poke(m.io.imem.ready, 1)
     
-    step(latency + 1)
+    step(latency)
    
     expect(m.io.imem.valid, 1)
     if (i < size/8) {
