@@ -76,13 +76,21 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
 
   val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
- 
+
+  // Two values are used to represent whether the memory is being delayed - the increment wire, which is actually responsible for incrementing delayCounter,
+  // and storedIO.delaying, which is used to probe the contents of increment (delayed by 1 cycle).
+  //
+  // It's impossible to use increment in the below when statements as this results in a combinational loop, and the register value can't be used or else the
+  // memory would take 1 cycle longer at the beginning, as it would take 2 clock cycles to increment from 0 to 1 initially.
   val increment = Wire(Bool())
   increment := DontCare
   val storedIO = RegInit (0.U.asTypeOf(new AsyncStoredIO))
   val (delayCounter, delayWrap) = Counter (increment, latency) 
 
+  val del = storedIO.delaying
+
   when (~storedIO.delaying && (io.imem.ready || io.dmem.memread || io.dmem.memwrite)) {
+    // Store the inputs into the storing register and initiate the delay
     increment := true.B
     when (io.imem.ready) { 
       storedIO.address   := io.imem.address
@@ -99,7 +107,8 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
       storedIO.sext      := io.dmem.sext
       storedIO.operation := 2.U     
     }
-  } .elsewhen (storedIO.delaying && delayCounter === latency.U) {
+  } .elsewhen (storedIO.delaying && delayCounter === (latency.U - 1.U)) {
+    // Execute the stored operation. This is mostly boilerplate from the normal memory module, aside from changes to use the stored inputs. 
     increment := false.B
     when (storedIO.operation === 0.U) {
       when (storedIO.address >= size.U) {
@@ -109,9 +118,6 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
       }
 
       io.imem.valid := true.B
-    
-
-
     } .elsewhen (storedIO.operation === 1.U) {
       assert(storedIO.address < size.U)
 
@@ -142,9 +148,6 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
       }
 
       io.dmem.valid := true.B
-
-
-
     } .elsewhen (storedIO.operation === 2.U) {
       assert(storedIO.address < size.U)
       when (storedIO.maskmode =/= 2.U) { // When not storing a whole word
@@ -163,20 +166,15 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
       } .otherwise {
         memory(storedIO.address >> 2) := storedIO.writedata
       }
-
-      val writeData = storedIO.writedata
-      printf (s"Writing $writeData to memory")
       
-      io.dmem.valid := true.B
+      io.dmem.valid := true.B 
     }
-  
+    
     // Reset counter
     delayCounter := 0.U
+  } .otherwise {
+    // The memory module is either idling or delaying, in which case we want to maintain the value of increment
+    increment := storedIO.delaying
   }
-  
   storedIO.delaying := increment
-  
-  printf(p"$increment $delayCounter $latency\n")
-  printf(p"$storedIO \n\n\n")
-  
 }
