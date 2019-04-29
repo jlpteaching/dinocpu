@@ -1,6 +1,23 @@
 package dinocpu
 
-import chisel3.core.UInt
+import chisel3._
+import chisel3.core._
+
+class Instruction(instruction: Long){
+  def slice(upper: Int, lower: Int): Long = {
+      var mask: Long = scala.math.pow(2, upper - lower + 1).toLong - 1
+      mask = mask << lower
+      (instruction & mask) >> lower
+  }
+  val opcode = slice(6,0)
+  val rd = slice(11,7)
+  val funct3 = slice(14,12)
+  val rs1 = slice(19,15)
+  val rs2 = slice(24,20)
+  val funct7 = slice(31,25)
+  val sign = slice(31,31)
+  val iImm = slice(30,20) * (if (sign == 1)  -1 else 0)// i-type immediate value
+}
 
 class Disassembler {
   val R_TYPE_OPCODE = Integer.parseInt("0110011",2)
@@ -13,23 +30,9 @@ class Disassembler {
   val AUIPC_OPCODE =  Integer.parseInt("0010111",2)
   val LUI_OPCODE =  Integer.parseInt("0110111",2)
 
-  def sliceLong(num:Long, upper: Int,lower: Int): Long = {
-   var mask: Long = scala.math.pow(2,upper - lower+1).toLong - 1
-    mask = mask << lower
-    //println(mask)
-    (num & mask) >> lower
-  }
-
-  def parseRType(instruction:Long):String={
-    //println("R-type")
-    val rd = sliceLong(instruction,11,7)
-    val funct3 = sliceLong(instruction,14,12)
-    val rs1 = sliceLong(instruction,19,15)
-    val rs2 = sliceLong(instruction,24,20)
-    val funct7 = sliceLong(instruction,31,25)
-
-    val instName = funct3 match {
-      case 0 => funct7 match {
+  def parseRType(instr:Instruction):String={
+    val instName = instr.funct3 match {
+      case 0 => instr.funct7 match {
         case 0 => "add"
         case 32 => "sub"
       }
@@ -37,82 +40,57 @@ class Disassembler {
       case 2 => "slt"
       case 3 => "sltu"
       case 4 => "xor"
-      case 5 => funct7 match {
+      case 5 => instr.funct7 match {
         case 0 => "srl"
         case 32 => "sra"
       }
       case 6 => "or"
       case 7 => "and"
     }
-    instName + " x" + rd + ", x" + rs1 + ", x" + rs2
+    instName + " x" + instr.rd + ", x" + instr.rs1 + ", x" + instr.rs2
   }
-  def parseIType(instruction:Long)={
-    val rd = sliceLong(instruction,11,7)
-    val funct3 = sliceLong(instruction,14,12)
-    val rs1 = sliceLong(instruction,19,15)
-    val funct7 = sliceLong(instruction,31,25)
-    var imm = sliceLong(instruction,30,20)
-    val sign = sliceLong(instruction,31,31)
-    if(sign==1)
-      imm = - imm
-
-    val shamt = sliceLong(instruction,24,20)
-    funct3 match {
-      case 0 => "addi" + " x" + rd + ", x" + rs1 + ", " + imm
-      case 2 => "slti" +  " x" + rd + ", x" + rs1 + ", " + imm
-      case 3 => "sltiu" +  " x" + rd + ", x" + rs1 + ", " + imm
-      case 4 => "xori" +  " x" + rd + ", x" + rs1 + ", " + imm
-      case 6 => "ori" +  " x" + rd + ", x" + rs1 + ", " + imm
-      case 7 => "andi" + " x" + rd + ", x" + rs1 + ", " + imm
-      case 1 => "slli" + " x" + rd + ", x" + rs1 + ", " + shamt
-      case 5 => funct7 match {
-        case 0 => "srli" +  " x" + rd + ", x" + rs1 + ", " + shamt
-        case 8 => "srai" +  " x" + rd + ", x" + rs1 + ", " + shamt
+  def parseIType(instr:Instruction)={
+    val shamt = instr.slice(24,20)
+    instr.funct3 match {
+      case 0 => "addi" + " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
+      case 2 => "slti" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
+      case 3 => "sltiu" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
+      case 4 => "xori" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
+      case 6 => "ori" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
+      case 7 => "andi" + " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
+      case 1 => "slli" + " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
+      case 5 => instr.funct7 match {
+        case 0 => "srli" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
+        case 8 => "srai" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
       }
     }
   }
-  def parseStore(instruction:Long):String={
-    val offset = (sliceLong(instruction,31,25) << 5) + sliceLong(instruction,11,7)
-    val rs1 = sliceLong(instruction,19,15)
-    val rs2 = sliceLong(instruction,24,20)
-    val funct3 = sliceLong(instruction,14,12)
-    val instName = funct3 match {
+  def parseStore(instr:Instruction):String={
+    val offset = (instr.slice(31,25) << 5) + instr.slice(11,7)
+    val instName = instr.funct3 match {
       case 0 => "sb"
       case 1 => "sh"
       case 2 => "sw"
     }
-    instName + " x" + rs2 + ", " + offset +"(x" + rs1 +")"
+    instName + " x" + instr.rs2 + ", " + offset +"(x" + instr.rs1 +")"
   }
 
-  def parseLoad(instruction:Long)={
-    val rd = sliceLong(instruction,11,7)
-    val funct3 = sliceLong(instruction,14,12)
-    val rs1 = sliceLong(instruction,19,15)
-
-    var imm = sliceLong(instruction,30,20)
-    val sign = sliceLong(instruction,31,31)
-    if(sign==1)
-      imm = - imm
-    val instName = funct3 match {
+  def parseLoad(instr:Instruction)={
+    val instName = instr.funct3 match {
       case 0 => "lb"
       case 1 => "lh"
       case 2 => "lw"
       case 4 => "lbu"
       case 5 => "lhu"
     }
-
-    instName + " x" + rd + ", " + imm +"(x" + rs1 +")"
+    instName + " x" + instr.rd + ", " + instr.iImm +"(x" + instr.rs1 +")"
   }
 
-  def parseBranch(instruction:Long):String={
-    val funct3 = sliceLong(instruction,14,12)
-    val rs1 = sliceLong(instruction,19,15)
-    val rs2 = sliceLong(instruction,24,20)
-    var offset = (sliceLong(instruction,7,7) << 11) + (sliceLong(instruction,30,25) << 5) + (sliceLong(instruction,11,8) << 1)
-    var sign = sliceLong(instruction,31,31)
-    if(sign==1)
+  def parseBranch(instr:Instruction):String={
+    var offset = (instr.slice(7,7) << 11) + (instr.slice(30,25) << 5) + (instr.slice(11,8) << 1)
+    if(instr.sign==1)
       offset = - offset
-    val instName = funct3 match {
+    val instName = instr.funct3 match {
       case 0 => "beq"
       case 1 => "bne"
       case 4 => "blt"
@@ -120,73 +98,44 @@ class Disassembler {
       case 6 => "bltu"
       case 7 => "bgeu"
     }
-    instName + " x" + rs1 + ", x" + rs2 + ", pc + " + offset
+    instName + " x" + instr.rs1 + ", x" + instr.rs2 + ", pc + " + offset
   }
-  def parseJal(instruction:Long):String={
-    val rd = sliceLong(instruction,11,7)
-    var imm = (sliceLong(instruction,19,12) << 12) +
-      (sliceLong(instruction,20,20) << 10) +
-      (sliceLong(instruction,30,21) << 1)
-    val sign = sliceLong(instruction,31,31)
-    if(sign==1)
+  def parseJal(instr:Instruction):String={
+    var imm = (instr.slice(19,12) << 12) +
+      (instr.slice(20,20) << 10) +
+      (instr.slice(30,21) << 1)
+    if(instr.sign==1)
       imm = - imm
-    "jal x" + rd + "(" + imm + ")"
+    "jal x" + instr.rd + "(" + imm + ")"
   }
-  def parseJalr(instruction:Long):String={
-    val rd = sliceLong(instruction,11,7)
-    val rs1 = sliceLong(instruction,19,15)
-    var imm = sliceLong(instruction,30,20)
-    val sign = sliceLong(instruction,31,31)
-    if(sign==1)
-      imm = - imm
-    "jalr x" + rd +", x" + rs1 + "(" + imm + ")"
+  def parseJalr(instr:Instruction):String={
+    "jalr x" + instr.rd +", x" + instr.rs1 + "(" + instr.iImm + ")"
    }
-  def parseAuipc(instruction:Long):String={
-    val rd = sliceLong(instruction,11,7)
-    val imm = sliceLong(instruction,30,20)
-    "lui x" + rd + " " + imm
+  def parseAuipc(instr:Instruction):String={
+    "lui x" + instr.rd + " " + instr.iImm
   }
-  def parseLui(instruction:Long):String={
-    val rd = sliceLong(instruction,11,7)
-    val imm = sliceLong(instruction,30,20)
-    "auipc x" + rd + " " + imm
+  def parseLui(instr:Instruction):String={
+    "auipc x" + instr.rd + " " + instr.iImm
   }
 
-  def dissamble(instruction:Long):String  = {
-    val opCode = sliceLong(instruction,6,0)
-    opCode match {
-      case R_TYPE_OPCODE => parseRType(instruction)
-      case I_TYPE_OPCODE => parseIType(instruction)
-      case STORE_OPCODE => parseStore(instruction)
-      case LOAD_OPCODE => parseLoad(instruction)
-      case BRANCH_OPCODE => parseBranch(instruction)
-      case JAR_OPCODE => parseJal(instruction)
-      case JALR_OPCODE => parseJalr(instruction)
-      case AUIPC_OPCODE => parseBranch(instruction)
-      case LUI_OPCODE => parseBranch(instruction)
+  def disassemble(instruction:Long):String  = {
+    val instr = new Instruction(instruction)
+    instr.opcode match {
+      case R_TYPE_OPCODE => parseRType(instr)
+      case I_TYPE_OPCODE => parseIType(instr)
+      case STORE_OPCODE => parseStore(instr)
+      case LOAD_OPCODE => parseLoad(instr)
+      case BRANCH_OPCODE => parseBranch(instr)
+      case JAR_OPCODE => parseJal(instr)
+      case JALR_OPCODE => parseJalr(instr)
+      case AUIPC_OPCODE => parseBranch(instr)
+      case LUI_OPCODE => parseBranch(instr)
       case _ => "Unknown"
     }
   }
-  def dissamble(instruction:UInt):String  = {
-    val longInstr = instruction.litValue.toLong
-    val opCode = sliceLong(longInstr,6,0)
-    opCode match {
-      case R_TYPE_OPCODE => parseRType(longInstr)
-      case I_TYPE_OPCODE => parseIType(longInstr)
-      case STORE_OPCODE => parseStore(longInstr)
-      case LOAD_OPCODE => parseLoad(longInstr)
-      case BRANCH_OPCODE => parseBranch(longInstr)
-      case JAR_OPCODE => parseJal(longInstr)
-      case JALR_OPCODE => parseJalr(longInstr)
-      case AUIPC_OPCODE => parseBranch(longInstr)
-      case LUI_OPCODE => parseBranch(longInstr)
-      case _ => "Unknown"
-    }
+  def disassemble(instruction:UInt):String  = {
+    ""
   }
 
-
-  def main (args: Array[String] ): Unit = {
-    dissamble(Integer.parseInt("00000000000000000000001010110011"))
-  }
 }
 
