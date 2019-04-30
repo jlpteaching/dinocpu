@@ -3,6 +3,12 @@ package dinocpu
 import chisel3._
 import chisel3.core._
 
+/** Wrapper for 32 bit instruction
+  *
+  * Convenient access to various parts of the instruction, registers, immediates, opcodes, etc
+  * @constructor creates a new instruction from a long
+  * @param instruction the instruction to access
+  */
 class Instruction(instruction: Long){
   def slice(upper: Int, lower: Int): Long = {
       var mask: Long = scala.math.pow(2, upper - lower + 1).toLong - 1
@@ -16,11 +22,19 @@ class Instruction(instruction: Long){
   val rs2 = slice(24,20)
   val funct7 = slice(31,25)
   val sign = slice(31,31)
-  val iImm = slice(30,20) * (if (sign == 1)  -1 else 0)// i-type immediate value
-  val uImm = (slice(30,20) << 12) * (if (sign == 1)  -1 else 0)
+  val iImm = slice(30,20) * (if (sign == 1)  -1 else 0) // i-type immediate value
+  val uImm = (slice(30,20) << 12) * (if (sign == 1)  -1 else 0) //u-type (lui and auipc) immediate value
 }
 
-class Disassembler {
+/** utility to get a user readable string from a RISC-V instruction
+  *
+  * Example usage to print an instruction
+  * {{{
+  * scala> print(Disassembler.disassemble(instruction)
+  * }}}
+  */
+object Disassembler {
+  // opcode constants
   val R_TYPE_OPCODE = Integer.parseInt("0110011",2)
   val I_TYPE_OPCODE = Integer.parseInt("0010011",2)
   val STORE_OPCODE = Integer.parseInt("0100011",2)
@@ -31,6 +45,9 @@ class Disassembler {
   val AUIPC_OPCODE =  Integer.parseInt("0010111",2)
   val LUI_OPCODE =  Integer.parseInt("0110111",2)
 
+  /** Decodes an R-type instruction
+    *
+    */
   def parseRType(instr:Instruction):String={
     val instName = instr.funct3 match {
       case 0 => instr.funct7 match {
@@ -50,6 +67,10 @@ class Disassembler {
     }
     instName + " x" + instr.rd + ", x" + instr.rs1 + ", x" + instr.rs2
   }
+
+  /** Decodes an I-type instruction
+    *
+    */
   def parseIType(instr:Instruction)={
     val shamt = instr.slice(24,20)
     instr.funct3 match {
@@ -66,6 +87,10 @@ class Disassembler {
       }
     }
   }
+
+  /** Decodes store instructions
+    *
+    */
   def parseStore(instr:Instruction):String={
     val offset = (instr.slice(31,25) << 5) + instr.slice(11,7)
     val instName = instr.funct3 match {
@@ -76,6 +101,9 @@ class Disassembler {
     instName + " x" + instr.rs2 + ", " + offset +"(x" + instr.rs1 +")"
   }
 
+  /** Decodes load instructions
+    *
+    */
   def parseLoad(instr:Instruction)={
     val instName = instr.funct3 match {
       case 0 => "lb"
@@ -87,6 +115,9 @@ class Disassembler {
     instName + " x" + instr.rd + ", " + instr.iImm +"(x" + instr.rs1 +")"
   }
 
+  /** Decodes branch instructions
+    *
+    */
   def parseBranch(instr:Instruction):String={
     var offset = (instr.slice(7,7) << 11) + (instr.slice(30,25) << 5) + (instr.slice(11,8) << 1)
     if(instr.sign==1)
@@ -101,6 +132,10 @@ class Disassembler {
     }
     instName + " x" + instr.rs1 + ", x" + instr.rs2 + ", pc + " + offset
   }
+
+  /** Decodes JAL instruction
+    *
+    */
   def parseJal(instr:Instruction):String={
     var imm = (instr.slice(19,12) << 12) +
       (instr.slice(20,20) << 10) +
@@ -109,16 +144,33 @@ class Disassembler {
       imm = - imm
     "jal x" + instr.rd + "(" + imm + ")"
   }
+
+  /** Decodes JALR instruction
+    *
+    */
   def parseJalr(instr:Instruction):String={
     "jalr x" + instr.rd +", x" + instr.rs1 + "(" + instr.iImm + ")"
    }
+
+  /** Decodes Auipc instruction
+    *
+    */
   def parseAuipc(instr:Instruction):String={
     "lui x" + instr.rd + " " + instr.uImm
   }
+
+  /** Decodes Lui instruction
+    *
+    */
   def parseLui(instr:Instruction):String={
     "auipc x" + instr.rd + " " + instr.uImm
   }
 
+  /** Disassembles any of the RV32I instructions
+    *
+    * @param instruction the instruction as 32bit long
+    * @return the disassembled instruction as a string
+    */
   def disassemble(instruction:Long):String  = {
     val instr = new Instruction(instruction)
     instr.opcode match {
@@ -134,9 +186,5 @@ class Disassembler {
       case _ => "Unknown"
     }
   }
-  def disassemble(instruction:UInt):String  = {
-    ""
-  }
-
 }
 
