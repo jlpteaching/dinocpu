@@ -22,8 +22,8 @@ class Instruction(instruction: Long){
   val rs2 = slice(24,20)
   val funct7 = slice(31,25)
   val sign = slice(31,31)
-  val iImm = slice(30,20) * (if (sign == 1)  -1 else 0) // i-type immediate value
-  val uImm = (slice(30,20) << 12) * (if (sign == 1)  -1 else 0) //u-type (lui and auipc) immediate value
+  val iImm = slice(30,20) * (if (sign == 1)  -1 else 1) // i-type immediate value
+  val uImm = (slice(30,12) << 12) * (if (sign == 1)  -1 else 1) //u-type (lui and auipc) immediate value
 }
 
 /** utility to get a user readable string from a RISC-V instruction
