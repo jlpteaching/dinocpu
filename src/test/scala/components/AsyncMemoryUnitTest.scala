@@ -12,7 +12,7 @@ import scala.util.Random
 // Test instruction port reading a zeroed memory file
 class AsyncMemoryUnitTester$IMemZero(m: DualPortedAsyncMemory, size: Int, latency: Int) extends PeekPokeTester(m) {
   // Expect 0's on the instruction port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.imem.address, i*4)
     poke(m.io.imem.ready, 1)
 
@@ -26,7 +26,7 @@ class AsyncMemoryUnitTester$IMemZero(m: DualPortedAsyncMemory, size: Int, latenc
 // Test instruction port reading an ascending memory file
 class AsyncMemoryUnitTester$IMemRead(m: DualPortedAsyncMemory, size: Int, latency: Int) extends PeekPokeTester(m) {
   // Expect ascending bytes on instruction port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.imem.address, i*4)
     poke(m.io.imem.ready, 1)
     
@@ -40,7 +40,7 @@ class AsyncMemoryUnitTester$IMemRead(m: DualPortedAsyncMemory, size: Int, latenc
 // Test data port writes and instruction port reads
 class AsyncMemoryUnitTester$IMemWrite(m: DualPortedAsyncMemory, size: Int, latency: Int) extends PeekPokeTester(m) {
   // write ascending data to memory 
-  for (i <- 0 to size/8 - 1) {
+  for (i <- 0 until size/8) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memwrite, 1)
     poke(m.io.dmem.maskmode, 2)
@@ -55,7 +55,7 @@ class AsyncMemoryUnitTester$IMemWrite(m: DualPortedAsyncMemory, size: Int, laten
   poke (m.io.dmem.memwrite, 0)
 
   // expect ascending bytes on instruction port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.imem.address, i*4)
     poke(m.io.imem.ready, 1)
     
@@ -73,7 +73,7 @@ class AsyncMemoryUnitTester$IMemWrite(m: DualPortedAsyncMemory, size: Int, laten
 // Test data port reading a zeroed memory file
 class AsyncMemoryUnitTester$DMemZero(m: DualPortedAsyncMemory, size: Int, latency: Int) extends PeekPokeTester(m) {
   // Expect 0's on the data port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
     poke(m.io.dmem.maskmode, 2)
@@ -89,7 +89,7 @@ class AsyncMemoryUnitTester$DMemZero(m: DualPortedAsyncMemory, size: Int, latenc
 // Test data port reading an ascending memory file
 class AsyncMemoryUnitTester$DMemRead(m: DualPortedAsyncMemory, size: Int, latency: Int) extends PeekPokeTester(m) {
   // Expect ascending bytes on data port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
     poke(m.io.dmem.maskmode, 2)
@@ -105,7 +105,7 @@ class AsyncMemoryUnitTester$DMemRead(m: DualPortedAsyncMemory, size: Int, latenc
 // Test data port writes and data port reads
 class AsyncMemoryUnitTester$DMemWrite(m: DualPortedAsyncMemory, size: Int, latency: Int) extends PeekPokeTester(m) {
   //  Write ascending data to memory through data port
-  for (i <- 0 to size/8 - 1) {
+  for (i <- 0 until size/8) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memwrite, 1)
     poke(m.io.dmem.maskmode, 2)
@@ -120,7 +120,7 @@ class AsyncMemoryUnitTester$DMemWrite(m: DualPortedAsyncMemory, size: Int, laten
   poke (m.io.dmem.memwrite, 0)
 
   // Expect ascending bytes on data port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
     poke(m.io.dmem.maskmode, 2)

@@ -8,7 +8,7 @@ import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 class MemoryUnitZeroTester(m: DualPortedMemory, size: Int) extends PeekPokeTester(m) {
 
   // Expect 0's on the instruction port and data port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
     poke(m.io.dmem.maskmode, 2)
@@ -23,7 +23,7 @@ class MemoryUnitZeroTester(m: DualPortedMemory, size: Int) extends PeekPokeTeste
 class MemoryUnitReadTester(m: DualPortedMemory, size: Int) extends PeekPokeTester(m) {
 
   // Expect ascending bytes on instruction port and data port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
     poke(m.io.dmem.maskmode, 2)
@@ -37,7 +37,7 @@ class MemoryUnitReadTester(m: DualPortedMemory, size: Int) extends PeekPokeTeste
 
 class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTester(m) {
   // Expect ascending bytes on instruction port
-  for (i <- 0 to size/8 - 1) {
+  for (i <- 0 until size/8) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memwrite, 1)
     poke(m.io.dmem.maskmode, 2)
@@ -49,7 +49,7 @@ class MemoryUnitWriteTester(m: DualPortedMemory, size: Int) extends PeekPokeTest
   poke(m.io.dmem.memwrite, 0)
 
   // Expect ascending bytes on instruction port and data port
-  for (i <- 0 to size/4 - 1) {
+  for (i <- 0 until size/4) {
     poke(m.io.dmem.address, i*4)
     poke(m.io.dmem.memread, 1)
     poke(m.io.dmem.maskmode, 2)
