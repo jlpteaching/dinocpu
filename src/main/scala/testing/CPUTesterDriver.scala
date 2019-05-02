@@ -59,6 +59,12 @@ class CPUTesterDriver(cpuType: String,
     simulator.reset(5)
   }
 
+  def initCSR(vals: Map[Int, BigInt]) {
+    for ((num, value) <- vals) {
+      simulator.poke(s"cpu.csr.read_mapping_$num", value)
+    }
+  }
+
   def initRegs(vals: Map[Int, BigInt]) {
     for ((num, value) <- vals) {
       simulator.poke(s"cpu.registers.regs_$num", value)
@@ -73,6 +79,22 @@ class CPUTesterDriver(cpuType: String,
     for ((addr, value) <- vals) {
       simulator.pokeMemory(s"cpu.mem.memory", addr, value)
     }
+  }
+
+  def checkCSR(vals: Map[Int, BigInt]): Boolean = {
+    var success = true
+    for ((num, value) <- vals) {
+      try {
+        simulator.expect(s"cpu.csr.read_mapping_$num", value)
+      } catch {
+        case _: TreadleException => {
+          success = false
+          val real = simulator.peek(s"cpu.csr.read_mapping_$num")
+          println(s"CSR $num failed to match. Was $real. Should be $value")
+        }
+      }
+    }
+    success
   }
 
   def checkRegs(vals: Map[Int, BigInt]): Boolean = {
@@ -128,6 +150,8 @@ class CPUTesterDriver(cpuType: String,
 case class CPUTestCase(
   binary:  String,
   cycles: Map[String, Int],
+  initCSR: Map[Int, BigInt],
+  checkCSR: Map[Int, BigInt],
   initRegs: Map[Int, BigInt],
   checkRegs: Map[Int, BigInt],
   initMem: Map[Int, BigInt],
@@ -143,10 +167,11 @@ case class CPUTestCase(
 object CPUTesterDriver {
   def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = ""): Boolean = {
     val driver = new CPUTesterDriver(cpuType, branchPredictor, testCase.binary, testCase.extraName)
+    driver.initCSR(testCase.initCSR)
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))
-    val success = driver.checkRegs(testCase.checkRegs)
-    success && driver.checkMemory(testCase.checkMem)
+    val success = driver.checkCSR(testCase.checkCSR)
+    success && driver.checkRegs(testCase.checkRegs) && driver.checkMemory(testCase.checkMem)
   }
 }
