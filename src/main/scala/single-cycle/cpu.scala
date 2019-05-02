@@ -19,6 +19,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val pc         = RegInit(0.U)
   val control    = Module(new Control())
   val registers  = Module(new RegisterFile())
+  val csr        = Module(new CSRRegFile())
   val aluControl = Module(new ALUControl())
   val alu        = Module(new ALU())
   val immGen     = Module(new ImmediateGenerator())
@@ -27,6 +28,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val branchAdd  = Module(new Adder())
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
+  //FETCH
   io.imem.address := pc
 
   pcPlusFour.io.inputx := pc
@@ -35,6 +37,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val instruction = io.imem.instruction
   val opcode = instruction(6,0)
 
+  //DECODE
   control.io.opcode := opcode
 
   registers.io.readreg1 := instruction(19,15)
@@ -50,7 +53,8 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
 
   immGen.io.instruction := instruction
   val imm = immGen.io.sextImm
-
+  
+  //ALU
   branchCtrl.io.branch := control.io.branch
   branchCtrl.io.funct3 := instruction(14,12)
   branchCtrl.io.inputx := registers.io.readdata1
@@ -68,12 +72,26 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   alu.io.inputy := alu_inputy
   alu.io.operation := aluControl.io.operation
 
+  //MEMORY
   io.dmem.address   := alu.io.result
   io.dmem.writedata := registers.io.readdata2
   io.dmem.memread   := control.io.memread
   io.dmem.memwrite  := control.io.memwrite
   io.dmem.maskmode  := instruction(13,12)
   io.dmem.sext      := ~instruction(14)
+
+  //WRITEBACK
+  csr.io.decode.inst := instruction 
+  csr.io.decode.immid := imm
+  csr.io.rw.wdata := registers.io.readdata2
+
+
+  csr.io.retire := true.B //mem is synchronous in this deisgn. no flushing as far as i'm aware
+  csr.io.exception := !control.io.validinst || csr.io.decode.read_illegal || 
+    csr.io.decode.write_illegal || csr.io.decode.system_illegal //illegal inst exception?
+  csr.io.pc :=  pc
+  
+  
 
   val write_data = Wire(UInt())
   when (control.io.toreg === 1.U) {
@@ -93,6 +111,8 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
     next_pc := branchAdd.io.result
   } .elsewhen (control.io.jump === 3.U) {
     next_pc := alu.io.result & Cat(Fill(31, 1.U), 0.U)
+  } .elsewhen (csr.io.eret || !control.io.validinst) {
+    next_pc := csr.io.evec
   } .otherwise {
     next_pc := pcPlusFour.io.result
   }
