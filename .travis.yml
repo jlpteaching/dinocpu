@@ -24,4 +24,6 @@ install:
   - sudo chown $USER -R ~/.sbt
  
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION test >/dev/null
+  - sbt coverage test coverageReport >/dev/null
+after_success:
+  - sbt coveralls
