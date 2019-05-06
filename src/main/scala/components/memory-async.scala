@@ -54,10 +54,10 @@ class AsyncMemIO extends Bundle {
 class MemAccessIO extends Bundle {
   val address = Input(UInt(32.W))
   val valid   = Input(Bool())
-  val mem_in  = Input(Valid(UInt(32.W))) // can be Flipped()
+  val mem_in  = Input(Valid(UInt(32.W))) // maybe can be Flipped()?
 
   val ready      = Output(Bool())
-  val access_out = Output(Decoupled(new Request)) // can be Flipped()
+  val access_out = Output(Decoupled(new Request)) // maybe can be Flipped()?
 }
 
 /** 
@@ -208,13 +208,76 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
     val imem = new AsyncMemIO
     val dmem = new AsyncMemIO
   })
-
   io := DontCare
+
+  assert(latency > 0) // Check for attempt to make combinational memory
 
   val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
 
-  val imemPipe  = Pipe(Valid(new Request), latency)
-  val dmemPipe  = Pipe(Valid(new Request), latency)
+  // Instruction port
 
+  val imemPipe = new Pipe(Valid(new Request), latency)
+  val imemBusy = Reg(0.U.asTypeOf(new Bool))
+
+  io.imem.access_in.ready := ~imemBusy
+  when (io.imem.access_in.ready && io.imem.access_in.valid 
+    && io.imem.access_in.bits.operation =/= nop) {
+    imemPipe.io.enq.valid := true.B
+    imemPipe.io.enq.bits  := io.imem.access_in.bits
+    imemBusy := true.B
+  }
+ 
+  when (imemPipe.io.deq.valid && imemBusy) {
+    val imemReq = imemPipe.io.deq.asTypeOf (new Request)
+    when (imemReq.operation === read) { 
+      io.imem.mem_out.valid := true.B
+      io.imem.mem_out.bits  := memory(imemReq.address >> 2)
+    } // Ignore instruction writes as this is in practice impossible
+    imemBusy := false.B
+  }
+
+  // Data port
+
+  val dmemPipe = new Pipe(Valid(new Request), latency)
+  val dmemBusy = Reg(0.U.asTypeOf(new Bool))
+
+  io.dmem.access_in.ready := ~dmemBusy
+  when (io.dmem.access_in.ready && io.dmem.access_in.valid 
+    && io.dmem.access_in.bits.operation =/= nop) {
+    dmemPipe.io.enq.valid := true.B
+    dmemPipe.io.enq.bits  := io.dmem.access_in.bits
+    dmemBusy := true.B
+  }
+ 
+  when (dmemPipe.io.deq.valid && dmemBusy) {
+    val dmemReq = dmemPipe.io.deq.asTypeOf (new Request)
+    val address = dmemReq.address >> 2
+    when (dmemReq.operation === read) { 
+      io.dmem.mem_out.valid := true.B
+      io.dmem.mem_out.bits  := memory(address)
+    } .elsewhen (dmemReq.operation === write) { 
+      assert (dmemReq.address < size.U)
+     
+      val writedata_masked = Wire (UInt (32.W))
+
+      when (dmemReq.maskmode =/= 2.U) {
+        val offset = dmemReq.address (1, 0)
+        val readdata = Wire (UInt (32.W))
+        readdata := memory (address)
+        val data = Wire (UInt (32.W))
+        when (dmemReq.maskmode === 0.U) {
+          data := readdata & ~(0xff.U << (offset * 8.U))
+        } .otherwise {
+          data := readdata & ~(0xffff.U << (offset * 8.U))
+        }
+        writedata_masked := data | (dmemReq.writedata << (offset * 8.U))
+      } .otherwise {
+        writedata_masked := dmemReq.writedata         
+      }
+
+      memory(address) := writedata_masked
+    }
+    dmemBusy := false.B
+  }
 }
