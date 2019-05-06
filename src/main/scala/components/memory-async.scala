@@ -5,176 +5,216 @@ package dinocpu
 import chisel3._
 import chisel3.util._
 
+import chisel3.experimental.ChiselEnum
+
 import chisel3.util.experimental.loadMemoryFromFile
 import firrtl.annotations.MemoryLoadFileType
 
-//
-/**
- * The *interface* for the asynchronous instruction memory. All inputs of the synchronous IMemIO bundle
- * are copied into this bundle, along with two extra flags:  
- *
- * Input: ready, true when an address is being supplied to the instruction memory, indicating that an instruction should be fetched
- *
- * Output: valid, true when the memory is outputting a valid instruction through imem.instruction 
- */
-class AsyncIMemIO extends IMemIO {
-  val ready = Input(Bool())
-
-  val valid = Output(Bool())
+// Chisel enumerator for memory operations.
+object MemoryOperation extends ChiselEnum {
+  val nop, read, write = Value
 }
+import MemoryOperation._
 
-/**
- * The *interface* for the asynchronous data memory. All inputs of the synchronous DMemIO bundle
- * are copied into this bundle along with an extra flag:
- * 
- * Output: valid, true when the number of cycles that the async memory is supposed to wait for 
- *         elapses, and readdata contains the data that was read and processed 
- *
- * The 'readiness' of the data address input is inferred from whether dmem.memread or dmem.memwrite
- * is true, as otherwise ready would be true when dmem.memread or dmem.memwrite is true.
- */
-class AsyncDMemIO extends DMemIO {
-  val valid = Output(Bool())
-}
-
-// A Bundle used for storing inputs while memory is being delayed.
-class AsyncStoredIO extends Bundle {  
+// A Bundle used for representing a memory access by instruction memory or data memory.
+class Request extends Bundle {  
   val address   = UInt(32.W)
-  val writedata = UInt(32.W)
+  val writedata = UInt(32.W) 
   val maskmode  = UInt(2.W)
   val sext      = Bool()
-  val delaying  = Bool()
+  val operation = MemoryOperation()
+}
 
-  // operation is an encoding of the current memory operation, represented below:
-  //             00 -> Instruction read
-  //             01 -> Data read
-  //             10 (-> Data write
-  // Maybe use an enumerator for this, if possible?
-  val operation = UInt(2.W)
+/** 
+ * The generic interface for communication between the IMem/DMemAccess modules and the backing memory.
+ *
+ * Input:  access_in, the ready/valid interface for a MemAccess module to issue Requests to. Memory
+ *         will only accept a request when both access_in.valid (the MemAccess is supplying valid data)
+ *         and access_in.ready (the memory is idling for a request) are high.
+ *
+ * Output: mem_out, the valid interface for the data outputted by memory if it was requested to read. 
+ *         the bits in mem_out.bits should only be treated as valid data when mem_out.valid is high.
+ */
+class AsyncMemIO extends Bundle {
+  val access_in = Input(Decoupled (new Request))
+  val mem_out   = Output(Valid (UInt (32.W)))
+}
+
+/** 
+ * A generic ready/valid interface for MemAccess modules, whose IOs extend this.
+ * Input:  address, the address of a piece of data in memory. 
+ * Input:  valid, true when the address specified is valid
+ * Input:  mem_in, the return route from memory to a memory access. This is primarily meant for connecting to 
+ *         an AsyncMemIO's mem_out output, and should not be connected to anything else in any circumstance 
+ *         (or things will possibly break)
+ * 
+ * Output: ready, true when the MemAccess is either idling or outputting a value, and is ready for a new 
+ *         request
+ */
+class MemAccessIO extends Bundle {
+  val address = Input(UInt(32.W))
+  val valid   = Input(Bool())
+  val mem_in  = Input(Valid(UInt(32.W))) // can be Flipped()
+
+  val ready      = Output(Bool())
+  val access_out = Output(Decoupled(new Request)) // can be Flipped()
+}
+
+/** 
+ * The *interface* of the IMemAccess module.
+ *
+ * Input:  address, ready/valid interface for the address of an instruction in memory 
+ * Input:  valid, true when the address specified is valid
+ *
+ * Output: instruction, valid interface for the requested instruction
+ * Output: ready, true when data memory is idling and ready for a request
+ */
+class IMemAccessIO extends MemAccessIO {
+  val instruction = Output(UInt(32.W))
+}
+
+/**
+ * The *interface* of the DMemAccess module.
+ *
+ * Input:  address, the address of a piece of data in memory. 
+ * Input:  writedata, valid interface for the data to write to the address
+ * Input:  valid, true when the address (and writedata during a write) specified is valid
+ * Input:  memread,   true if we are reading from memory
+ * Input:  memwrite,  true if we are writing to memory
+ * Input:  maskmode,  mode to mask the result. 0 means byte, 1 means halfword, 2 means word
+ * Input:  sext,      true if we should sign extend the result
+ *
+ * Output: readdata, valid interface for the data read and sign extended
+ * Output: ready, true when instruction memory is idling and ready for a request
+ */
+class DMemAccessIO extends MemAccessIO {
+  val writedata = Input(UInt(32.W))
+  val memread   = Input(Bool())
+  val memwrite  = Input(Bool())
+  val maskmode  = Input(UInt(2.W))
+  val sext      = Input(Bool())
+
+  val readdata  = Output(UInt(32.W))
+}
+
+/**
+ * The instruction memory accessor.
+ *
+ * The I/O for this module is defined in [[IMemAccessIO]].
+ */
+class IMemAccess(memoryIMemIO: AsyncMemIO) extends Module {
+  val io = IO (new IMemAccessIO)
+  io := DontCare
+
+  // Connect supplied IO bundle to this accessor
+  io.mem_in              := memoryIMemIO.mem_out
+  io.ready               := memoryIMemIO.access_in.ready
+  memoryIMemIO.access_in := io.access_out
+ 
+  // Per the ready/valid interface spec
+  when (io.valid && io.ready) {
+    val request = Wire(new Request())
+    request := DontCare
+    request.address   := io.address
+    request.operation := read
+    request.maskmode  := 2.U
+    request.sext      := false.B
+
+    io.access_out.bits  := request
+    io.access_out.valid := true.B
+  }
+
+  // When the memory is outputting a valid instruction
+  when (io.mem_in.valid) {
+    io.instruction := io.mem_in.bits
+  }
+}
+
+/**
+ * The data memory accessor.
+ *
+ * The I/O for this module is defined in [[DMemAccessIOio.access_out.bits  := request
+    io.access_out.valid := true.B]].
+ */
+class DMemAccess(memoryDMemIO: AsyncMemIO) extends Module {
+  val io = IO (new DMemAccessIO)
+  io := DontCare
+
+  // Connect supplied IO bundle to this accessor
+  io.mem_in              := memoryDMemIO.mem_out
+  io.ready               := memoryDMemIO.access_in.ready
+  memoryDMemIO.access_in := io.access_out
+  
+  // Per the ready/valid interface spec
+  when (io.valid && io.ready && io.memread != io.memwrite) {
+    val request = WireInit (new Request)
+    request.address   := io.address
+
+    when (io.memread) {
+      request.operation := read
+    } .otherwise {
+      request.operation := write
+    }
+
+    request.maskmode := io.maskmode
+    request.sext     := io.sext
+
+    io.access_out.bits  := request
+    io.access_out.valid := true.B
+  }
+
+  // Perform masking and sign extension on read data when memory is outputting it
+  when (io.mem_in.valid && io.memread) {
+    val readdata_mask      = Wire(UInt(32.W))
+    val readdata_mask_sext = Wire(UInt(32.W))
+
+    when (io.maskmode === 0.U) {
+      readdata_mask := io.mem_in.bits & 0xff.U
+    } .elsewhen (io.maskmode === 1.U) {
+      readdata_mask := io.mem_in.bits & 0xffff.U
+    } .otherwise {
+      readdata_mask := io.mem_in.bits
+    }
+
+    when (io.sext) {
+      when (io.maskmode === 0.U) {
+        readdata_mask_sext := Cat(Fill(24, readdata_mask(7)),  readdata_mask(7, 0))
+      } .elsewhen (io.maskmode === 1.U) {
+        readdata_mask_sext := Cat(Fill(26, readdata_mask(15)), readdata_mask(15,0))
+      } .otherwise {
+        readdata_mask_sext := readdata_mask
+      }
+    } .otherwise {
+      readdata_mask_sext := readdata_mask
+    }
+
+    io.readdata := readdata_mask_sext
+  }
 }
 
 
 /**
- * The modified asynchronous form of the dual ported memory module declared above. 
+ * The modified asynchronous form of the dual ported memory module. 
  * When io.imem.ready, io.dmem.memread, or io.dmem.memwrite is true, this memory module simulates the latency of 
- * real DRAM by waiting for a configurable number of cycles. After this amount of time elapses, 
- * it performs its normal operation and indicates that the requested output is now valid for reading
- * 
+ * real DRAM by pushing memory accesses into pipes that delay the request for a configurable latency.
+ *
  * As with the synced memory module, this memory should only be instantiated in the Top file,
  * and never within the actual CPU.
  *
- * The I/O for this module is defined in [[AsyncIMemIO]] and [[AsyncDMemIO]].
+ * The I/O for this module is defined in [[AsyncMemIO]].
  */
 class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Module {
   val io = IO(new Bundle {
-    val imem = new AsyncIMemIO
-    val dmem = new AsyncDMemIO
+    val imem = new AsyncMemIO
+    val dmem = new AsyncMemIO
   })
-  io.imem.valid := false.B
-  io.dmem.valid := false.B
+
   io := DontCare
 
   val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
 
-  // Two values are used to represent whether the memory is being delayed - the increment wire, which is actually responsible for incrementing delayCounter,
-  // and storedIO.delaying, which is used to probe the contents of increment (delayed by 1 cycle).
-  //
-  // It's impossible to use increment in the below when statements as this results in a combinational loop, and the register value can't be used or else the
-  // memory would take 1 cycle longer at the beginning, as it would take 2 clock cycles to increment from 0 to 1 initially.
-  val increment = Wire(Bool())
-  increment := DontCare
-  val storedIO = RegInit (0.U.asTypeOf(new AsyncStoredIO))
-  val (delayCounter, delayWrap) = Counter (increment, latency) 
+  val imemPipe  = Pipe(Valid(new Request), latency)
+  val dmemPipe  = Pipe(Valid(new Request), latency)
 
-  val del = storedIO.delaying
-
-  when (~storedIO.delaying && (io.imem.ready || io.dmem.memread || io.dmem.memwrite)) {
-    // Store the inputs into the storing register and initiate the delay
-    increment := true.B
-    when (io.imem.ready) { 
-      storedIO.address   := io.imem.address
-      storedIO.operation := 0.U
-    } .elsewhen (io.dmem.memread) { 
-      storedIO.address   := io.dmem.address
-      storedIO.maskmode  := io.dmem.maskmode
-      storedIO.sext      := io.dmem.sext
-      storedIO.operation := 1.U
-    } .elsewhen (io.dmem.memwrite) { 
-      storedIO.address   := io.dmem.address
-      storedIO.writedata := io.dmem.writedata 
-      storedIO.maskmode  := io.dmem.maskmode
-      storedIO.sext      := io.dmem.sext
-      storedIO.operation := 2.U     
-    }
-  } .elsewhen (storedIO.delaying && delayCounter === (latency.U - 1.U)) {
-    // Execute the stored operation. This is mostly boilerplate from the normal memory module, aside from changes to use the stored inputs. 
-    increment := false.B
-    when (storedIO.operation === 0.U) {
-      when (storedIO.address >= size.U) {
-        io.imem.instruction := 0.U
-      } .otherwise {
-        io.imem.instruction := memory(storedIO.address >> 2)
-      }
-
-      io.imem.valid := true.B
-    } .elsewhen (storedIO.operation === 1.U) {
-      assert(storedIO.address < size.U)
-
-      val readdata = Wire(UInt(32.W))
-
-      when (storedIO.maskmode =/= 2.U) { // When not loading a whole word
-        val offset = storedIO.address(1,0)
-        readdata := memory(storedIO.address >> 2) >> (offset * 8.U)
-        when (storedIO.maskmode === 0.U) { // Reading a byte
-          readdata := memory(storedIO.address >> 2) & 0xff.U
-        } .otherwise {
-          readdata := memory(storedIO.address >> 2) & 0xffff.U
-        }
-      } .otherwise {
-        readdata := memory(storedIO.address >> 2)
-      }
-
-      when (storedIO.sext) {
-        when (storedIO.maskmode === 0.U) {
-          io.dmem.readdata := Cat(Fill(24, readdata(7)), readdata(7,0))
-        } .elsewhen (storedIO.maskmode === 1.U) {
-          io.dmem.readdata := Cat(Fill(16, readdata(15)), readdata(15,0))
-        } .otherwise {
-          io.dmem.readdata := readdata
-        }
-      } .otherwise {
-        io.dmem.readdata := readdata
-      }
-
-      io.dmem.valid := true.B
-    } .elsewhen (storedIO.operation === 2.U) {
-      assert(storedIO.address < size.U)
-      when (storedIO.maskmode =/= 2.U) { // When not storing a whole word
-        val offset = storedIO.address(1,0)
-        // first read the data since we are only overwriting part of it
-        val readdata = Wire(UInt(32.W))
-        readdata := memory(storedIO.address >> 2)
-        // mask off the part we're writing
-        val data = Wire(UInt(32.W))
-        when (storedIO.maskmode === 0.U) { // Reading a byte
-          data := readdata & ~(0xff.U << (offset * 8.U))
-        } .otherwise {
-          data := readdata & ~(0xffff.U << (offset * 8.U))
-        }
-        memory(storedIO.address >> 2) := data | (storedIO.writedata << (offset * 8.U))
-      } .otherwise {
-        memory(storedIO.address >> 2) := storedIO.writedata
-      }
-      
-      io.dmem.valid := true.B 
-    }
-    
-    // Reset counter
-    delayCounter := 0.U
-  } .otherwise {
-    // The memory module is either idling or delaying, in which case we want to maintain the value of increment
-    increment := storedIO.delaying
-  }
-  storedIO.delaying := increment
 }
