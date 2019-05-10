@@ -368,7 +368,17 @@ object InstTests {
                 Map("single-cycle" -> 2, "five-cycle" -> 0, "pipelined" -> 7),
                 Map(5 -> BigInt("ffffffff", 16), 10 -> 5),
 								Map(5 -> 1, 10 -> 6),
-								Map(), Map())
+								Map(), Map()),
+		CPUTestCase("swfwd1",
+			Map("single-cycle" -> 7, "five-cycle" -> 0, "pipelined" -> 11),
+			Map(5 -> 0, 7->1234),
+			Map(5 -> 1234, 6 -> 1234, 7->1234),
+			Map(), Map(0x100 -> 1234)),
+		CPUTestCase("swfwd2",
+			Map("single-cycle" -> 8, "five-cycle" -> 0, "pipelined" -> 12),
+			Map(5 -> 0, 7->1234),
+			Map(5 -> 1234, 6 -> 1234, 7->1234),
+			Map(), Map(0x100 -> 1234))
 	)
 
   val utype = List[CPUTestCase](
