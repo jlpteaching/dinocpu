@@ -101,7 +101,7 @@ To run tests in a specific environment prepend the environment name and `/` befo
 As an example, to run the Lab 1 tests:
 
 ```
-dinocpu:sbt> Lab1 / Test
+dinocpu:sbt> Lab1 / test
 ```
 
 ### Running a single test
