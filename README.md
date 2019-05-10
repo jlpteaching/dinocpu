@@ -196,7 +196,7 @@ _start:
 .byte 0xFF,0xFF,0xFF,0xFF
 ```
 
-### Step 0: Install Toolchain
+### STEP 0: Install Toolchain
 Visit https://riscv.org/software-tools/risc-v-gnu-compiler-toolchain/ to install the cross-compiler toolchain. Make sure to install the 32-bit version.
 
 ### STEP 1: Assemble
