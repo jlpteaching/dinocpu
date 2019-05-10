@@ -297,6 +297,19 @@ object InstTests {
 								Map(), Map(), "-True")
 	)
 
+	val branchMultiCycle = List[CPUTestCase](
+		CPUTestCase("beqfwd1",
+			Map("single-cycle" -> 5, "five-cycle" -> 0, "pipelined" -> 12),
+			Map(5 -> 1234, 6 -> 1, 28 -> 10, 29 -> 5678),
+			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678, 29 -> 5678),
+			Map(), Map()),
+		CPUTestCase("beqfwd2",
+			Map("single-cycle" -> 5, "five-cycle" -> 0, "pipelined" -> 12),
+			Map(5 -> 1234, 6 -> 1, 28 -> 10, 29 -> 5678),
+			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678, 29 -> 5678),
+			Map(), Map())
+	)
+
 	val memory = List[CPUTestCase](
 		CPUTestCase("lw1",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
@@ -472,6 +485,7 @@ object InstTests {
 		"itype" -> itype,
 		"itypeMultiCycle" -> itypeMultiCycle,
     "branch" -> branch,
+		"branchMultiCycle" -> branchMultiCycle,
     "memory" -> memory,
 		"memoryMultiCycle" -> memoryMultiCycle,
     "utype" -> utype,
@@ -480,7 +494,7 @@ object InstTests {
   )
 
 	// All of the tests
-	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++
+	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++ branchMultiCycle ++
 								 memory ++ memoryMultiCycle ++ utype ++ jump ++ smallApplications
 
 	// Mapping from full name of test to test
