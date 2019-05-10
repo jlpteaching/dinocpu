@@ -298,12 +298,12 @@ object InstTests {
 	)
 
 	val branchMultiCycle = List[CPUTestCase](
-		CPUTestCase("beqfw1",
+		CPUTestCase("beqfwd1",
 			Map("single-cycle" -> 5, "five-cycle" -> 0, "pipelined" -> 12),
 			Map(5 -> 1234, 6 -> 1, 28 -> 10, 29 -> 5678),
 			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678, 29 -> 5678),
 			Map(), Map()),
-		CPUTestCase("beqfw2",
+		CPUTestCase("beqfwd2",
 			Map("single-cycle" -> 5, "five-cycle" -> 0, "pipelined" -> 12),
 			Map(5 -> 1234, 6 -> 1, 28 -> 10, 29 -> 5678),
 			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678, 29 -> 5678),
