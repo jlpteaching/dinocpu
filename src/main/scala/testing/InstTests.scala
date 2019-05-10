@@ -299,12 +299,12 @@ object InstTests {
 
 	val branchMultiCycle = List[CPUTestCase](
 		CPUTestCase("beqfw1",
-			Map("single-cycle" -> 5, "five-cycle" -> 12, "pipelined" -> 12),
+			Map("single-cycle" -> 5, "five-cycle" -> 0, "pipelined" -> 12),
 			Map(5 -> 1234, 6 -> 1, 28 -> 10, 29 -> 5678),
 			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678, 29 -> 5678),
 			Map(), Map()),
 		CPUTestCase("beqfw2",
-			Map("single-cycle" -> 5, "five-cycle" -> 12, "pipelined" -> 12),
+			Map("single-cycle" -> 5, "five-cycle" -> 0, "pipelined" -> 12),
 			Map(5 -> 1234, 6 -> 1, 28 -> 10, 29 -> 5678),
 			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678, 29 -> 5678),
 			Map(), Map())
@@ -481,9 +481,9 @@ object InstTests {
   // Mapping from group name to list of tests
   val tests = Map(
     "rtype" -> rtype,
-    //"rtypeMultiCycle" -> rtypeMultiCycle,
+    "rtypeMultiCycle" -> rtypeMultiCycle,
 		"itype" -> itype,
-		//"itypeMultiCycle" -> itypeMultiCycle,
+		"itypeMultiCycle" -> itypeMultiCycle,
     "branch" -> branch,
 		"branchMultiCycle" -> branchMultiCycle,
     "memory" -> memory,
