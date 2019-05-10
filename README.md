@@ -101,7 +101,7 @@ To run tests in a specific environment prepend the environment name and `/` befo
 As an example, to run the Lab 1 tests:
 
 ```
-dinocpu:sbt> Lab1 / Test
+dinocpu:sbt> Lab1 / test
 ```
 
 ### Running a single test
@@ -195,6 +195,9 @@ _start:
   .data
 .byte 0xFF,0xFF,0xFF,0xFF
 ```
+
+### STEP 0: Install Toolchain
+Visit https://riscv.org/software-tools/risc-v-gnu-compiler-toolchain/ to install the cross-compiler toolchain. Make sure to install the 32-bit version.
 
 ### STEP 1: Assemble
 
