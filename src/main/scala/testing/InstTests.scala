@@ -299,25 +299,15 @@ object InstTests {
 
 	val branchMultiCycle = List[CPUTestCase](
 		CPUTestCase("beqfw1",
-			Map("single-cycle" -> 4, "five-cycle" -> 11, "pipelined" -> 11),
-			Map(5 -> 1234, 6 -> 1, 7 -> 5678, 29 -> 5678),
-			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 29 -> 5678),
-			Map(), Map(),"-True"),
+			Map("single-cycle" -> 5, "five-cycle" -> 12, "pipelined" -> 12),
+			Map(5 -> 1234, 6 -> 1, 28 -> 10, 29 -> 5678),
+			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678, 29 -> 5678),
+			Map(), Map()),
 		CPUTestCase("beqfw2",
 			Map("single-cycle" -> 5, "five-cycle" -> 12, "pipelined" -> 12),
-			Map(5 -> 1234, 6 -> 1, 7 -> 5678, 29 -> 5678),
-			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 29 -> 5678),
-			Map(), Map(),"-True"),
-		CPUTestCase("beqfw1",
-			Map("single-cycle" -> 3, "five-cycle" -> 10, "pipelined" -> 10),
-			Map(5 -> 1234, 6 -> 1, 7 -> 5678, 29 -> 34),
-			Map(5 -> 0, 6 -> 1, 7 -> 5678, 29 -> 34),
-			Map(), Map(),"-False"),
-		CPUTestCase("beqfw2",
-			Map("single-cycle" -> 3, "five-cycle" -> 11, "pipelined" -> 11),
-			Map(5 -> 1234, 6 -> 1, 7 -> 5678, 29 -> 34),
-			Map(5 -> 0, 6 -> 1, 7 -> 5678, 29 -> 34),
-			Map(), Map(),"-False"),
+			Map(5 -> 1234, 6 -> 1, 28 -> 10, 29 -> 5678),
+			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 28 -> 5678, 29 -> 5678),
+			Map(), Map())
 	)
 
 	val memory = List[CPUTestCase](
@@ -491,9 +481,9 @@ object InstTests {
   // Mapping from group name to list of tests
   val tests = Map(
     "rtype" -> rtype,
-    "rtypeMultiCycle" -> rtypeMultiCycle,
+    //"rtypeMultiCycle" -> rtypeMultiCycle,
 		"itype" -> itype,
-		"itypeMultiCycle" -> itypeMultiCycle,
+		//"itypeMultiCycle" -> itypeMultiCycle,
     "branch" -> branch,
 		"branchMultiCycle" -> branchMultiCycle,
     "memory" -> memory,
@@ -504,7 +494,7 @@ object InstTests {
   )
 
 	// All of the tests
-	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++
+	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++ branchMultiCycle ++
 								 memory ++ memoryMultiCycle ++ utype ++ jump ++ smallApplications
 
 	// Mapping from full name of test to test
