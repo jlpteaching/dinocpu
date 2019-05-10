@@ -297,6 +297,29 @@ object InstTests {
 								Map(), Map(), "-True")
 	)
 
+	val branchMultiCycle = List[CPUTestCase](
+		CPUTestCase("beqfw1",
+			Map("single-cycle" -> 4, "five-cycle" -> 11, "pipelined" -> 11),
+			Map(5 -> 1234, 6 -> 1, 7 -> 5678, 29 -> 5678),
+			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 29 -> 5678),
+			Map(), Map(),"-True"),
+		CPUTestCase("beqfw2",
+			Map("single-cycle" -> 5, "five-cycle" -> 12, "pipelined" -> 12),
+			Map(5 -> 1234, 6 -> 1, 7 -> 5678, 29 -> 5678),
+			Map(5 -> 1235, 6 -> 1, 7 -> 5678, 29 -> 5678),
+			Map(), Map(),"-True"),
+		CPUTestCase("beqfw1",
+			Map("single-cycle" -> 3, "five-cycle" -> 10, "pipelined" -> 10),
+			Map(5 -> 1234, 6 -> 1, 7 -> 5678, 29 -> 34),
+			Map(5 -> 0, 6 -> 1, 7 -> 5678, 29 -> 34),
+			Map(), Map(),"-False"),
+		CPUTestCase("beqfw2",
+			Map("single-cycle" -> 3, "five-cycle" -> 11, "pipelined" -> 11),
+			Map(5 -> 1234, 6 -> 1, 7 -> 5678, 29 -> 34),
+			Map(5 -> 0, 6 -> 1, 7 -> 5678, 29 -> 34),
+			Map(), Map(),"-False"),
+	)
+
 	val memory = List[CPUTestCase](
 		CPUTestCase("lw1",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
@@ -472,6 +495,7 @@ object InstTests {
 		"itype" -> itype,
 		"itypeMultiCycle" -> itypeMultiCycle,
     "branch" -> branch,
+		"branchMultiCycle" -> branchMultiCycle,
     "memory" -> memory,
 		"memoryMultiCycle" -> memoryMultiCycle,
     "utype" -> utype,
