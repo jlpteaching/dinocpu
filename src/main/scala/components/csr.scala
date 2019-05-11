@@ -238,7 +238,8 @@ class CSRRegFileIO extends Bundle{
     val write_illegal = Output(Bool())
     val system_illegal = Output(Bool())
   }
-
+  
+  val regwrite = Output(Bool())
   val status = Output(new MStatus())//not needed in this design but useful if more ISA extensions
   val evec = Output(UInt(32.W)) //
   val exception = Input(Bool())  // rename to illgl inst
@@ -254,6 +255,7 @@ class CSRRegFile extends Module{
 
   val reset_mstatus = WireInit(0.U.asTypeOf(new MStatus()))
   reset_mstatus.mpp := MCSRCmd.MPRV//machine mode
+  reset_mstatus.mie := true.B//machine mode
 
   val reg_mstatus = RegInit(reset_mstatus)
   val reg_mepc = Reg(UInt(32.W))
@@ -303,29 +305,53 @@ class CSRRegFile extends Module{
   read_mapping += MCSRs.minstreth -> 0.U
   
   //CSR DECODE
-  val cmd = if( io.decode.inst(6, 0) == ("b1110011".U) ) {
-    if( (io.decode.inst(19, 15) == ("b011".U)) ||  (io.decode.inst(19, 15) == ("b111".U)) ){
-      MCSRCmd.clear //CSRRC{i} 
-    }else if( (io.decode.inst(19, 15) == ("b010".U)) ||  (io.decode.inst(19, 15) == ("b110".U)) ){
-      MCSRCmd.set //CSRRS{i}
-    }else if( (io.decode.inst(19, 15) == ("b001".U)) ||  (io.decode.inst(19, 15) == ("b101".U)) ){
-      MCSRCmd.write //CSRRW{i}
-    }else if( (io.decode.inst(19, 15) == ("b000".U)) ) {
-      MCSRCmd.interrupt //ebreak, ecall
+  val cmd = WireInit(3.U(3.W))
+  
+  when( io.decode.inst(6, 0) === ("b1110011".U)){
+    switch(io.decode.inst(14, 12)){
+      is("b011".U){
+        cmd := MCSRCmd.clear
+        io.regwrite := true.B
+      }
+      is("b111".U){
+        cmd := MCSRCmd.clear
+        io.regwrite := true.B
+      } 
+      is("b010".U){
+        cmd := MCSRCmd.set
+        io.regwrite := true.B
+      }
+      is("b110".U){
+        cmd := MCSRCmd.set
+        io.regwrite := true.B
+      }
+      is("b001".U){
+        cmd := MCSRCmd.write
+        io.regwrite := true.B
+      }
+      is("b101".U){
+        cmd := MCSRCmd.write
+        io.regwrite := false.B
+      }
+      is("b000".U){
+        cmd := MCSRCmd.interrupt
+        io.regwrite := false.B
+      }
     }
-  }else{
-    MCSRCmd.nop
+  }.otherwise{
+    cmd := MCSRCmd.nop
+    io.regwrite := false.B
   }
   
   val csr = io.decode.inst(MCSRCmd.MSB, MCSRCmd.LSB)
-  val system_insn = cmd == MCSRCmd.interrupt
-  val cpu_ren = cmd != MCSRCmd.nop && !system_insn
+  val system_insn = cmd === MCSRCmd.interrupt
+  val cpu_ren = cmd =/= MCSRCmd.nop && !system_insn
 
 
   val decoded_addr = read_mapping map { case (k, v) => k -> (csr === k) }
   val priv_sufficient = MCSRCmd.MPRV >= csr(9,8)
   val read_only = csr(11,10).andR
-  val cpu_wen = cpu_ren && cmd != MCSRCmd.read && priv_sufficient
+  val cpu_wen = cpu_ren && cmd =/= MCSRCmd.read && priv_sufficient
   val wen = cpu_wen && !read_only
   val wdata = readModifyWriteCSR(cmd.asInstanceOf[UInt], io.rw.rdata, io.rw.wdata)
 
@@ -352,7 +378,7 @@ class CSRRegFile extends Module{
     reg_mepc := io.pc // misaligned memory exceptions not supported...
   }
 
-  assert(PopCount(insn_ret :: io.exception :: Nil) <= 1, "these conditions must be mutually exclusive")
+  //assert(PopCount(insn_ret :: io.exception :: Nil) <= 1, "these conditions must be mutually exclusive")
 
    when (reg_time >= reg_mtimecmp) {
       reg_mip.mtix := true
