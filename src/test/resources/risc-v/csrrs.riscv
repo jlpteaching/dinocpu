@@ -2,6 +2,7 @@
   .align 2      # Make sure we're aligned to 4 bytes
   .globl _start
 _start:
+    addi t1, x0, 0x18 #set mpie to 1 and attempt to set spp (should stay false)
     csrrs t0, mstatus, t1 
     
     nop
@@ -9,4 +10,5 @@ _start:
     nop
     nop
     nop
+    add t0, x0, t0
 _last:
