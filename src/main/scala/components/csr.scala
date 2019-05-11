@@ -256,6 +256,7 @@ class CSRRegFile extends Module{
   val reset_mstatus = WireInit(0.U.asTypeOf(new MStatus()))
   reset_mstatus.mpp := MCSRCmd.MPRV//machine mode
   reset_mstatus.mie := true.B//machine mode
+  reset_mstatus.mie := true.B//machine mode
 
   val reg_mstatus = RegInit(reset_mstatus)
   val reg_mepc = Reg(UInt(32.W))
@@ -331,7 +332,7 @@ class CSRRegFile extends Module{
       }
       is("b101".U){
         cmd := MCSRCmd.write
-        io.regwrite := false.B
+        io.regwrite := true.B
       }
       is("b000".U){
         cmd := MCSRCmd.interrupt
