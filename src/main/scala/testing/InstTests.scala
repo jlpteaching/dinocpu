@@ -569,7 +569,14 @@ object InstTests {
 								Map(), Map(),
                 Map(),
                 Map(),
+                Map(), Map()),
+    CPUTestCase("mret",
+                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
                 Map(), Map())
+
   )
 
 	val smallApplications = List[CPUTestCase](
