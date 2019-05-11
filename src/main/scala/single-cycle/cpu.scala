@@ -44,7 +44,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   registers.io.readreg2 := instruction(24,20)
 
   registers.io.writereg := instruction(11,7)
-  registers.io.wen      := control.io.regwrite && (registers.io.writereg =/= 0.U)
+  registers.io.wen      := (control.io.regwrite || csr.io.regwrite) && (registers.io.writereg =/= 0.U)
 
   aluControl.io.add       := control.io.add
   aluControl.io.immediate := control.io.immediate
@@ -83,7 +83,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   //WRITEBACK
   csr.io.decode.inst := instruction 
   csr.io.decode.immid := imm
-  csr.io.rw.wdata := registers.io.readdata2
+  csr.io.rw.wdata := registers.io.readdata1
 
 
   csr.io.retire := true.B //mem is synchronous in this deisgn. no flushing as far as i'm aware
@@ -98,6 +98,8 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
     write_data := io.dmem.readdata
   } .elsewhen (control.io.toreg === 2.U) {
     write_data := pcPlusFour.io.result
+  } .elsewhen (control.io.toreg === 3.U) {
+    write_data := csr.io.rw.rdata
   } .otherwise {
     write_data := alu.io.result
   }
