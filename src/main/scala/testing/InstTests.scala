@@ -387,20 +387,10 @@ object InstTests {
                 Map(10 -> 1234),
 								Map(10 -> 0),
 								Map(), Map()),
-		CPUTestCase("auipc1",
-                Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
-                Map(10 -> 1234),
-								Map(10 -> 4),
-								Map(), Map()),
 		CPUTestCase("auipc2",
                 Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
                 Map(10 -> 1234),
 								Map(10 -> (17 << 12)),
-								Map(), Map()),
-		CPUTestCase("auipc3",
-                Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
-                Map(10 -> 1234),
-								Map(10 -> ((17 << 12) + 4)),
 								Map(), Map()),
 		CPUTestCase("lui0",
                 Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
@@ -413,6 +403,19 @@ object InstTests {
 								Map(10 -> 4096),
 								Map(), Map())
   )
+
+	val utypeMultiCycle = List[CPUTestCase](
+		CPUTestCase("auipc1",
+			Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
+			Map(10 -> 1234),
+			Map(10 -> 4),
+			Map(), Map()),
+		CPUTestCase("auipc3",
+			Map("single-cycle" -> 2, "five-cycle" -> 6, "pipelined" -> 6),
+			Map(10 -> 1234),
+			Map(10 -> ((17 << 12) + 4)),
+			Map(), Map())
+	)
 
   val jump = List[CPUTestCase](
     CPUTestCase("jal",
@@ -499,13 +502,14 @@ object InstTests {
     "memory" -> memory,
 		"memoryMultiCycle" -> memoryMultiCycle,
     "utype" -> utype,
+		"utypeMultiCycle" -> utypeMultiCycle,
     "jump" -> jump,
 		"smallApplications" -> smallApplications
   )
 
 	// All of the tests
 	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++ branchMultiCycle ++
-								 memory ++ memoryMultiCycle ++ utype ++ jump ++ smallApplications
+								 memory ++ memoryMultiCycle ++ utype ++ utypeMultiCycle ++ jump ++ smallApplications
 
 	// Mapping from full name of test to test
 	val nameMap = (allTests ++ fullApplications).map(x => x.name() -> x).toMap
