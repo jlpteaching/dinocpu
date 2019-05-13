@@ -32,7 +32,8 @@ scalaVersion := "2.12.6"
 crossScalaVersions := Seq("2.12.6", "2.11.12")
 
 resolvers ++= Seq(
-  Resolver.sonatypeRepo("releases")
+  Resolver.sonatypeRepo("releases"),
+  Resolver.sonatypeRepo("snapshots")
 )
 
 // Note: This will only work inside the sigularity container built with the chisel.def file.
