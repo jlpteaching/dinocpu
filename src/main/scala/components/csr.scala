@@ -378,6 +378,25 @@ class CSRRegFile extends Module{
     io.evec := "h80000004".U
     reg_mepc := io.pc // misaligned memory exceptions not supported...
   }
+ 
+  //MISALIGNED MEM ACCESS
+  /*
+  when (io.???) { //fetchexcept?
+    reg_mcause.interrupt := MCauses.misaligned_fetch & "h80000000".U
+    reg_mcause.exceptioncode := MCauses.misaligned_fetch & "h7fffffff".U
+    io.evec := "h80000004".U
+    reg_mepc := ??? 
+  }.elsewhen (io.???){ ///loadexception?
+    reg_mcause.interrupt := MCauses.misaligned_load & "h80000000".U
+    reg_mcause.exceptioncode := MCauses.misaligned_load & "h7fffffff".U
+    io.evec := "h80000004".U
+    reg_mepc := ??? 
+  }.elsewhen(io.???){ //storeexception?
+    reg_mcause.interrupt := MCauses.misaligned_store & "h80000000".U
+    reg_mcause.exceptioncode := MCauses.misaligned_store & "h7fffffff".U
+    io.evec := "h80000004".U
+    reg_mepc := ??? 
+  }*/
 
   //assert(PopCount(insn_ret :: io.exception :: Nil) <= 1, "these conditions must be mutually exclusive")
 
