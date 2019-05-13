@@ -31,6 +31,11 @@ organization := "edu.ucdavis.cs"
 scalaVersion := "2.12.6"
 crossScalaVersions := Seq("2.12.6", "2.11.12")
 
+// Use Chisel 3.2 snapshots
+// Note: When Chisel 3.2 is released we can remove this.
+// If you experience strange issues  it may be that the chisel dependencies are out of sync with one another
+// you can use the ./build_install_deps script to build a known-good set of dependencies and use the "local-repo"
+// resolver below instead of the snapshot one (remove Resolver.sonatypeRepo("snapshots"))
 resolvers ++= Seq(
   Resolver.sonatypeRepo("releases"),
   Resolver.sonatypeRepo("snapshots")
