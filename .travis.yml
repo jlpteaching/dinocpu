@@ -16,6 +16,6 @@ before_cache:
   - find $HOME/.sbt        -name "*.lock"               -print -delete
 
 script:
-  - sbt coverage test coverageReport >/dev/null
+  - sbt coverage test coverageReport
 after_success:
   - sbt coveralls
