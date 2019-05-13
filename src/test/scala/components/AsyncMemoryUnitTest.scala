@@ -120,7 +120,12 @@ class AsyncMemoryUnitTester$IMemWrite(m: AsyncMemoryTestHarness, size: Int, late
     poke(m.io.dmem_sext, 0)
     poke(m.io.dmem_writedata, i+100)
 
-    step(latency)
+    step(1)
+    expect(m.io.dmem_ready, 0)
+    step(latency - 1)
+    // We wait 1 extra cycle for the data memory to send the write back
+    expect(m.io.dmem_ready, 0)
+    step(1)
 
     expect(m.io.dmem_ready, 1)
   }
@@ -131,7 +136,7 @@ class AsyncMemoryUnitTester$IMemWrite(m: AsyncMemoryTestHarness, size: Int, late
   // expect ascending bytes, the first size/8 of them being incremented by 100, on instruction port
   for (i <- 0 until size/4) {
     poke(m.io.imem_address, i*4)
-    poke(m.io.imem_ready, 1)
+    poke(m.io.imem_valid, 1)
     
     step(1)
     // Check that memory correctly goes busy after initiating the request
@@ -191,42 +196,53 @@ class AsyncMemoryUnitTester$DMemRead(m: AsyncMemoryTestHarness, size: Int, laten
   }
 }
 
-/*
 // Test data port writes and data port reads
 class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
-  //  Write ascending data to memory through data port
+  expect(m.io.dmem_ready, 1)
+  // write ascending data to memory 
   for (i <- 0 until size/8) {
-    poke(m.io.dmem.address, i*4)
-    poke(m.io.dmem.memwrite, 1)
-    poke(m.io.dmem.maskmode, 2)
-    poke(m.io.dmem.sext, 0)
-    poke(m.io.dmem.writedata, i+100)
-    
-    step(latency)
+    poke(m.io.dmem_address, i*4)
+    poke(m.io.dmem_valid, 1)
+    poke(m.io.dmem_memwrite, 1)
+    poke(m.io.dmem_maskmode, 2)
+    poke(m.io.dmem_sext, 0)
+    poke(m.io.dmem_writedata, i+100)
 
-    expect(m.io.dmem.valid, 1)
+    step(1)
+    expect(m.io.dmem_ready, 0)
+    step(latency - 1)
+    // We wait 1 extra cycle for the data memory to send the write back
+    expect(m.io.dmem_ready, 0)
+    step(1)
+
+    expect(m.io.dmem_ready, 1)
   }
 
-  poke (m.io.dmem.memwrite, 0)
+  poke (m.io.dmem_memwrite, 0)
+  poke (m.io.dmem_valid, 0)
 
-  // Expect ascending bytes on data port
+  // expect ascending bytes, the first size/8 of them being incremented by 100, on instruction port
   for (i <- 0 until size/4) {
-    poke(m.io.dmem.address, i*4)
-    poke(m.io.dmem.memread, 1)
-    poke(m.io.dmem.maskmode, 2)
-    poke(m.io.dmem.sext, 0)
+    poke(m.io.dmem_address, i*4)
+    poke(m.io.dmem_valid, 1)
+    poke(m.io.dmem_memread, 1)
+    poke(m.io.dmem_maskmode, 2)
+    poke(m.io.dmem_sext, 0)
     
-    step(latency)
-   
-    expect(m.io.dmem.valid, 1)
+    step(1)
+    // Check that memory correctly goes busy after initiating the request
+    expect(m.io.dmem_ready, 0)
+    step(latency - 1)
+  
     if (i < size/8) {
-      expect(m.io.dmem.readdata, i+100)
+      expect(m.io.dmem_readdata, i+100)
     } else {
-      expect(m.io.dmem.readdata, i)
+      expect(m.io.dmem_readdata, i)
     }
+    expect(m.io.dmem_ready, 1)
   }
 }
-*/
+
 
 /**
   * Tests the async memory system using treadle, and (optionally) verilator.
@@ -273,10 +289,10 @@ class AsyncMemoryTester extends ChiselFlatSpec {
       m => new AsyncMemoryUnitTester$DMemRead(m, 2048, latency)
     } should be (true)
   }
-  /*
+  
   "DualPortedAsyncMemory" should s"store words with data port and load with data port (with treadle and $latency latency cycles)" in {
     Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$DMemWrite(m, 2048, latency)
     } should be (true)
-  }*/
+  }
 }

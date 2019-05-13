@@ -19,9 +19,9 @@ import MemoryOperation._
 
 // A Bundle used for representing a memory access by instruction memory or data memory.
 class Request extends Bundle {  
-  val address   = UInt(32.W)
-  val writedata = UInt(32.W)
-  val operation = UInt(1.W)
+  val address      = UInt(32.W)
+  val writedata    = UInt(32.W)
+  val operation    = UInt(1.W)
 }
 
 // A Bundle used for temporarily storing the necessary information for a write in the data memory accessor.
@@ -122,8 +122,8 @@ class IMemAccess extends Module {
   when (io.valid && io.request.ready) {
     val request = Wire(new Request())
     request := DontCare
-    request.address   := io.address
-    request.operation := Read
+    request.address      := io.address
+    request.operation    := Read
 
     io.request.bits  := request
     io.request.valid := true.B
@@ -146,20 +146,20 @@ class DMemAccess extends Module {
   val io = IO (new DMemAccessIO)
   io := DontCare
   io.request.valid  := false.B
-  io.ready          := io.request.ready
 
   val storedWrite = RegInit(0.U.asTypeOf(Valid(new PartialWrite)))
+  val memReallyReady = io.request.ready && !storedWrite.valid
+  io.ready := memReallyReady
 
-  // Per the ready/valid interface spec
-  when (io.valid && io.request.ready && io.memread =/= io.memwrite) {
-    printf("Dmem module is now outputting a request!\n")
+  // When the backing memory is ready and the CPU is supplying a valid read OR write request, send out the request
+  // on the condition that there isn't a stored write in the queue.
+  // We need to process stored writes first to guarantee atomicity of the memory write operation
+
+  when (io.valid && memReallyReady && io.memread =/= io.memwrite) {
     val request = Wire (new Request)
     request.address   := io.address
     request.writedata := 0.U
     request.operation := Read
-
-    io.request.bits  := request
-    io.request.valid := true.B
 
     when (io.memwrite) {
       val partialWrite = Wire(new PartialWrite) 
@@ -168,14 +168,16 @@ class DMemAccess extends Module {
       partialWrite.maskmode  := io.maskmode
       storedWrite.valid := true.B
       storedWrite.bits  := partialWrite
-      printf ("Write requested.\n")
     }
+    
+    io.request.bits  := request
+    io.request.valid := true.B
   } .otherwise {
     io.request.valid := false.B
   }
 
   when (io.response.valid) {
-    when (storedWrite.valid) { 
+    when (storedWrite.valid && io.request.ready) {
       val writedata = Wire (UInt (32.W))
 
       // When not writing a whole word
@@ -305,7 +307,7 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
   dmemPipe.io.enq.valid := false.B
 
   io.dmem.request.ready := !dmemBusy
-  when (!dmemBusy && io.dmem.request.valid) {
+  when (io.dmem.request.valid) {
     // Put the Request into the data pipe and signal that data memory is busy 
     val inRequest = io.dmem.request.asTypeOf (new Request)
     dmemPipe.io.enq.bits  := inRequest
@@ -324,17 +326,11 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
     assert (outRequest.address < size.U)
     
     when (outRequest.operation === Read) {
-      printf("  Executing data read.\n")
-
       io.dmem.response.valid := true.B
       io.dmem.response.bits  := memory(address)
-    } .elsewhen (outRequest.operation === Write) {  
-      printf("  Executing data write.\n")
-      memory(address) := outRequest.writedata
-    }
-    // Signal that data memory is idling as we're done
-    when (dmemBusy) {
       dmemBusy := false.B
+    } .elsewhen (outRequest.operation === Write) {  
+      memory(address) := outRequest.writedata
     }
   }
 }
