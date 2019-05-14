@@ -46,7 +46,7 @@ class MemPortIO(val blockwidth: Int) extends Bundle {
   val ready    = Output(Bool())
 
   // Port <=> Memory 
-  val response = Flipped(Valid(UInt(blockwidth.W)))
+  val response = Flipped(Valid(new Response(blockwidth)))
   val request  = Decoupled(new Request(blockwidth))
 }
 
@@ -113,7 +113,7 @@ class IMemPort(val blockwidth: Int) extends Module {
 
   // When the memory is outputting a valid instruction
   when (io.response.valid) {
-    io.instruction := io.response.bits
+    io.instruction := io.response.bits.data
   }
 }
 
@@ -163,13 +163,13 @@ class DMemPort(val blockwidth: Int) extends Module {
         // Read in the existing piece of data at the address, so we "overwrite" only part of it
         val offset = storedWrite.bits.address (1, 0)
         val readdata = Wire (UInt (blockwidth.W))
-        readdata := io.response.bits
+        readdata := io.response.bits.data
         val data = Wire (UInt (blockwidth.W))
         // Mask the portion of the existing data so it can be or'd with the writedata
         when (storedWrite.bits.maskmode === 0.U) {
-          data := io.response.bits & ~(0xff.U << (offset * 8.U))
+          data := io.response.bits.data & ~(0xff.U << (offset * 8.U))
         } .otherwise {
-          data := io.response.bits & ~(0xffff.U << (offset * 8.U))
+          data := io.response.bits.data & ~(0xffff.U << (offset * 8.U))
         }
         writedata := data | (storedWrite.bits.writedata << (offset * 8.U))
       } .otherwise {
@@ -192,16 +192,17 @@ class DMemPort(val blockwidth: Int) extends Module {
       val readdata_mask      = Wire(UInt(blockwidth.W))
       val readdata_mask_sext = Wire(UInt(blockwidth.W))
 
+      // TODO: This code only works with 32-wide words; I'm not sure how it would generalize
+      // for arbitrary word sizes
+      val offset = io.response.bits.address (1,0)
       when (io.maskmode === 0.U) {
         // Byte
-        readdata_mask := io.response.bits & 0xff.U
+        readdata_mask := (io.response.bits.data >> (offset * 8.U)) & 0xff.U
       } .elsewhen (io.maskmode === 1.U) {
         // Half-word
-        // Generate the mask corresponding with a half word
-        val halfword_mask = Cat(Fill(blockwidth / 2, 0.U), Fill(blockwidth / 2, 1.U))
-        readdata_mask := io.response.bits & halfword_mask
+        readdata_mask := (io.response.bits.data >> (offset * 8.U)) & 0xffff.U
       } .otherwise {
-        readdata_mask := io.response.bits
+        readdata_mask := io.response.bits.data
       }
 
       when (io.sext) {

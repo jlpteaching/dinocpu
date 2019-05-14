@@ -26,6 +26,12 @@ class Request(val blockwidth: Int) extends Bundle {
   val operation    = UInt(1.W)
 }
 
+// A bundle used for representing the memory's response to a memory port.
+class Response(val blockwidth: Int) extends Bundle {
+  val address      = UInt(32.W)
+  val data         = UInt(blockwidth.W)
+}
+
 /** 
  * The generic interface for communication between the IMem/DMemPort modules and the backing memory.
  *
@@ -37,8 +43,8 @@ class Request(val blockwidth: Int) extends Bundle {
  *         the bits in response.bits should only be treated as valid data when response.valid is high.
  */
 class AsyncMemIO(val blockwidth: Int) extends Bundle {
-  val request  = Flipped(Decoupled (new Request(blockwidth)))
-  val response = Valid (UInt (blockwidth.W))
+  val request  = Flipped(Decoupled (new Request (blockwidth)))
+  val response = Valid (new Response (blockwidth))
 }
 
 /**
@@ -89,8 +95,9 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockw
     assert(imemBusy)
     assert(imemPipe.io.deq.bits.operation === Read) 
     val outRequest = imemPipe.io.deq.asTypeOf (new Request(blockwidth))
-    io.imem.response.valid := true.B
-    io.imem.response.bits  := memory(outRequest.address >> 2)
+    io.imem.response.valid        := true.B
+    io.imem.response.bits.data    := memory(outRequest.address >> 2)
+    io.imem.response.bits.address := outRequest.address
     // Ignore instruction writes as there is no way imem can issue a write access to memory
     // Signal that instruction memory is idling as we're done
     
@@ -123,8 +130,9 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockw
     assert (outRequest.address < size.U)
     
     when (outRequest.operation === Read) {
-      io.dmem.response.valid := true.B
-      io.dmem.response.bits  := memory(address)
+      io.dmem.response.valid        := true.B
+      io.dmem.response.bits.data    := memory(address)
+      io.dmem.response.bits.address := outRequest.address
       dmemBusy := false.B
     } .elsewhen (outRequest.operation === Write) {  
       memory(address) := outRequest.writedata
