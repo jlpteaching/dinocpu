@@ -25,23 +25,6 @@ object MCauses {
   val misaligned_store = 0x6
   val store_access = 0x7
   val machine_ecall = 0xb
-  val all = {
-    val res = collection.mutable.ArrayBuffer[Int]()
-    res += machine_soft_int
-    res += machine_timer_int
-    res += machine_ext_int
-
-    res += misaligned_fetch
-    res += fetch_access
-    res += illegal_instruction
-    res += breakpoint
-    res += misaligned_load
-    res += load_access
-    res += misaligned_store
-    res += store_access
-    res += machine_ecall
-    res.toArray
-  }
 }
 
 object MCSRs {
@@ -76,30 +59,6 @@ object MCSRs {
   val minstreth = 0xb82
   //performance counter setup
   val mcounterinhibit = 0x320
-  val all = {
-    val res = collection.mutable.ArrayBuffer[Int]()
-    res += mstatus
-    res += misa
-    res += medeleg
-    res += mideleg
-    res += mie
-    res += mtvec
-    res += mscratch
-    res += mepc
-    res += mcause
-    res += mtval
-    res += mip
-    res += mcycle
-    res += minstret
-    res += mcycleh
-    res += minstreth
-    res += mvendorid
-    res += marchid
-    res += mhartid
-    res += mimpid
-    res += mcounterinhibit
-    res.toArray
-  }
 }
 
 class MStatus extends Bundle{
@@ -218,71 +177,82 @@ object MCSRCmd{
   val TRAPADDR = "h80000000".U
   val MPRV = 3
 }
- 
-
-//reorder bundles
-class CSRRegFileIO extends Bundle{
-  //val hartid = Input(UInt(32.W))
-  val rw = new Bundle {
-    val rdata = Output(UInt(32.W)) //
-    val wdata = Input(UInt(32.W)) //
-  }
-
-  val csr_stall = Output(Bool())//not needed in single cycle
-  val eret = Output(Bool())// change ret names
-
-  val decode = new Bundle {
-    val inst = Input(UInt(32.W)) //
-    val immid = Input(UInt(32.W)) //
-    val read_illegal = Output(Bool())
-    val write_illegal = Output(Bool())
-    val system_illegal = Output(Bool())
-  }
-  
-  val regwrite = Output(Bool())
-  val status = Output(new MStatus())//not needed in this design but useful if more ISA extensions
-  val evec = Output(UInt(32.W)) //
-  val exception = Input(Bool())  // rename to illgl inst
-  val retire = Input(Bool()) // rename to retire inst
-  val pc = Input(UInt(32.W)) //
-  val time = Output(UInt(32.W))//
-}
 
 class CSRRegFile extends Module{
   //INIT CSR
-  val io = IO(new CSRRegFileIO)
+  val io = IO(new Bundle{
+    val illegal_inst = Input(Bool())// 
+    val retire_inst = Input(Bool())// 
+    val pc = Input(UInt(32.W)) //
+    val read_data = Input(UInt(32.W)) //
+    val inst = Input(UInt(32.W)) //
+    val immid = Input(UInt(32.W)) //
+    
+    val read_illegal = Output(Bool())
+    val write_illegal = Output(Bool())
+    val system_illegal = Output(Bool())
+    val csr_stall = Output(Bool())//not needed in single cycle
+    val eret = Output(Bool())//return vector from a trap
+    val evec = Output(UInt(32.W)) //trap address
+    val write_data = Output(UInt(32.W)) //
+    val reg_write = Output(Bool())//
+    val status = Output(new MStatus())//not needed in this design but useful if more ISA extensions
+    val time = Output(UInt(32.W))//
+  })
   io := DontCare
 
   val reset_mstatus = WireInit(0.U.asTypeOf(new MStatus()))
   reset_mstatus.mpp := MCSRCmd.MPRV//machine mode
   reset_mstatus.mie := true.B//machine mode
-  reset_mstatus.mie := true.B//machine mode
 
+  //contains info about system interrupts and privlidge mode
   val reg_mstatus = RegInit(reset_mstatus)
+  //exception program counter, set when exception raised
   val reg_mepc = Reg(UInt(32.W))
+  //contains cause of exception
   val reg_mcause = RegInit(0.U.asTypeOf(new MCause()))
+  //register that can hold data to assist with exceptions/traps
   val reg_mtval = Reg(UInt(32.W))
+  //scratch register for trap handler, useful for switching between mode memory spaces
   val reg_mscratch = Reg(UInt(32.W))
+  //register used to set time for when timer interrupt should be raised
   val reg_mtimecmp = Reg(UInt(64.W))
+  //register to indicate if trap handler should go directly to a specifc modes' trap handler
+  //rather than trap to machine mode then swap context to a less privileged mode. used to save
+  //performance, our implementation does not implement hardware to do this.
   val reg_medeleg = Reg(UInt(32.W))
 
+  //indicates if we have a pending iterrupt for different interrupt types and modes
   val reg_mip = RegInit(0.U.asTypeOf(new MIx()))
+  //indicates which interrupts are enabled
   val reg_mie = RegInit(0.U.asTypeOf(new MIx()))
+  //used to halt cpu if WFI inst is seen, or can also just do nothing. This cpu doesn't
+  //implement WFI inst....yet
   val reg_wfi = RegInit(false.B)
+  //trap vector/address
   val reg_mtvec = RegInit(0.U.asTypeOf(new MTVec()))
-
+  //current cpu time given in cycles
   val reg_time = WideCounter(64)
-  val reg_instret = WideCounter(64, io.retire)
-
+  //number of instructions that have been completed
+  val reg_instret = WideCounter(64, io.retire_inst)
+  //performance counters, not implemented
   val reg_mcounterinhibit = RegInit(0.U.asTypeOf(new XCounterEnInhibit()))
+  //performance counter control
   val reg_mcounteren = RegInit(0.U.asTypeOf(new XCounterEnInhibit()))
-
+  //machine status, contains interrupt bits, and priviledge mode
   val read_mstatus = io.status.asUInt()
   val isa_string = "I"
-  val reg_misa = RegInit((BigInt(0) | isa_string.map(x => 1 << (x - 'A')).reduce(_|_)).U.asTypeOf(new MISA()))
+  //takes user defined ISA string character by character and calculates ascii number for each,
+  //aligns the result to be a multiple of 2 then ors the results together to fit into MISA
+  //this tells the system what extensions are implemented
+  //val reg_misa = RegInit((BigInt(0) | isa_string.map(x => 1 << (x - 'A')).reduce(_|_)).U.asTypeOf(new MISA()))
+  //same as above but hardcoded for only I extension
+  val reg_misa = RegInit(16.U.asTypeOf(new MISA()))
+  //if we are a company we can hardcode our implementation info here
   val reg_mvendorid = RegInit(0.U.asTypeOf(new MVendorID()))
 
-
+  //this hashmap associates CSR addresses to the actual register contents
+  //this is done to make decoding and working with csr's easier (avoid manual specification)
   val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
     MCSRs.mcounterinhibit -> reg_mcounterinhibit.asUInt, 
     MCSRs.mcycle -> reg_time,
@@ -300,103 +270,88 @@ class CSRRegFile extends Module{
     MCSRs.mtval -> reg_mtval,
     MCSRs.mcause -> reg_mcause.asUInt(),
     MCSRs.mhartid -> 0.U,
-    MCSRs.medeleg -> reg_medeleg)
+    MCSRs.medeleg -> reg_medeleg,
+    MCSRs.mcycleh -> 0.U, 
+    MCSRs.minstreth -> 0.U
+    )
     
-  read_mapping += MCSRs.mcycleh -> 0.U 
-  read_mapping += MCSRs.minstreth -> 0.U
-  
   //CSR DECODE
   val cmd = WireInit(3.U(3.W))
   
-  when( io.decode.inst(6, 0) === ("b1110011".U)){
-    switch(io.decode.inst(14, 12)){
+  when( io.inst(6, 0) === ("b1110011".U)){
+    switch(io.inst(14, 12)){
       is("b011".U){
         cmd := MCSRCmd.clear
-        io.regwrite := true.B
+        io.reg_write := true.B
       }
       is("b111".U){
         cmd := MCSRCmd.clear
-        io.regwrite := true.B
+        io.reg_write := true.B
       } 
       is("b010".U){
         cmd := MCSRCmd.set
-        io.regwrite := true.B
+        io.reg_write := true.B
       }
       is("b110".U){
         cmd := MCSRCmd.set
-        io.regwrite := true.B
+        io.reg_write := true.B
       }
       is("b001".U){
         cmd := MCSRCmd.write
-        io.regwrite := true.B
+        io.reg_write := true.B
       }
       is("b101".U){
         cmd := MCSRCmd.write
-        io.regwrite := true.B
+        io.reg_write := true.B
       }
       is("b000".U){
         cmd := MCSRCmd.interrupt
-        io.regwrite := false.B
+        io.reg_write := false.B
       }
     }
   }.otherwise{
     cmd := MCSRCmd.nop
-    io.regwrite := false.B
+    io.reg_write := false.B
   }
   
-  val csr = io.decode.inst(MCSRCmd.MSB, MCSRCmd.LSB)
+  val csr = io.inst(MCSRCmd.MSB, MCSRCmd.LSB)
   val system_insn = cmd === MCSRCmd.interrupt
   val cpu_ren = cmd =/= MCSRCmd.nop && !system_insn
 
-
+  //map is an infix operator on read_mapping. takes argument from decoded_addr() and applies it to
+  //read_mapping which provides a set if it exists then checks if the csr in the set corresponds to
+  //what the csr instruction specified. used for easier when statements below
   val decoded_addr = read_mapping map { case (k, v) => k -> (csr === k) }
   val priv_sufficient = MCSRCmd.MPRV >= csr(9,8)
   val read_only = csr(11,10).andR
   val cpu_wen = cpu_ren && cmd =/= MCSRCmd.read && priv_sufficient
   val wen = cpu_wen && !read_only
-  val wdata = readModifyWriteCSR(cmd.asInstanceOf[UInt], io.rw.rdata, io.rw.wdata)
+  val wdata = readModifyWriteCSR(cmd.asInstanceOf[UInt], io.write_data, Mux(io.inst(14),io.immid, io.read_data))
 
+  //harware optimization? change this later?
   val opcode = 1.U << csr(2,0)
   val insn_call = system_insn && opcode(0)
   val insn_break = system_insn && opcode(1)
   val insn_ret = system_insn && opcode(2) && priv_sufficient
+  //wait for interrupt inst not implemented
   val insn_wfi = system_insn && opcode(5) && priv_sufficient
 
   private def decodeAny(m: LinkedHashMap[Int,Bits]): Bool = m.map( { case(k: Int, _: Bits) => csr === k }).reduce(_ || _)
-  io.decode.read_illegal := 3 < csr(9,8) || !decodeAny(read_mapping) 
-  io.decode.write_illegal := csr(11,10).andR
-  io.decode.system_illegal := 3 < csr(9,8)
+  io.read_illegal := 3 < csr(9,8) || !decodeAny(read_mapping) 
+  io.write_illegal := csr(11,10).andR
+  io.system_illegal := 3 < csr(9,8)
 
   io.status := reg_mstatus
 
   io.eret := insn_call || insn_break || insn_ret
 
   // ILLEGAL INSTR
-  when (io.exception) {
+  when (io.illegal_inst) {
     reg_mcause.interrupt := MCauses.illegal_instruction & "h80000000".U
     reg_mcause.exceptioncode := MCauses.illegal_instruction & "h7fffffff".U
-    io.evec := "h80000004".U
+    io.evec := "h80000000".U
     reg_mepc := io.pc // misaligned memory exceptions not supported...
   }
- 
-  //MISALIGNED MEM ACCESS
-  /*
-  when (io.???) { //fetchexcept?
-    reg_mcause.interrupt := MCauses.misaligned_fetch & "h80000000".U
-    reg_mcause.exceptioncode := MCauses.misaligned_fetch & "h7fffffff".U
-    io.evec := "h80000004".U
-    reg_mepc := ??? 
-  }.elsewhen (io.???){ ///loadexception?
-    reg_mcause.interrupt := MCauses.misaligned_load & "h80000000".U
-    reg_mcause.exceptioncode := MCauses.misaligned_load & "h7fffffff".U
-    io.evec := "h80000004".U
-    reg_mepc := ??? 
-  }.elsewhen(io.???){ //storeexception?
-    reg_mcause.interrupt := MCauses.misaligned_store & "h80000000".U
-    reg_mcause.exceptioncode := MCauses.misaligned_store & "h7fffffff".U
-    io.evec := "h80000004".U
-    reg_mepc := ??? 
-  }*/
 
   //assert(PopCount(insn_ret :: io.exception :: Nil) <= 1, "these conditions must be mutually exclusive")
 
@@ -420,7 +375,7 @@ class CSRRegFile extends Module{
 
   //EBREAK
   when(insn_break){
-    io.evec := "h80000004".U
+    io.evec := "h80000008".U
     reg_mcause.interrupt := MCauses.breakpoint & "h80000000".U
     reg_mcause.exceptioncode := MCauses.breakpoint & "h7fffffff".U
   }
@@ -429,7 +384,7 @@ class CSRRegFile extends Module{
   io.csr_stall := reg_wfi
 
 
-  io.rw.rdata := Mux1H(for ((k, v) <- read_mapping) yield decoded_addr(k) -> v)
+  io.write_data := Mux1H(for ((k, v) <- read_mapping) yield decoded_addr(k) -> v)
 
   when (wen) {
     //MISA IS FIXED IN THIS IMPLEMENATION

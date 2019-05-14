@@ -1,5 +1,5 @@
 
-RISCV ?= /home/nganjehl/riscv-gnu-toolchain
+RISCV ?= /opt/riscv
 RISCVBIN = $(RISCV)/bin
 
 SOURCES = $(wildcard *.riscv)

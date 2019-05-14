@@ -44,7 +44,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   registers.io.readreg2 := instruction(24,20)
 
   registers.io.writereg := instruction(11,7)
-  registers.io.wen      := (control.io.regwrite || csr.io.regwrite) && (registers.io.writereg =/= 0.U)
+  registers.io.wen      := (control.io.regwrite || csr.io.reg_write) && (registers.io.writereg =/= 0.U)
 
   aluControl.io.add       := control.io.add
   aluControl.io.immediate := control.io.immediate
@@ -55,6 +55,13 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val imm = immGen.io.sextImm
   
   //ALU
+  csr.io.inst := instruction 
+  csr.io.immid := imm
+  csr.io.read_data := registers.io.readdata1
+  csr.io.retire_inst := true.B //mem is synchronous in this deisgn. no flushing as far as i'm aware
+  csr.io.illegal_inst := !control.io.validinst || csr.io.read_illegal || csr.io.write_illegal || csr.io.system_illegal //illegal inst exception?
+  csr.io.pc :=  pc
+
   branchCtrl.io.branch := control.io.branch
   branchCtrl.io.funct3 := instruction(14,12)
   branchCtrl.io.inputx := registers.io.readdata1
@@ -81,25 +88,13 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.sext      := ~instruction(14)
 
   //WRITEBACK
-  csr.io.decode.inst := instruction 
-  csr.io.decode.immid := imm
-  csr.io.rw.wdata := registers.io.readdata1
-
-
-  csr.io.retire := true.B //mem is synchronous in this deisgn. no flushing as far as i'm aware
-  csr.io.exception := !control.io.validinst || csr.io.decode.read_illegal || 
-    csr.io.decode.write_illegal || csr.io.decode.system_illegal //illegal inst exception?
-  csr.io.pc :=  pc
-  
-  
-
   val write_data = Wire(UInt())
   when (control.io.toreg === 1.U) {
     write_data := io.dmem.readdata
   } .elsewhen (control.io.toreg === 2.U) {
     write_data := pcPlusFour.io.result
   } .elsewhen (control.io.toreg === 3.U) {
-    write_data := csr.io.rw.rdata
+    write_data := csr.io.write_data
   } .otherwise {
     write_data := alu.io.result
   }
