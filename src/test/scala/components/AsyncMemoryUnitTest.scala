@@ -20,7 +20,7 @@ import scala.util.Random
  * Also serves as an example on how to set up the asynchronous memory in
  * an actual CPU by connecting the imem and dmem ports to the memory.
  
- * See: [[IMemAccessIO]] and [[DMemAccessIO]]
+ * See: [[IMemPortIO]] and [[DMemPortIO]]
  */
 class AsyncMemoryTestHarness(size: Int, memFile: String, latency: Int) extends Module {
   val io = IO(new Bundle {
@@ -41,9 +41,9 @@ class AsyncMemoryTestHarness(size: Int, memFile: String, latency: Int) extends M
   })
   io := DontCare
 
-  val imem = Module(new IMemAccess)
+  val imem = Module(new IMemPort)
 
-  val dmem = Module(new DMemAccess)
+  val dmem = Module(new DMemPort)
   val memory = Module(new DualPortedAsyncMemory (size, memFile, latency))
   memory.io := DontCare
 
