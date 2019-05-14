@@ -83,7 +83,7 @@ class AsyncMemoryUnitTester$IMemZero(m: AsyncMemoryTestHarness, size: Int, laten
     step(1)
     // Check that memory correctly goes busy after initiating the request
     expect(m.io.imem_ready, 0)
-    step(latency - 1)
+    step(latency)
 
     expect(m.io.imem_instruction, 0)
     expect(m.io.imem_ready, 1)
@@ -102,7 +102,7 @@ class AsyncMemoryUnitTester$IMemRead(m: AsyncMemoryTestHarness, size: Int, laten
     step(1)
     // Check that memory correctly goes busy after initiating the request
     expect(m.io.imem_ready, 0)
-    step(latency - 1)
+    step(latency)
     
     expect(m.io.imem_instruction, i)
     expect(m.io.imem_ready, 1)
@@ -122,7 +122,7 @@ class AsyncMemoryUnitTester$IMemWrite(m: AsyncMemoryTestHarness, size: Int, late
 
     step(1)
     expect(m.io.dmem_ready, 0)
-    step(latency - 1)
+    step(latency)
     // We wait 1 extra cycle for the data memory to send the write back
     expect(m.io.dmem_ready, 0)
     step(1)
@@ -141,7 +141,7 @@ class AsyncMemoryUnitTester$IMemWrite(m: AsyncMemoryTestHarness, size: Int, late
     step(1)
     // Check that memory correctly goes busy after initiating the request
     expect(m.io.imem_ready, 0)
-    step(latency - 1)
+    step(latency)
    
     if (i < size/8) {
       expect(m.io.imem_instruction, i+100)
@@ -167,7 +167,7 @@ class AsyncMemoryUnitTester$DMemZero(m: AsyncMemoryTestHarness, size: Int, laten
     step(1)
     // Check that memory correctly goes busy after initiating the request
     expect(m.io.dmem_ready, 0)
-    step(latency - 1)
+    step(latency)
     
     expect(m.io.dmem_readdata, 0)
     expect(m.io.dmem_ready, 1)
@@ -189,7 +189,7 @@ class AsyncMemoryUnitTester$DMemRead(m: AsyncMemoryTestHarness, size: Int, laten
     step(1)
     // Check that memory correctly goes busy after initiating the request
     expect(m.io.dmem_ready, 0)
-    step(latency - 1)
+    step(latency)
     
     expect(m.io.dmem_readdata, i)
     expect(m.io.dmem_ready, 1)
@@ -210,7 +210,7 @@ class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, late
 
     step(1)
     expect(m.io.dmem_ready, 0)
-    step(latency - 1)
+    step(latency)
     // We wait 1 extra cycle for the data memory to send the write back
     expect(m.io.dmem_ready, 0)
     step(1)
@@ -232,7 +232,7 @@ class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, late
     step(1)
     // Check that memory correctly goes busy after initiating the request
     expect(m.io.dmem_ready, 0)
-    step(latency - 1)
+    step(latency)
   
     if (i < size/8) {
       expect(m.io.dmem_readdata, i+100)
@@ -258,7 +258,7 @@ class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, late
   * }}}
   */
 class AsyncMemoryTester extends ChiselFlatSpec {
-  val latency = new Random().nextInt (3) + 2
+  val latency = 1 //new Random().nextInt (49) + 1
 
   // imem side
   "DualPortedAsyncMemory" should s"have all zeros in instruction port (with treadle and $latency latency cycles)"  in {

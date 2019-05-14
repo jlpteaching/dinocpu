@@ -66,13 +66,13 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockw
   })
   io <> DontCare
 
-  assert(latency > 1) // Check for attempt to make combinational memory
+  assert(latency > 0) // Check for attempt to make combinational memory
 
   val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(blockwidth.W))
   loadMemoryFromFile(memory, memfile)
 
   // Instruction port
-  val imemPipe = Module(new Pipe(new Request(blockwidth), latency - 1))
+  val imemPipe = Module(new Pipe(new Request(blockwidth), latency))
   val imemBusy = RegInit(false.B)
 
   wireMemPipe(io.imem, imemPipe, imemBusy)
@@ -99,7 +99,7 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockw
 
   // Data port
 
-  val dmemPipe = Module(new Pipe(new Request(blockwidth), latency - 1))
+  val dmemPipe = Module(new Pipe(new Request(blockwidth), latency))
   val dmemBusy = RegInit(false.B)
 
   wireMemPipe(io.dmem, dmemPipe, dmemBusy)
