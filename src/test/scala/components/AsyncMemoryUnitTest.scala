@@ -258,7 +258,7 @@ class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, late
   * }}}
   */
 class AsyncMemoryTester extends ChiselFlatSpec {
-  val latency = 1 //new Random().nextInt (49) + 1
+  val latency = new Random().nextInt (49) + 1
 
   // imem side
   "DualPortedAsyncMemory" should s"have all zeros in instruction port (with treadle and $latency latency cycles)"  in {
