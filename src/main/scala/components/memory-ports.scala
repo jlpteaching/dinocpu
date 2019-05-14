@@ -4,8 +4,7 @@ package dinocpu
 
 import chisel3._
 import chisel3.util._
-
-import chisel3.experimental.ChiselEnum
+import chisel3.internal.firrtl.Width
 
 import chisel3.util.experimental.loadMemoryFromFile
 import firrtl.annotations.MemoryLoadFileType
@@ -13,9 +12,9 @@ import firrtl.annotations.MemoryLoadFileType
 import MemoryOperation._
 
 // A Bundle used for temporarily storing the necessary information for a write in the data memory accessor.
-class PartialWrite extends Bundle {
+class PartialWrite(val blockwidth: Int) extends Bundle {
   val address   = UInt(32.W)
-  val writedata = UInt(32.W)
+  val writedata = UInt(blockwidth.W)
   val maskmode  = UInt(2.W)
 }
 
@@ -40,15 +39,15 @@ class PartialWrite extends Bundle {
  *   Output: request, a DecoupledIO that delivers a request from a memory port to memory. This is primarily
  *           meant for connecting to an AsynMemIO's request input, and should not be connected to anything else
  */
-class MemPortIO extends Bundle {
+class MemPortIO(val blockwidth: Int) extends Bundle {
   // Pipeline <=> Port
   val address  = Input(UInt(32.W))
   val valid    = Input(Bool())
   val ready    = Output(Bool())
 
   // Port <=> Memory 
-  val response = Flipped(Valid(UInt(32.W)))
-  val request  = Decoupled(new Request)
+  val response = Flipped(Valid(UInt(blockwidth.W)))
+  val request  = Decoupled(new Request(blockwidth))
 }
 
 /** 
@@ -60,8 +59,8 @@ class MemPortIO extends Bundle {
  *   Output: instruction, the requested instruction
  *   Output: ready, true when memory is idling and ready for a request
  */
-class IMemPortIO extends MemPortIO {
-  val instruction = Output(UInt(32.W))
+class IMemPortIO(override val blockwidth: Int) extends MemPortIO(blockwidth) {
+  val instruction = Output(UInt(blockwidth.W))
 }
 
 /**
@@ -78,14 +77,14 @@ class IMemPortIO extends MemPortIO {
  *   Output: readdata, the data read and sign extended
  *   Output: ready, true when memory is idling and ready for a request
  */
-class DMemPortIO extends MemPortIO {
-  val writedata = Input(UInt(32.W))
+class DMemPortIO(override val blockwidth: Int) extends MemPortIO(blockwidth) {
+  val writedata = Input(UInt(blockwidth.W))
   val memread   = Input(Bool())
   val memwrite  = Input(Bool())
   val maskmode  = Input(UInt(2.W))
   val sext      = Input(Bool())
 
-  val readdata  = Output(UInt(32.W))
+  val readdata  = Output(UInt(blockwidth.W))
 }
 
 /**
@@ -93,15 +92,15 @@ class DMemPortIO extends MemPortIO {
  *
  * The I/O for this module is defined in [[IMemPortIO]].
  */
-class IMemPort extends Module {
-  val io = IO (new IMemPortIO)
+class IMemPort(val blockwidth: Int) extends Module {
+  val io = IO (new IMemPortIO(blockwidth))
   io := DontCare
   io.request.valid  := false.B
   io.ready          := io.request.ready
 
   // When the backing memory is ready and the pipeline is supplying a high valid signal
   when (io.valid && io.request.ready) {
-    val request = Wire(new Request())
+    val request = Wire(new Request(blockwidth))
     request := DontCare
     request.address      := io.address
     request.operation    := Read
@@ -123,12 +122,12 @@ class IMemPort extends Module {
  *
  * The I/O for this module is defined in [[DMemPortIO]].
  */
-class DMemPort extends Module {
-  val io = IO (new DMemPortIO)
+class DMemPort(val blockwidth: Int) extends Module {
+  val io = IO (new DMemPortIO(blockwidth))
   io := DontCare
   io.request.valid  := false.B
 
-  val storedWrite = RegInit(0.U.asTypeOf(Valid(new PartialWrite)))
+  val storedWrite = RegInit(0.U.asTypeOf(Valid(new PartialWrite(blockwidth))))
   val memReallyReady = io.request.ready && !storedWrite.valid
   io.ready := memReallyReady
 
@@ -137,11 +136,6 @@ class DMemPort extends Module {
   // We need to process stored writes first to guarantee atomicity of the memory write operation
 
   when (io.valid && memReallyReady && io.memread =/= io.memwrite) {
-    val request = Wire (new Request)
-    request.address   := io.address
-    request.writedata := 0.U
-    request.operation := Read
-
     when (io.memwrite) {
       storedWrite.bits.address   := io.address
       storedWrite.bits.writedata := io.writedata
@@ -149,8 +143,10 @@ class DMemPort extends Module {
       storedWrite.valid := true.B
     }
     
-    io.request.bits  := request
-    io.request.valid := true.B
+    io.request.bits.address   := io.address
+    io.request.bits.writedata := 0.U(blockwidth.W)
+    io.request.bits.operation := Read
+    io.request.valid          := true.B
   } .otherwise {
     io.request.valid := false.B
   }
@@ -160,15 +156,15 @@ class DMemPort extends Module {
   // This can be deduced from whether storedWrite is valid and the memory is signalling if it is ready.
   when (io.response.valid) {
     when (storedWrite.valid && io.request.ready) {
-      val writedata = Wire (UInt (32.W))
+      val writedata = Wire (UInt (blockwidth.W))
 
       // When not writing a whole word
       when (storedWrite.bits.maskmode =/= 2.U) {
         // Read in the existing piece of data at the address, so we "overwrite" only part of it
         val offset = storedWrite.bits.address (1, 0)
-        val readdata = Wire (UInt (32.W))
+        val readdata = Wire (UInt (blockwidth.W))
         readdata := io.response.bits
-        val data = Wire (UInt (32.W))
+        val data = Wire (UInt (blockwidth.W))
         // Mask the portion of the existing data so it can be or'd with the writedata
         when (storedWrite.bits.maskmode === 0.U) {
           data := io.response.bits & ~(0xff.U << (offset * 8.U))
@@ -182,7 +178,7 @@ class DMemPort extends Module {
       }
 
       // Program the memory to issue a write
-      val request = Wire (new Request)
+      val request = Wire (new Request (blockwidth))
       request.address   := storedWrite.bits.address
       request.writedata := writedata
       request.operation := Write
@@ -193,26 +189,31 @@ class DMemPort extends Module {
       storedWrite.valid := false.B
     } .otherwise {
       // Perform masking and sign extension on read data when memory is outputting it
-      val readdata_mask      = Wire(UInt(32.W))
-      val readdata_mask_sext = Wire(UInt(32.W))
+      val readdata_mask      = Wire(UInt(blockwidth.W))
+      val readdata_mask_sext = Wire(UInt(blockwidth.W))
 
       when (io.maskmode === 0.U) {
         // Byte
         readdata_mask := io.response.bits & 0xff.U
       } .elsewhen (io.maskmode === 1.U) {
         // Half-word
-        readdata_mask := io.response.bits & 0xffff.U
+        // Generate the mask corresponding with a half word
+        val halfword_mask = Cat(Fill(blockwidth / 2, 0.U), Fill(blockwidth / 2, 1.U))
+        readdata_mask := io.response.bits & halfword_mask
       } .otherwise {
-        // Word
         readdata_mask := io.response.bits
       }
 
       when (io.sext) {
         when (io.maskmode === 0.U) {
-          readdata_mask_sext := Cat(Fill(24, readdata_mask(7)),  readdata_mask(7, 0))
+          // Byte sign extension
+          readdata_mask_sext := Cat(Fill(blockwidth - 8, readdata_mask(7)),  readdata_mask(7, 0))
         } .elsewhen (io.maskmode === 1.U) {
-          readdata_mask_sext := Cat(Fill(26, readdata_mask(15)), readdata_mask(15,0))
+          // Half-word sign extension
+          readdata_mask_sext := Cat(Fill(blockwidth / 2, 
+            readdata_mask((blockwidth / 2) - 1)), readdata_mask((blockwidth / 2) - 1, 0))
         } .otherwise {
+          // Word sign extension (does nothing)
           readdata_mask_sext := readdata_mask
         }
       } .otherwise {

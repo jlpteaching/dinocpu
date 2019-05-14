@@ -22,29 +22,29 @@ import scala.util.Random
  
  * See: [[IMemPortIO]] and [[DMemPortIO]]
  */
-class AsyncMemoryTestHarness(size: Int, memFile: String, latency: Int) extends Module {
+class AsyncMemoryTestHarness(size: Int, memFile: String, latency: Int, blocksize: Int) extends Module {
   val io = IO(new Bundle {
-    val imem_address      = Input(UInt(32.W))
+    val imem_address      = Input(UInt(blocksize.W))
     val imem_valid        = Input(Bool())
-    val imem_instruction  = Output(UInt(32.W)) 
+    val imem_instruction  = Output(UInt(blocksize.W)) 
     val imem_ready        = Output(Bool())
     
     val dmem_address      = Input(UInt(32.W))
     val dmem_valid        = Input(Bool())
-    val dmem_writedata    = Input(UInt(32.W))
+    val dmem_writedata    = Input(UInt(blocksize.W))
     val dmem_memread      = Input(Bool()) 
     val dmem_memwrite     = Input(Bool()) 
     val dmem_maskmode     = Input(UInt(2.W))
     val dmem_sext         = Input(Bool()) 
-    val dmem_readdata     = Output(UInt(32.W)) 
+    val dmem_readdata     = Output(UInt(blocksize.W)) 
     val dmem_ready        = Output(Bool())
   })
   io := DontCare
 
-  val imem = Module(new IMemPort)
+  val imem = Module(new IMemPort(blocksize))
 
-  val dmem = Module(new DMemPort)
-  val memory = Module(new DualPortedAsyncMemory (size, memFile, latency))
+  val dmem = Module(new DMemPort(blocksize))
+  val memory = Module(new DualPortedAsyncMemory (size, memFile, latency, blocksize))
   memory.io := DontCare
 
 
@@ -262,36 +262,36 @@ class AsyncMemoryTester extends ChiselFlatSpec {
 
   // imem side
   "DualPortedAsyncMemory" should s"have all zeros in instruction port (with treadle and $latency latency cycles)"  in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency), "treadle") {
+    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency, 32), "treadle") {
       m => new AsyncMemoryUnitTester$IMemZero(m, 2048, latency)
     } should be (true)
   }
   "DualPortedAsyncMemory" should s"have increasing words in instruction port (with treadle and $latency latency cycles)" in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
+    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency, 32), "treadle") {
       m => new AsyncMemoryUnitTester$IMemRead(m, 2048, latency)
     } should be (true)
   } 
   "DualPortedAsyncMemory" should s"store words with data port and load with instruction port (with treadle and $latency latency cycles)" in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
+    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency, 32), "treadle") {
       m => new AsyncMemoryUnitTester$IMemWrite(m, 2048, latency)
     } should be (true)
   }
   
   // dmem side
   "DualPortedAsyncMemory" should s"have all zeros in data port (with treadle and $latency latency cycles)"  in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency), "treadle") {
+    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency, 32), "treadle") {
       m => new AsyncMemoryUnitTester$DMemZero(m, 2048, latency)
     } should be (true)
   }
 
   "DualPortedAsyncMemory" should s"have increasing words in data port (with treadle and $latency latency cycles)" in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
+    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency, 32), "treadle") {
       m => new AsyncMemoryUnitTester$DMemRead(m, 2048, latency)
     } should be (true)
   }
   
   "DualPortedAsyncMemory" should s"store words with data port and load with data port (with treadle and $latency latency cycles)" in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
+    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency, 32), "treadle") {
       m => new AsyncMemoryUnitTester$DMemWrite(m, 2048, latency)
     } should be (true)
   }
