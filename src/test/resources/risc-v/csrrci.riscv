@@ -9,5 +9,4 @@ _start:
     nop
     nop
     nop
-    add t0, x0, t0
 _last:

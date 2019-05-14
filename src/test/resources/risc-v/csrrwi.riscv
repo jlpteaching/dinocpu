@@ -2,12 +2,11 @@
   .align 2      # Make sure we're aligned to 4 bytes
   .globl _start
 _start:
-    csrrwi t0, mstatus, 0x1f
+    csrrwi t0, mstatus, 0x17
     
     nop
     nop
     nop
     nop
     nop
-    add t0, x0, t0
 _last:
