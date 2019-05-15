@@ -227,55 +227,7 @@ object InstTests {
 								Map(), Map(),
                 Map(5 -> twoscomp(-1)),
 								Map(0 -> 0, 5 -> twoscomp(-1), 6 -> 0),
-								Map(), Map()),
-    CPUTestCase("csrrc",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrci",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrs",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrsi",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrw",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrwi",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("ecall",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("ebreak",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
-                Map(), Map())
+								Map(), Map())
   )
 
 	val itypeMultiCycle = List[CPUTestCase](
@@ -567,6 +519,57 @@ object InstTests {
 								Map(0 -> 0, 5 -> 1234, 6 -> 1234, 1 -> 4),
 								Map(), Map())
   )
+  
+  val csr = List[CPUTestCase](
+    CPUTestCase("csrrc",
+                Map("single-cycle" -> 1, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
+                Map(), Map()),
+    CPUTestCase("csrrci",
+                Map("single-cycle" -> 1, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
+                Map(), Map()),
+    CPUTestCase("csrrs",
+                Map("single-cycle" -> 1, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
+                Map(), Map()),
+    CPUTestCase("csrrsi",
+                Map("single-cycle" -> 1, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
+                Map(), Map()),
+    CPUTestCase("csrrw",
+                Map("single-cycle" -> 1, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
+                Map(), Map()),
+    CPUTestCase("csrrwi",
+                Map("single-cycle" -> 1, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
+                Map(), Map()),
+    CPUTestCase("ecall",
+                Map("single-cycle" -> 1, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
+                Map(), Map()),
+    CPUTestCase("ebreak",
+                Map("single-cycle" -> 1, "pipelined" -> 5),
+								Map(), Map(),
+                Map(),
+                Map(),
+                Map(), Map())
+  )
 
 	val smallApplications = List[CPUTestCase](
 		CPUTestCase("fibonacci",
@@ -647,12 +650,18 @@ object InstTests {
     "utype" -> utype,
 		"utypeMultiCycle" -> utypeMultiCycle,
     "jump" -> jump,
+    "csr" -> csr,
 		"smallApplications" -> smallApplications
   )
 
 	// All of the tests
+<<<<<<< HEAD
 	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++ branchMultiCycle ++
 								 memory ++ memoryMultiCycle ++ utype ++ utypeMultiCycle ++ jump ++ smallApplications
+=======
+	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++
+								 memory ++ memoryMultiCycle ++ utype ++ jump ++ csr ++ smallApplications
+>>>>>>> 5d9a896... addes seperate csr test category, still having argument mismatch errors
 
 	// Mapping from full name of test to test
 	val nameMap = (allTests ++ fullApplications).map(x => x.name() -> x).toMap
