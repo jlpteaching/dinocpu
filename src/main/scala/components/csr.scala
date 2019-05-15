@@ -5,8 +5,6 @@ package dinocpu
 import chisel3._
 import collection.mutable.LinkedHashMap
 import chisel3.util._
-import chisel3.util.BitPat
-import chisel3.util.experimental.BoringUtils
 import Util._
 
 import scala.math._
@@ -221,6 +219,8 @@ object MCSRCmd{
   val MPRV = 3
 }
  
+
+//reorder bundles
 class CSRRegFileIO extends Bundle{
   //val hartid = Input(UInt(32.W))
   val rw = new Bundle {
@@ -229,7 +229,7 @@ class CSRRegFileIO extends Bundle{
   }
 
   val csr_stall = Output(Bool())//not needed in single cycle
-  val eret = Output(Bool())//
+  val eret = Output(Bool())// change ret names
 
   val decode = new Bundle {
     val inst = Input(UInt(32.W)) //
@@ -241,8 +241,8 @@ class CSRRegFileIO extends Bundle{
 
   val status = Output(new MStatus())//not needed in this design but useful if more ISA extensions
   val evec = Output(UInt(32.W)) //
-  val exception = Input(Bool())  //
-  val retire = Input(Bool()) //
+  val exception = Input(Bool())  // rename to illgl inst
+  val retire = Input(Bool()) // rename to retire inst
   val pc = Input(UInt(32.W)) //
   val time = Output(UInt(32.W))//
 }
