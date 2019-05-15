@@ -523,9 +523,10 @@ object InstTests {
   val csr = List[CPUTestCase](
     CPUTestCase("csrrc",
                 Map("single-cycle" -> 1, "pipelined" -> 5),
-								Map(), Map(),
-                Map(),
-                Map(),
+                Map( 0x300 -> 0x1888 ),
+                Map( 0x300 -> 0xffffe777 ),
+                Map( 6 -> 0xfffffffb),
+                Map( 6 -> 0xfffffffb),
                 Map(), Map()),
     CPUTestCase("csrrci",
                 Map("single-cycle" -> 1, "pipelined" -> 5),
@@ -657,11 +658,7 @@ object InstTests {
 	// All of the tests
 <<<<<<< HEAD
 	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++ branchMultiCycle ++
-								 memory ++ memoryMultiCycle ++ utype ++ utypeMultiCycle ++ jump ++ smallApplications
-=======
-	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++
-								 memory ++ memoryMultiCycle ++ utype ++ jump ++ csr ++ smallApplications
->>>>>>> 5d9a896... addes seperate csr test category, still having argument mismatch errors
+								 memory ++ memoryMultiCycle ++ utype ++ utypeMultiCycle ++ jump ++ csr ++ smallApplications
 
 	// Mapping from full name of test to test
 	val nameMap = (allTests ++ fullApplications).map(x => x.name() -> x).toMap
