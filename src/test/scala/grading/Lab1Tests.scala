@@ -41,6 +41,7 @@ class Lab1Grader extends JUnitSuite {
 
       var success = CPUTesterDriver(CPUTestCase("add1",
                       Map("single-cycle" -> 1),
+                      Map(), Map(),
                       Map(5 -> 1234),
                       Map(0 -> 0, 5 -> 1234, 6 -> 1234),
                       Map(), Map()),
@@ -48,6 +49,7 @@ class Lab1Grader extends JUnitSuite {
 
       success = CPUTesterDriver(CPUTestCase("add2",
                       Map("single-cycle" -> 1),
+                      Map(), Map(),
                       Map(5 -> 1234, 20 -> 5678),
 								      Map(0 -> 0, 10 -> 6912),
                       Map(), Map()),
