@@ -121,6 +121,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val structures = List(
     (control, "control"),
     (registers, "registers"),
+    (csr, "csr"),
     (aluControl, "aluControl"),
     (alu, "alu"),
     (immGen, "immGen"),
