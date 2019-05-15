@@ -20,16 +20,16 @@ object MemoryOperation {
 import MemoryOperation._
 
 // A Bundle used for representing a memory access by instruction memory or data memory.
-class Request(val blockwidth: Int) extends Bundle {  
+class Request extends Bundle {  
   val address      = UInt(32.W)
-  val writedata    = UInt(blockwidth.W)
+  val writedata    = UInt(32.W)
   val operation    = UInt(1.W)
 }
 
 // A bundle used for representing the memory's response to a memory port.
-class Response(val blockwidth: Int) extends Bundle {
+class Response extends Bundle {
   val address      = UInt(32.W)
-  val data         = UInt(blockwidth.W)
+  val data         = UInt(32.W)
 }
 
 /** 
@@ -42,9 +42,9 @@ class Response(val blockwidth: Int) extends Bundle {
  * Output: response, the valid interface for the data outputted by memory if it was requested to read. 
  *         the bits in response.bits should only be treated as valid data when response.valid is high.
  */
-class AsyncMemIO(val blockwidth: Int) extends Bundle {
-  val request  = Flipped(Decoupled (new Request (blockwidth)))
-  val response = Valid (new Response (blockwidth))
+class AsyncMemIO extends Bundle {
+  val request  = Flipped(Decoupled (new Request))
+  val response = Valid (new Response)
 }
 
 /**
@@ -58,7 +58,7 @@ class AsyncMemIO(val blockwidth: Int) extends Bundle {
  *
  * The I/O for this module is defined in [[AsyncMemIO]].
  */
-class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockwidth: Int) extends Module {
+class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Module {
   def wireMemPipe(portio: AsyncMemIO, pipe: Pipe[Request], busy: Bool): Unit = {      
     pipe.io.enq.bits  <> DontCare
     pipe.io.enq.valid := false.B
@@ -67,25 +67,25 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockw
   } 
 
   val io = IO(new Bundle {
-    val imem = new AsyncMemIO(blockwidth)
-    val dmem = new AsyncMemIO(blockwidth)
+    val imem = new AsyncMemIO
+    val dmem = new AsyncMemIO
   })
   io <> DontCare
 
   assert(latency > 0) // Check for attempt to make combinational memory
 
-  val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(blockwidth.W))
+  val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
 
   // Instruction port
-  val imemPipe = Module(new Pipe(new Request(blockwidth), latency))
+  val imemPipe = Module(new Pipe(new Request, latency))
   val imemBusy = RegInit(false.B)
 
   wireMemPipe(io.imem, imemPipe, imemBusy)
 
   when (!imemBusy && io.imem.request.valid) {
     // Put the Request into the instruction pipe and signal that instruction memory is busy
-    val inRequest = io.imem.request.asTypeOf(new Request(blockwidth))
+    val inRequest = io.imem.request.asTypeOf(new Request)
     imemPipe.io.enq.bits  := inRequest
     imemPipe.io.enq.valid := true.B
     imemBusy := true.B
@@ -94,7 +94,7 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockw
   when (imemPipe.io.deq.valid) {
     assert(imemBusy)
     assert(imemPipe.io.deq.bits.operation === Read) 
-    val outRequest = imemPipe.io.deq.asTypeOf (new Request(blockwidth))
+    val outRequest = imemPipe.io.deq.asTypeOf (new Request)
     io.imem.response.valid        := true.B
     io.imem.response.bits.data    := memory(outRequest.address >> 2)
     io.imem.response.bits.address := outRequest.address
@@ -106,14 +106,14 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockw
 
   // Data port
 
-  val dmemPipe = Module(new Pipe(new Request(blockwidth), latency))
+  val dmemPipe = Module(new Pipe(new Request, latency))
   val dmemBusy = RegInit(false.B)
 
   wireMemPipe(io.dmem, dmemPipe, dmemBusy)
 
   when (io.dmem.request.valid) {
     // Put the Request into the data pipe and signal that data memory is busy 
-    val inRequest = io.dmem.request.asTypeOf (new Request(blockwidth))
+    val inRequest = io.dmem.request.asTypeOf (new Request)
     dmemPipe.io.enq.bits  := inRequest
     dmemPipe.io.enq.valid := true.B
       // Writes do not stall pipeline
@@ -124,7 +124,7 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int, val blockw
 
   when (dmemPipe.io.deq.valid) {
     // Dequeue request and execute
-    val outRequest = dmemPipe.io.deq.asTypeOf (new Request(blockwidth))
+    val outRequest = dmemPipe.io.deq.asTypeOf (new Request)
     val address = outRequest.address >> 2
     // Check that address is pointing to a valid location in memory
     assert (outRequest.address < size.U)
