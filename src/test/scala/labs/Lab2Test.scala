@@ -144,7 +144,6 @@ class SingleCycleStoreTesterLab2 extends CPUFlatSpec {
 */
 class SingleCycleLoadStoreTesterLab2 extends CPUFlatSpec {
 
-<<<<<<< HEAD
   val tests = InstTests.tests("memory")
   for (test <- tests) {
   "Single Cycle CPU" should s"run load/store instruction test ${test.binary}${test.extraName}" in {
