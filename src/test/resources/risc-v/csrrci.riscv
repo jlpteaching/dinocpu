@@ -1,0 +1,12 @@
+  .text
+  .align 2      # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    csrrci t0, mstatus, 0x1f 
+    
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
