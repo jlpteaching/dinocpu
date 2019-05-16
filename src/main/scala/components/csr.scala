@@ -5,28 +5,63 @@ package dinocpu
 import chisel3._
 import collection.mutable.LinkedHashMap
 import chisel3.util._
-import Util._
+//import Util._
 
 import scala.math._
 
 object MCauses {
   //with interrupt
-  val machine_soft_int = 0x80000003
-  val machine_timer_int = 0x80000007
-  val machine_ext_int = 0x8000000b
+  val machine_soft_int = "h80000003".U
+  val machine_timer_int = "h80000007".U
+  val machine_ext_int = "h8000000b".U
 
   //non interrupt
-  val misaligned_fetch = 0x0
-  val fetch_access = 0x1
-  val illegal_instruction = 0x2
-  val breakpoint = 0x3
-  val misaligned_load = 0x4
-  val load_access = 0x5
-  val misaligned_store = 0x6
-  val store_access = 0x7
-  val machine_ecall = 0xb
+  val misaligned_fetch = "h0".U
+  val fetch_access = "h1".U
+  val illegal_instruction = "h2".U
+  val breakpoint = "h3".U
+  val misaligned_load = "h4".U
+  val load_access = "h5".U
+  val misaligned_store = "h6".U
+  val store_access = "h7".U
+  val machine_ecall = "hb".U
 }
 
+/*
+object MCSRs {
+  //machine information registers
+  val mvendorid = "hf11".U //vendor id
+  val marchid = "hf12".U //architecture id
+  val mimpid = "hf13".U //implementation id
+  val mhartid = "hf14".U //hardware thread id
+  //machine trap setup
+  val mstatus = "h300".U //machine status reg
+  val misa = "h301".U //isa and extensions
+  val medeleg = "h302".U //machine exception delegation reg
+  val mideleg = "h303".U //machine interrupt delegation reg
+  val mie = "h304".U //machine iterrupt-enable reg
+  val mtvec = "h305".U //machine trap handler base address
+  val mcounteren = "h306".U //machine counter enable
+
+  //machine trap handling
+  val mscratch = "h340".U //scratch reg for machine trap handlers
+  val mepc = "h341".U //machine exception program counter
+  val mcause = "h342".U //machine trap cause
+  val mtval = "h343".U //machine bad address or instruction
+  val mip = "h344".U //machine interrupt pending
+
+  //machine memory protection
+  //DONT NEED
+  
+  //machine counter/timers
+  val mcycle = "hb00".U //machine cycle counter
+  val minstret = "hb02".U //machine instructions retured counter
+  val mcycleh = "hb80".U
+  val minstreth = "hb82".U
+  //performance counter setup
+  val mcounterinhibit = "h320".U
+}
+*/
 object MCSRs {
   //machine information registers
   val mvendorid = 0xf11 //vendor id
@@ -175,29 +210,29 @@ object MCSRCmd{
   val MSB = 31
   val LSB = 20
   val TRAPADDR = "h80000000".U
-  val MPRV = 3
+  val MPRV = 3.U
 }
 
 class CSRRegFile extends Module{
   //INIT CSR
   val io = IO(new Bundle{
-    val illegal_inst = Input(Bool())// 
-    val retire_inst = Input(Bool())// 
-    val pc = Input(UInt(32.W)) //
-    val read_data = Input(UInt(32.W)) //
-    val inst = Input(UInt(32.W)) //
-    val immid = Input(UInt(32.W)) //
+    val illegal_inst = Input(Bool())//an exception signal for a non existent instruction or bad fields 
+    val retire_inst = Input(Bool())//asserted if a valid instruction has finished
+    val pc = Input(UInt(32.W)) //current program counter value
+    val read_data = Input(UInt(32.W))//data from reg file used in csr instructions
+    val inst = Input(UInt(32.W)) //full instruction used for decoding csrs internally
+    val immid = Input(UInt(32.W)) //sext immidiate for immidiate csr instructions
     
-    val read_illegal = Output(Bool())
-    val write_illegal = Output(Bool())
-    val system_illegal = Output(Bool())
-    val csr_stall = Output(Bool())//not needed in single cycle
+    val read_illegal = Output(Bool())//an exception raised interally by a bad csr inst, used to raise illegal inst signal
+    val write_illegal = Output(Bool())//raised interally by a bad csr inst, used to raise illegal inst signal
+    val system_illegal = Output(Bool())//bad syscall instruction raised interally, used to raise illegal inst signal
+    val csr_stall = Output(Bool())//used in conjunction with wait for interrupt inst, not needed in single cycle
     val eret = Output(Bool())//return vector from a trap
     val evec = Output(UInt(32.W)) //trap address
-    val write_data = Output(UInt(32.W)) //
-    val reg_write = Output(Bool())//
+    val write_data = Output(UInt(32.W)) //previous csr reg state sent to GP registers
+    val reg_write = Output(Bool())//should we allow write_data to be written into GP registers?
     val status = Output(new MStatus())//not needed in this design but useful if more ISA extensions
-    val time = Output(UInt(32.W))//
+    val time = Output(UInt(32.W))//time of operation in cpu cycles
   })
   io := DontCare
 
@@ -255,8 +290,8 @@ class CSRRegFile extends Module{
   //this is done to make decoding and working with csr's easier (avoid manual specification)
   val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
     MCSRs.mcounterinhibit -> reg_mcounterinhibit.asUInt, 
-    MCSRs.mcycle -> reg_time,
-    MCSRs.minstret -> reg_instret,
+    MCSRs.mcycle -> reg_time.value,
+    MCSRs.minstret -> reg_instret.value,
     MCSRs.mimpid -> 0.U,
     MCSRs.marchid -> 0.U,
     MCSRs.mvendorid -> 0.U,
@@ -321,7 +356,7 @@ class CSRRegFile extends Module{
   //map is an infix operator on read_mapping. takes argument from decoded_addr() and applies it to
   //read_mapping which provides a set if it exists then checks if the csr in the set corresponds to
   //what the csr instruction specified. used for easier when statements below
-  val decoded_addr = read_mapping map { case (k, v) => k -> (csr === k) }
+  val decoded_addr = read_mapping map { case (k, v) => k -> (csr === k.U) }
   val priv_sufficient = MCSRCmd.MPRV >= csr(9,8)
   val read_only = csr(11,10).andR
   val cpu_wen = cpu_ren && cmd =/= MCSRCmd.read && priv_sufficient
@@ -336,10 +371,10 @@ class CSRRegFile extends Module{
   //wait for interrupt inst not implemented
   val insn_wfi = system_insn && opcode(5) && priv_sufficient
 
-  private def decodeAny(m: LinkedHashMap[Int,Bits]): Bool = m.map( { case(k: Int, _: Bits) => csr === k }).reduce(_ || _)
-  io.read_illegal := 3 < csr(9,8) || !decodeAny(read_mapping) 
+  private def decodeAny(m: LinkedHashMap[Int,Bits]): Bool = m.map( { case(k: Int, _: Bits) => csr === k.U }).reduce(_ || _)
+  io.read_illegal := 3.U < csr(9,8) || !decodeAny(read_mapping) 
   io.write_illegal := csr(11,10).andR
-  io.system_illegal := 3 < csr(9,8)
+  io.system_illegal := 3.U < csr(9,8)
 
   io.status := reg_mstatus
 
@@ -375,14 +410,14 @@ class CSRRegFile extends Module{
 
   //assert(PopCount(insn_ret :: io.exception :: Nil) <= 1, "these conditions must be mutually exclusive")
 
-   when (reg_time >= reg_mtimecmp) {
-      reg_mip.mtix := true
+   when (reg_time.value >= reg_mtimecmp) {
+      reg_mip.mtix := true.B
    }
 
   //MRET
   when (insn_ret && !csr(10)) {
     reg_mstatus.mie := reg_mstatus.mpie
-    reg_mstatus.mpie := true
+    reg_mstatus.mpie := true.B
     io.evec := reg_mepc
   }
 
@@ -400,7 +435,7 @@ class CSRRegFile extends Module{
     reg_mcause.exceptioncode := MCauses.breakpoint & "h7fffffff".U
   }
 
-  io.time := reg_time
+  io.time := reg_time.value
   io.csr_stall := reg_wfi
 
 
@@ -427,18 +462,18 @@ class CSRRegFile extends Module{
       reg_mstatus.mie := new_mstatus.mie
       reg_mstatus.mpie := new_mstatus.mpie
       //unused bits in mstatus m-mode only specified by spec
-      reg_mstatus.spp := 0
-      reg_mstatus.uie := 0
-      reg_mstatus.upie := 0
-      reg_mstatus.mprv := 0
-      reg_mstatus.mxr := 0
-      reg_mstatus.sum := 0
-      reg_mstatus.tvm := 0
-      reg_mstatus.tw := 0
-      reg_mstatus.tsr := 0
-      reg_mstatus.fs := 0
-      reg_mstatus.xs := 0
-      reg_mstatus.sd := 0
+      reg_mstatus.spp := 0.U
+      reg_mstatus.uie := 0.U
+      reg_mstatus.upie := 0.U
+      reg_mstatus.mprv := 0.U
+      reg_mstatus.mxr := 0.U
+      reg_mstatus.sum := 0.U
+      reg_mstatus.tvm := 0.U
+      reg_mstatus.tw := 0.U
+      reg_mstatus.tsr := 0.U
+      reg_mstatus.fs := 0.U
+      reg_mstatus.xs := 0.U
+      reg_mstatus.sd := 0.U
     }
     
     //MTVEC IS FIXED IN THIS IMPLEMENTATION
@@ -455,12 +490,12 @@ class CSRRegFile extends Module{
     when (decoded_addr(MCSRs.mip)) {
       val new_mip = wdata.asTypeOf(new MIx())
       reg_mip.msix := new_mip.msix
-      reg_mip.seix := 0
-      reg_mip.ueix := 0
-      reg_mip.stix := 0
-      reg_mip.utix := 0
-      reg_mip.ssix := 0
-      reg_mip.usix := 0
+      reg_mip.seix := 0.U
+      reg_mip.ueix := 0.U
+      reg_mip.stix := 0.U
+      reg_mip.utix := 0.U
+      reg_mip.ssix := 0.U
+      reg_mip.usix := 0.U
 
     }
     //MIE
@@ -472,12 +507,12 @@ class CSRRegFile extends Module{
       reg_mie.meix := new_mie.meix
       reg_mie.msix := new_mie.msix
       reg_mie.mtix := new_mie.mtix
-      reg_mip.seix := 0
-      reg_mip.ueix := 0
-      reg_mip.stix := 0
-      reg_mip.utix := 0
-      reg_mip.ssix := 0
-      reg_mip.usix := 0
+      reg_mip.seix := 0.U
+      reg_mip.ueix := 0.U
+      reg_mip.stix := 0.U
+      reg_mip.utix := 0.U
+      reg_mip.ssix := 0.U
+      reg_mip.usix := 0.U
 
     }
     //MCOUNTEREB IS FIXED IN THIS IMPLEMENTATION BECAUSE NO S | U MODE
@@ -489,10 +524,10 @@ class CSRRegFile extends Module{
     when (decoded_addr(MCSRs.mcounterinhibit)) {
       val new_mcounterinhibit = wdata.asTypeOf(new XCounterEnInhibit())
       reg_mcounterinhibit := new_mcounterinhibit
-      if( reg_mcounterinhibit.cy == false.B) {
+      when( reg_mcounterinhibit.cy === false.B) {
         writeCounter(MCSRs.mcycle, reg_time, wdata)
       }
-      if( reg_mcounterinhibit.ir == false.B){
+      when( reg_mcounterinhibit.ir === false.B){
         writeCounter(MCSRs.minstret, reg_instret, wdata)
       }
     }
@@ -519,9 +554,40 @@ class CSRRegFile extends Module{
   }
   def writeCounter(lo: Int, ctr: WideCounter, wdata: UInt) = {
     val hi = lo + MCSRs.mcycleh - MCSRs.mcycle
-    when (decoded_addr(hi)) { ctr := Cat(wdata(ctr.getWidth-33, 0), ctr(31, 0)) }
-    when (decoded_addr(lo)) { ctr := Cat(ctr(ctr.getWidth-1, 32), wdata) }
+    when (decoded_addr(hi)) { ctr := Cat(wdata(ctr.value.getWidth-33, 0), ctr.value(31, 0)) }
+    when (decoded_addr(lo)) { ctr := Cat(ctr.value(ctr.value.getWidth-1, 32), wdata) }
   }
+
   def readModifyWriteCSR(cmd: UInt, rdata: UInt, wdata: UInt) =
-(Mux(cmd.isOneOf(MCSRCmd.set, MCSRCmd.clear), rdata, 0.U) | wdata) & ~Mux(cmd === MCSRCmd.clear, wdata, 0.U)
+(Mux(Seq(MCSRCmd.set, MCSRCmd.clear).map(cmd === _).reduce(_||_), rdata, 0.U) | wdata) & ~Mux(cmd === MCSRCmd.clear, wdata, 0.U)
 }
+
+case class WideCounter(width: Int, inc: UInt = 1.U, reset: Boolean = true)
+{
+  private val isWide = width > 2*inc.getWidth
+  private val smallWidth = if (isWide) inc.getWidth max log2Ceil(width) else width
+  private val small = if (reset) RegInit(0.asUInt(smallWidth.W)) else Reg(UInt(smallWidth.W))
+  private val nextSmall = small +& inc
+  small := nextSmall
+
+  private val large = if (isWide) {
+    val r = if (reset) RegInit(0.asUInt((width - smallWidth).W)) else Reg(UInt((width - smallWidth).W))
+    when (nextSmall(smallWidth)) { r := r + 1.U }
+    r
+  } else null
+
+  val value = if (isWide) Cat(large, small) else small
+  lazy val carryOut = {
+    val lo = (small ^ nextSmall) >> 1
+    if (!isWide) lo else {
+      val hi = Mux(nextSmall(smallWidth), large ^ (large +& 1.U), 0.U) >> 1
+      Cat(hi, lo)
+    }
+  }
+
+  def := (x: UInt) = {
+    small := x
+    if (isWide) large := x >> smallWidth
+  }
+}
+
