@@ -26,41 +26,6 @@ object MCauses {
   val machine_ecall = "hb".U
 }
 
-/*
-object MCSRs {
-  //machine information registers
-  val mvendorid = "hf11".U //vendor id
-  val marchid = "hf12".U //architecture id
-  val mimpid = "hf13".U //implementation id
-  val mhartid = "hf14".U //hardware thread id
-  //machine trap setup
-  val mstatus = "h300".U //machine status reg
-  val misa = "h301".U //isa and extensions
-  val medeleg = "h302".U //machine exception delegation reg
-  val mideleg = "h303".U //machine interrupt delegation reg
-  val mie = "h304".U //machine iterrupt-enable reg
-  val mtvec = "h305".U //machine trap handler base address
-  val mcounteren = "h306".U //machine counter enable
-
-  //machine trap handling
-  val mscratch = "h340".U //scratch reg for machine trap handlers
-  val mepc = "h341".U //machine exception program counter
-  val mcause = "h342".U //machine trap cause
-  val mtval = "h343".U //machine bad address or instruction
-  val mip = "h344".U //machine interrupt pending
-
-  //machine memory protection
-  //DONT NEED
-  
-  //machine counter/timers
-  val mcycle = "hb00".U //machine cycle counter
-  val minstret = "hb02".U //machine instructions retured counter
-  val mcycleh = "hb80".U
-  val minstreth = "hb82".U
-  //performance counter setup
-  val mcounterinhibit = "h320".U
-}
-*/
 object MCSRs {
   //machine information registers
   val mvendorid = 0xf11 //vendor id
@@ -551,16 +516,22 @@ class CSRRegFile extends Module{
     when (decoded_addr(MCSRs.mtval))    { reg_mtval := wdata(32-1,0) }
     when (decoded_addr(MCSRs.medeleg))    { reg_medeleg := wdata(32-1,0) }
   }
+
+  //takes counter data and data to write and modifies it 32 bits at a time
   def writeCounter(lo: Int, ctr: WideCounter, wdata: UInt) = {
     val hi = lo + MCSRs.mcycleh - MCSRs.mcycle
     when (decoded_addr(hi)) { ctr := Cat(wdata(ctr.value.getWidth-33, 0), ctr.value(31, 0)) }
     when (decoded_addr(lo)) { ctr := Cat(ctr.value(ctr.value.getWidth-1, 32), wdata) }
   }
 
+  //takes in csr command and sees if it maps to any int the defined sequence and determines
+  //resulting csr data with bitwise operations
   def readModifyWriteCSR(cmd: UInt, rdata: UInt, wdata: UInt) =
 (Mux(Seq(MCSRCmd.set, MCSRCmd.clear).map(cmd === _).reduce(_||_), rdata, 0.U) | wdata) & ~Mux(cmd === MCSRCmd.clear, wdata, 0.U)
 }
 
+//used for timers and performance counters.  case class lets us use comparison
+//operators on the content of the object rather than the reference to the object
 case class WideCounter(width: Int, inc: UInt = 1.U, reset: Boolean = true)
 {
   private val isWide = width > 2*inc.getWidth
