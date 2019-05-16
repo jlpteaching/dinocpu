@@ -5,7 +5,6 @@ package dinocpu
 import chisel3._
 import collection.mutable.LinkedHashMap
 import chisel3.util._
-//import Util._
 
 import scala.math._
 
