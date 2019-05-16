@@ -143,6 +143,7 @@ case class CPUTestCase(
 object CPUTesterDriver {
   def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = ""): Boolean = {
     val driver = new CPUTesterDriver(cpuType, branchPredictor, testCase.binary, testCase.extraName)
+    driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))
     val success = driver.checkRegs(testCase.checkRegs)
