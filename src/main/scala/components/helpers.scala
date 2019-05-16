@@ -4,6 +4,7 @@ package dinocpu
 
 import chisel3._
 import chisel3.util._
+
 /**
  * A simple adder which takes two inputs and returns the sum
  *

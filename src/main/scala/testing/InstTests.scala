@@ -390,22 +390,12 @@ object InstTests {
 		CPUTestCase("auipc2",
                 Map("single-cycle" -> 2, "pipelined" -> 6),
                 Map(10 -> 1234),
-								Map(10 -> 0),
-								Map(), Map()),
-		CPUTestCase("auipc1",
-                Map("single-cycle" -> 2, "pipelined" -> 6),
-                Map(10 -> 1234),
 								Map(10 -> (17 << 12)),
-								Map(), Map()),
-		CPUTestCase("auipc3",
-                Map("single-cycle" -> 2, "pipelined" -> 6),
-                Map(10 -> 1234),
-								Map(10 -> 4),
 								Map(), Map()),
 		CPUTestCase("lui0",
                 Map("single-cycle" -> 1, "pipelined" -> 5),
                 Map(10 -> 1234),
-								Map(10 -> ((17 << 12) + 4)),
+								Map(10 -> 0),
 								Map(), Map()),
 		CPUTestCase("lui1",
                 Map("single-cycle" -> 1, "pipelined" -> 5),
@@ -443,55 +433,6 @@ object InstTests {
                 Map(5 -> 1234, 10 -> 20),
 								Map(0 -> 0, 5 -> 1234, 6 -> 1234, 1 -> 4),
 								Map(), Map())
-  )
-  
-  val csr = List[CPUTestCase](
-    CPUTestCase("csrrc",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrci",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrs",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrsi",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrw",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("csrrwi",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("ecall",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("ebreak",
-                Map("single-cycle" -> 1, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map()),
-    CPUTestCase("mret",
-                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
-                Map(),
-                Map(),
-                Map(), Map())
-
   )
 
 	val smallApplications = List[CPUTestCase](
@@ -563,13 +504,12 @@ object InstTests {
     "utype" -> utype,
 		"utypeMultiCycle" -> utypeMultiCycle,
     "jump" -> jump,
-    "csr" -> csr,
 		"smallApplications" -> smallApplications
   )
 
 	// All of the tests
 	val allTests = rtype ++ rtypeMultiCycle ++ itype ++ itypeMultiCycle ++ branch ++ branchMultiCycle ++
-								 memory ++ memoryMultiCycle ++ utype ++ utypeMultiCycle ++ jump ++ csr ++ smallApplications
+								 memory ++ memoryMultiCycle ++ utype ++ utypeMultiCycle ++ jump ++ smallApplications
 
 	// Mapping from full name of test to test
 	val nameMap = (allTests ++ fullApplications).map(x => x.name() -> x).toMap
