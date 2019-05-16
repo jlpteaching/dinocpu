@@ -1,3 +1,7 @@
+/* The following code is based on https://github.com/freechipsproject/rocket-chip
+ * implementation of the csr unit
+ */
+
 /* Describes register file that maintains machine state */
 
 package dinocpu
