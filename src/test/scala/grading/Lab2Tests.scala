@@ -93,8 +93,6 @@ class Lab2Grader extends JUnitSuite {
                       Map(), Map()),
           CPUTestCase("ori",
                       Map("single-cycle" -> 1, "pipelined" -> 5),
-                      Map(), 
-                      Map(),
                       Map(5 -> 456),
                       Map(0 -> 0, 5 -> 456, 6 -> 511),
                       Map(), Map()),
