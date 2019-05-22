@@ -445,12 +445,24 @@ class CSRRegFile extends Module{
       reg_mstatus.sd := 0.U
     }
     
+<<<<<<< HEAD
     //MTVEC IS FIXED IN THIS IMPLEMENTATION
     when (decoded_addr(MCSRs.mtvec)) {
       val new_mtvec = wdata.asTypeOf(new MTVec())
       reg_mtvec.base := new_mtvec.base
       reg_mtvec.mode := 0.U //direct trap mode only
     }
+=======
+    //MTVEC
+    /* write address to trap too
+     */
+    when (decoded_addr(MCSRs.mtvec)) {
+      val new_mtvec = wdata.asTypeOf(new MTVec())
+      reg_mtvec.base := new_mtvec.base
+      reg_mtvec.mode := 0.U//support direct addressing onl
+    }
+     
+>>>>>>> added support to write to mtvec register for better traps
     //MDELEG DOES NOT EXIST IN M-MODE IMPLEMENTATION
     
     //MIDELEG DOES NOT EXIST IN M-MODE IMPLEMENTATION
