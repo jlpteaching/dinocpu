@@ -391,7 +391,7 @@ class CSRRegFile extends Module{
 
   //ECALL
   when(insn_call){
-    io.evec := "h80000004".U
+    io.evec := reg_mtvec.asUInt()
     reg_mcause.interrupt := MCauses.machine_ecall & "h80000000".U
     reg_mcause.exceptioncode := MCauses.machine_ecall & "h7fffffff".U
   }
@@ -445,7 +445,11 @@ class CSRRegFile extends Module{
     }
     
     //MTVEC IS FIXED IN THIS IMPLEMENTATION
-
+    when (decoded_addr(MCSRs.mtvec)) {
+      val new_mtvec = wdata.asTypeOf(new MTVec())
+      reg_mtvec.base := new_mtvec.base
+      reg_mtvec.mode := 0.U //direct trap mode only
+    }
     //MDELEG DOES NOT EXIST IN M-MODE IMPLEMENTATION
     
     //MIDELEG DOES NOT EXIST IN M-MODE IMPLEMENTATION
