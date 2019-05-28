@@ -1,5 +1,4 @@
 package dinocpu
-import dinocpu.{CPUTesterDriver, InstTests}
 import treadle.TreadleOptionsManager
 import treadle.repl.HasReplConfig
 
@@ -41,17 +40,20 @@ object replrunner {
       }
 
     val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
+    driver.initRegs(test.initRegs)
+    driver.initMemory(test.initMem)
 
     val options = new TreadleOptionsManager with HasReplConfig
-    if (options.targetDirName == ".") {
-      options.setTargetDirName(s"test_run_dir/$cpuType/$test.binary$test.extraName")
-    }
+    options.treadleOptions = driver.optionsManager.treadleOptions.copy()
+    options.firrtlOptions = driver.optionsManager.firrtlOptions.copy()
 
     val repl = new treadle.TreadleRepl(options)
-    repl.loadSource(driver.compiledFirrtl)
-    initRegs(test.initRegs, repl)
-    initMemory(test.initMem, repl)
+    repl.currentTreadleTesterOpt = Some(driver.simulator)
     repl.run()
-
+    if (driver.checkRegs(test.checkRegs) && driver.checkMemory(test.checkMem)) {
+      println("Test passed!")
+    } else {
+      println("Test failed!")
+    }
   }
 }
