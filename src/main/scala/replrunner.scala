@@ -5,6 +5,25 @@ import treadle.repl.HasReplConfig
 
 object replrunner {
   val helptext = "usage: singlestep <test name> <CPU type>"
+
+  def initRegs(vals: Map[Int, BigInt],repl: treadle.TreadleRepl ) {
+    for ((num, value) <- vals) {
+      repl.currentTreadleTester.poke(s"cpu.registers.regs_$num", value)
+    }
+  }
+
+  /**
+    *
+    * @param vals holds "addresses" to values. Where address is the nth *word*
+    */
+  def initMemory(vals: Map[Int, BigInt],repl: treadle.TreadleRepl): Unit = {
+    for ((addr, value) <- vals) {
+        repl.currentTreadleTester.pokeMemory(s"cpu.mem.memory", addr, value)
+    }
+  }
+
+
+
   def main(args: Array[String]): Unit = {
     require(args.length >= 2, "Error: Expected at least two argument\n" + helptext)
 
@@ -22,8 +41,6 @@ object replrunner {
       }
 
     val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
-    driver.initRegs(test.initRegs)
-    driver.initMemory(test.initMem)
 
     val options = new TreadleOptionsManager with HasReplConfig
     if (options.targetDirName == ".") {
@@ -32,12 +49,9 @@ object replrunner {
 
     val repl = new treadle.TreadleRepl(options)
     repl.loadSource(driver.compiledFirrtl)
+    initRegs(test.initRegs, repl)
+    initMemory(test.initMem, repl)
     repl.run()
-    if (driver.checkRegs(test.checkRegs) && driver.checkMemory(test.checkMem)) {
-      println("Test passed!")
-    } else {
-      println("Test failed!")
-    }
 
   }
 }
