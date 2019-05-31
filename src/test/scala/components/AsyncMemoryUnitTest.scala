@@ -84,8 +84,10 @@ class AsyncMemoryUnitTester$IMemZero(m: AsyncMemoryTestHarness, size: Int, laten
 
     step(1)
     poke(m.io.imem_valid, 0)
-    expect(m.io.imem_good, 0)
-    step(latency - 1)
+    if (latency > 1) {
+      expect(m.io.imem_good, 0)
+      step(latency - 1)
+    }
 
     expect(m.io.imem_instruction, 0)
     expect(m.io.imem_good, 1)
@@ -103,9 +105,12 @@ class AsyncMemoryUnitTester$IMemRead(m: AsyncMemoryTestHarness, size: Int, laten
     
     step(1)
     poke(m.io.imem_valid, 0)
-    expect(m.io.imem_good, 0)
-    step(latency - 1)
-    
+
+    if (latency > 1) {
+      expect(m.io.imem_good, 0)
+      step(latency - 1)
+    }
+
     expect(m.io.imem_instruction, i)
     expect(m.io.imem_good, 1)
   }
@@ -124,8 +129,11 @@ class AsyncMemoryUnitTester$IMemWrite(m: AsyncMemoryTestHarness, size: Int, late
 
     step(1)
     poke(m.io.dmem_valid, 0)
-    expect(m.io.dmem_good, 0)
-    step(latency - 1)
+    
+    if (latency > 1) {
+      expect(m.io.dmem_good, 0)
+      step(latency - 1)
+    }
     // We wait 1 extra cycle for the data memory to send the write back
     step(1)
 
@@ -143,8 +151,10 @@ class AsyncMemoryUnitTester$IMemWrite(m: AsyncMemoryTestHarness, size: Int, late
     
     step(1)
     poke(m.io.imem_valid, 0)
-    expect(m.io.imem_good, 0)
-    step(latency - 1)
+    if (latency > 1) {
+      expect(m.io.imem_good, 0)
+      step(latency - 1)
+    }
    
     if (i < size/8) {
       expect(m.io.imem_instruction, i+100)
@@ -169,9 +179,11 @@ class AsyncMemoryUnitTester$DMemZero(m: AsyncMemoryTestHarness, size: Int, laten
 
     step(1)
     poke(m.io.dmem_valid, 0)
-    expect(m.io.dmem_good, 0)
-    step(latency - 1)
-    
+    if (latency > 1) {
+      expect(m.io.dmem_good, 0)
+      step(latency - 1)
+    }  
+
     expect(m.io.dmem_readdata, 0)
     expect(m.io.dmem_good, 1)
   }
@@ -191,8 +203,10 @@ class AsyncMemoryUnitTester$DMemRead(m: AsyncMemoryTestHarness, size: Int, laten
     
     step(1)
     poke(m.io.dmem_valid, 0)
-    expect(m.io.dmem_good, 0)
-    step(latency - 1)
+    if (latency > 1) {
+      expect(m.io.dmem_good, 0)
+      step(latency - 1)
+    }
     
     expect(m.io.dmem_readdata, i)
     expect(m.io.dmem_good, 1)
@@ -213,8 +227,10 @@ class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, late
 
     step(1)
     poke(m.io.dmem_valid, 0)
-    expect(m.io.dmem_good, 0)
-    step(latency - 1)
+    if (latency > 1) {
+      expect(m.io.dmem_good, 0)
+      step(latency - 1)
+    }
     // We wait 1 extra cycle for the data memory to send the write back
     step(1)
 
@@ -234,8 +250,10 @@ class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, late
     
     step(1)
     poke(m.io.dmem_valid, 0)
-    expect(m.io.dmem_good, 0)
-    step(latency - 1)
+    if (latency > 1) {
+      expect(m.io.dmem_good, 0)
+      step(latency - 1)
+    }
   
     if (i < size/8) {
       expect(m.io.dmem_readdata, i+100)
