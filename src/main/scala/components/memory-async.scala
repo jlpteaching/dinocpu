@@ -28,7 +28,10 @@ class Request extends Bundle {
 
 // A bundle used for representing the memory's response to a memory port.
 class Response extends Bundle {
-  val address      = UInt(32.W)
+  // Offset is set to the least 2 significant bits of the address, and
+  // is mainly used to return the specific byte/halfword being addressed.
+  val offset       = UInt(2.W)
+  // The 4-byte-wide block of data being returned by memory
   val data         = UInt(32.W)
 }
 
@@ -59,11 +62,15 @@ class AsyncMemIO extends Bundle {
  * The I/O for this module is defined in [[AsyncMemIO]].
  */
 class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Module {
-  def wireMemPipe(portio: AsyncMemIO, pipe: Pipe[Request], busy: Bool): Unit = {      
-    pipe.io.enq.bits  <> DontCare
-    pipe.io.enq.valid := false.B
-
-    portio.request.ready := !busy
+  def wireMemPipe(portio: AsyncMemIO, pipe: Pipe[Request]): Unit = {      
+    pipe.io.enq.bits      <> DontCare
+    pipe.io.enq.valid     := false.B
+    portio.response.valid := false.B
+  
+    // Memory is technically always ready, but we want to use the
+    // ready/valid interface so that if needed we can restrict
+    // executing memory operations
+    portio.request.ready := true.B
   } 
 
   val io = IO(new Bundle {
@@ -79,47 +86,43 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
 
   // Instruction port
   val imemPipe = Module(new Pipe(new Request, latency))
-  val imemBusy = RegInit(false.B)
 
-  wireMemPipe(io.imem, imemPipe, imemBusy)
+  wireMemPipe(io.imem, imemPipe)
 
-  when (!imemBusy && io.imem.request.valid) {
+  when (io.imem.request.valid) {
     // Put the Request into the instruction pipe and signal that instruction memory is busy
     val inRequest = io.imem.request.asTypeOf(new Request)
     imemPipe.io.enq.bits  := inRequest
     imemPipe.io.enq.valid := true.B
-    imemBusy := true.B
+  } .otherwise {
+    imemPipe.io.enq.valid := false.B
   }
 
   when (imemPipe.io.deq.valid) {
-    assert(imemBusy)
+    // We should only be expecting a read from instruction memory
     assert(imemPipe.io.deq.bits.operation === Read) 
     val outRequest = imemPipe.io.deq.asTypeOf (new Request)
     io.imem.response.valid        := true.B
     io.imem.response.bits.data    := memory(outRequest.address >> 2)
-    io.imem.response.bits.address := outRequest.address
-    // Ignore instruction writes as there is no way imem can issue a write access to memory
-    // Signal that instruction memory is idling as we're done
-    
-    imemBusy := false.B
+    io.imem.response.bits.offset  := outRequest.address (1,0) 
+  } .otherwise {
+    // The memory's response can't possibly be valid if the imem pipe isn't outputting a valid request
+    io.imem.response.valid := false.B
   }
 
   // Data port
 
-  val dmemPipe = Module(new Pipe(new Request, latency))
-  val dmemBusy = RegInit(false.B)
+  val dmemPipe     = Module(new Pipe(new Request, latency))
 
-  wireMemPipe(io.dmem, dmemPipe, dmemBusy)
+  wireMemPipe(io.dmem, dmemPipe)
 
   when (io.dmem.request.valid) {
     // Put the Request into the data pipe and signal that data memory is busy 
     val inRequest = io.dmem.request.asTypeOf (new Request)
     dmemPipe.io.enq.bits  := inRequest
     dmemPipe.io.enq.valid := true.B
-      // Writes do not stall pipeline
-    when (inRequest.operation =/= Write) { 
-      dmemBusy := true.B
-    }
+  } .otherwise {
+  //  dmemPipe.io.enq.valid := false.B
   }
 
   when (dmemPipe.io.deq.valid) {
@@ -132,10 +135,13 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
     when (outRequest.operation === Read) {
       io.dmem.response.valid        := true.B
       io.dmem.response.bits.data    := memory(address)
-      io.dmem.response.bits.address := outRequest.address
-      dmemBusy := false.B
+      io.dmem.response.bits.offset  := outRequest.address (1,0)
     } .elsewhen (outRequest.operation === Write) {  
+      io.dmem.response.valid        := false.B
       memory(address) := outRequest.writedata
     }
+  } .otherwise {
+    // The memory's response can't possibly be valid if the dmem pipe isn't outputting a valid request
+    io.dmem.response.valid := false.B
   }
 }

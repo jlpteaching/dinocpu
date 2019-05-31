@@ -27,11 +27,9 @@ class PartialWrite extends Bundle {
  * Pipeline <=> Port:
  *   Input:  address, the address of a piece of data in memory. 
  *   Input:  valid, true when the address specified is valid
- *   Output: ready, true when memory is either idling or outputting a value, and is ready for a new 
- *           request. Note that this is different from access_out.ready - this ready is for use by the general
- *           CPU (like to signal when to stall the CPU), while access_out.ready is used for signalling 
- *           between the memory and accessor only
+ *   Output: good, true when memory is responding with a piece of data (used to un-stall the pipeline)
  *
+ *   
  * Port <=> Memory:
  *   Input:  response, the return route from memory to a memory port. This is primarily meant for connecting to 
  *           an AsyncMemIO's response output, and should not be connected to anything else in any circumstance 
@@ -43,8 +41,8 @@ class MemPortIO extends Bundle {
   // Pipeline <=> Port
   val address  = Input(UInt(32.W))
   val valid    = Input(Bool())
-  val ready    = Output(Bool())
-
+  val good     = Output(Bool())
+ 
   // Port <=> Memory 
   val response = Flipped(Valid(new Response))
   val request  = Decoupled(new Request)
@@ -57,7 +55,7 @@ class MemPortIO extends Bundle {
  *   Input:  address, the address of an instruction in memory 
  *   Input:  valid, true when the address specified is valid
  *   Output: instruction, the requested instruction
- *   Output: ready, true when memory is idling and ready for a request
+ *   Output: good, true when memory is responding with a piece of data
  */
 class IMemPortIO extends MemPortIO {
   val instruction = Output(UInt(32.W))
@@ -75,7 +73,7 @@ class IMemPortIO extends MemPortIO {
  *   Input:  maskmode, mode to mask the result. 0 means byte, 1 means halfword, 2 means word
  *   Input:  sext, true if we should sign extend the result
  *   Output: readdata, the data read and sign extended
- *   Output: ready, true when memory is idling and ready for a request
+ *   Output: good, true when memory is responding with a piece of data
  */
 class DMemPortIO extends MemPortIO {
   val writedata = Input(UInt(32.W))
@@ -95,11 +93,10 @@ class DMemPortIO extends MemPortIO {
 class IMemPort extends Module {
   val io = IO (new IMemPortIO)
   io := DontCare
-  io.request.valid  := false.B
-  io.ready          := io.request.ready
+  io.good           := io.response.valid
 
-  // When the backing memory is ready and the pipeline is supplying a high valid signal
-  when (io.valid && io.request.ready) {
+  // When the pipeline is supplying a high valid signal
+  when (io.valid) {
     val request = Wire(new Request)
     request := DontCare
     request.address      := io.address
@@ -124,25 +121,37 @@ class IMemPort extends Module {
  */
 class DMemPort extends Module {
   val io = IO (new DMemPortIO)
-  io := DontCare
-  io.request.valid  := false.B
+  io      := DontCare
+  io.good := io.response.valid
 
   val storedWrite = RegInit(0.U.asTypeOf(Valid(new PartialWrite)))
-  val memReallyReady = io.request.ready && !storedWrite.valid
-  io.ready := memReallyReady
 
-  // When the backing memory is ready and the pipeline is supplying a valid read OR write request, send out the request
+  // When the pipeline is supplying a valid read OR write request, send out the request
   // ... on the condition that there isn't a stored write in the queue.
   // We need to process stored writes first to guarantee atomicity of the memory write operation
 
-  when (io.valid && memReallyReady && (io.memread || io.memwrite)) {
+  when (io.valid && ! storedWrite.valid && (io.memread || io.memwrite)) {
+    // Check if we aren't issuing both a read and write at the same time
+    assert (! (io.memread && io.memwrite))
+
+    // On either a read or write we must read a whole block from memory. 
+    //
+    // If the operation is a read, then we simply output the memory's
+    // response and all is good.
+    // If the operation is a write, then we have to read the existing
+    // memory at that position for any masking so that we support
+    // writing bytes or halfwords into memory.
     when (io.memwrite) {
+      // Store the necessary information to redirect the memory's response
+      // back into itself through a write operation
       storedWrite.bits.address   := io.address
       storedWrite.bits.writedata := io.writedata
       storedWrite.bits.maskmode  := io.maskmode
       storedWrite.valid := true.B
+    } .otherwise {
+      storedWrite.valid := false.B
     }
-    
+    // Program memory to perform a read
     io.request.bits.address   := io.address
     io.request.bits.writedata := 0.U
     io.request.bits.operation := Read
@@ -150,12 +159,9 @@ class DMemPort extends Module {
   } .otherwise {
     io.request.valid := false.B
   }
-
-  // When memory is outputting data we need to determine whether it's to write back to memory or for simply
-  // reading
-  // This can be deduced from whether storedWrite is valid and the memory is signalling if it is ready.
+  
   when (io.response.valid) {
-    when (storedWrite.valid && io.request.ready) {
+    when (storedWrite.valid) {
       val writedata = Wire (UInt (32.W))
 
       // When not writing a whole word
@@ -192,7 +198,7 @@ class DMemPort extends Module {
       val readdata_mask      = Wire(UInt(32.W))
       val readdata_mask_sext = Wire(UInt(32.W))
 
-      val offset = io.response.bits.address (1,0)
+      val offset = io.response.bits.offset
       when (io.maskmode === 0.U) {
         // Byte
         readdata_mask := (io.response.bits.data >> (offset * 8.U)) & 0xff.U
@@ -220,7 +226,5 @@ class DMemPort extends Module {
 
       io.readdata := readdata_mask_sext
     }
-  } .otherwise {
-    io.request.valid := false.B
   }
 }
