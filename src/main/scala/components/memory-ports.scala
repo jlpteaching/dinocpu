@@ -18,22 +18,22 @@ class PartialWrite extends Bundle {
   val maskmode  = UInt(2.W)
 }
 
-/** 
+/**
  * A generic ready/valid interface for MemPort modules, whose IOs extend this.
- * This interface is split into two parts: 
+ * This interface is split into two parts:
  *   - Pipeline <=> Port: the interface between the pipelined CPU and the memory port
  *   - Memory <=> Port:   the interface between the memory port and the backing memory
  *
  * Pipeline <=> Port:
- *   Input:  address, the address of a piece of data in memory. 
+ *   Input:  address, the address of a piece of data in memory.
  *   Input:  valid, true when the address specified is valid
  *   Output: good, true when memory is responding with a piece of data (used to un-stall the pipeline)
  *
- *   
+ *
  * Port <=> Memory:
- *   Input:  response, the return route from memory to a memory port. This is primarily meant for connecting to 
- *           an AsyncMemIO's response output, and should not be connected to anything else in any circumstance 
- *           (or things will possibly break) 
+ *   Input:  response, the return route from memory to a memory port. This is primarily meant for connecting to
+ *           an AsyncMemIO's response output, and should not be connected to anything else in any circumstance
+ *           (or things will possibly break)
  *   Output: request, a DecoupledIO that delivers a request from a memory port to memory. This is primarily
  *           meant for connecting to an AsynMemIO's request input, and should not be connected to anything else
  */
@@ -42,17 +42,17 @@ class MemPortIO extends Bundle {
   val address  = Input(UInt(32.W))
   val valid    = Input(Bool())
   val good     = Output(Bool())
- 
-  // Port <=> Memory 
+
+  // Port <=> Memory
   val response = Flipped(Valid(new Response))
   val request  = Decoupled(new Request)
 }
 
-/** 
+/**
  * The *interface* of the IMemPort module.
  *
  * Pipeline <=> Port:
- *   Input:  address, the address of an instruction in memory 
+ *   Input:  address, the address of an instruction in memory
  *   Input:  valid, true when the address specified is valid
  *   Output: instruction, the requested instruction
  *   Output: good, true when memory is responding with a piece of data
@@ -65,7 +65,7 @@ class IMemPortIO extends MemPortIO {
  * The *interface* of the DMemPort module.
  *
  * Pipeline <=> Port:
- *   Input:  address, the address of a piece of data in memory. 
+ *   Input:  address, the address of a piece of data in memory.
  *   Input:  writedata, valid interface for the data to write to the address
  *   Input:  valid, true when the address (and writedata during a write) specified is valid
  *   Input:  memread, true if we are reading from memory
@@ -93,14 +93,13 @@ class DMemPortIO extends MemPortIO {
 class IMemPort extends Module {
   val io = IO (new IMemPortIO)
   io := DontCare
-  io.good           := io.response.valid
 
   // When the pipeline is supplying a high valid signal
   when (io.valid) {
     val request = Wire(new Request)
     request := DontCare
-    request.address      := io.address
-    request.operation    := Read
+    request.address   := io.address
+    request.operation := Read
 
     io.request.bits  := request
     io.request.valid := true.B
@@ -109,6 +108,7 @@ class IMemPort extends Module {
   }
 
   // When the memory is outputting a valid instruction
+  io.good := io.response.valid
   when (io.response.valid) {
     io.instruction := io.response.bits.data
   }
@@ -134,7 +134,7 @@ class DMemPort extends Module {
     // Check if we aren't issuing both a read and write at the same time
     assert (! (io.memread && io.memwrite))
 
-    // On either a read or write we must read a whole block from memory. 
+    // On either a read or write we must read a whole block from memory.
     //
     // If the operation is a read, then we simply output the memory's
     // response and all is good.
@@ -159,7 +159,7 @@ class DMemPort extends Module {
   } .otherwise {
     io.request.valid := false.B
   }
-  
+
   when (io.response.valid) {
     when (storedWrite.valid) {
       val writedata = Wire (UInt (32.W))
@@ -180,7 +180,7 @@ class DMemPort extends Module {
         writedata := data | (storedWrite.bits.writedata << (offset * 8.U))
       } .otherwise {
         // Write the entire word
-        writedata := storedWrite.bits.writedata 
+        writedata := storedWrite.bits.writedata
       }
 
       // Program the memory to issue a write
@@ -194,6 +194,7 @@ class DMemPort extends Module {
       // Mark the stored write register as being invalid.
       storedWrite.valid := false.B
     } .otherwise {
+      // Response is valid and we don't have a stored write.
       // Perform masking and sign extension on read data when memory is outputting it
       val readdata_mask      = Wire(UInt(32.W))
       val readdata_mask_sext = Wire(UInt(32.W))
