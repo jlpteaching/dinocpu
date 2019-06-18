@@ -35,7 +35,7 @@ Originally from ECS 154B Lab 3, Winter 2019
 
 # Introduction
 
-![Cute Dino](../dino-resources/dino-128.png)
+![Cute Dino](../dino-128.png)
 
 In the last assignment, you implemented a full single cycle RISC-V CPU.
 In this assignment, you will be extending this design to be a 5 stage pipeline instead of a single cycle.
