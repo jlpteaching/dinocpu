@@ -56,6 +56,16 @@ The `src/` directory:
     - `cpu-tests/`: Tests the full CPU design. **You may want to add additional tests here in future labs. Feel free to modify, but do not submit!**
     - `grading/`: The tests that will be run on Gradescope. Note: these won't work unless you are running inside the Gradescope docker container. They should match the tests in `components` and `cpu-tests`. **Do not modify.** (You *can* modify, but it will be ignored when uploading to Gradescope.)
 
+The `documentation` directory contains some documentation on [the design of the DINO CPU](documentation/overview.md) as well as an [introduction to the Chisel constructs required for the DINO CPU](documentation/chisel-notes/overview.md).
+
+# DINO CPU-based assignments
+
+The `assignments` directory contains some assignments that we have used at UC Davis with the DINO CPU.
+- [Assignment 1](assignments/assignment-1.md): Introduction assignment which begins the design of the DINO CPU with implementing the R-type instructions only.
+- [Assignment 2](assignments/assignment-2.md): A full implementation of a single-cycle RISC-V CPU. This assignment walks students through each type of RISC-V instruction.
+- [Assignment 3](assignments/assignment-3.md): Pipelining. This assignment extends assignment 2 to a pipelined RISC-V design.
+- [Assignment 4](assignments/assignment-4.md): Adding a branch predictor. In this assignment, students implement two different branch predictors and compare their performance.
+
 # How to run
 
 There are three primary ways to interact with the DINO CPU code.
