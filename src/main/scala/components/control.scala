@@ -61,13 +61,9 @@ class Control extends Module {
       // jalr
       BitPat("b1100111") -> List(true.B, false.B, false.B, 2.U,   false.B, false.B,  true.B,  true.B,     0.U,    3.U),
       //csr
-<<<<<<< HEAD
       BitPat("b1110011") -> List(true.B, false.B, false.B, 3.U,   false.B, false.B,  false.B, false.B,    0.U,    0.U),
       //fence
       BitPat("b0001111") -> List(true.B, false.B, false.B, 4.U,   false.B, false.B,  false.B, false.B,    0.U,    0.U)
-=======
-      BitPat("b1110011") -> List(true.B, false.B, false.B, 3.U,      false.B, false.B,  false.B, false.B,    0.U,    0.U)
->>>>>>> e1e98718d5acacc8d2d7da388de80d5ded747b65
       ) // Array
     ) // ListLookup
 
