@@ -3,6 +3,7 @@
 ![Cute Dino](dino-128.png)
 
 [![Build Status](https://travis-ci.com/jlpteaching/dinocpu.svg?branch=master)](https://travis-ci.com/jlpteaching/dinocpu)
+[![Coverage Status](https://coveralls.io/repos/github/jlpteaching/dinocpu/badge.svg)](https://coveralls.io/github/jlpteaching/dinocpu)
 
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](code-of-conduct.md)
 
