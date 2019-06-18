@@ -43,14 +43,6 @@ The `src/` directory:
 
 The `documentation` directory contains some documentation on [the design of the DINO CPU](documentation/overview.md) as well as an [introduction to the Chisel constructs required for the DINO CPU](documentation/chisel-notes/overview.md).
 
-# DINO CPU-based assignments
-
-The `assignments` directory contains some assignments that we have used at UC Davis with the DINO CPU.
-- [Assignment 1](assignments/assignment-1.md): Introduction assignment which begins the design of the DINO CPU with implementing the R-type instructions only.
-- [Assignment 2](assignments/assignment-2.md): A full implementation of a single-cycle RISC-V CPU. This assignment walks students through each type of RISC-V instruction.
-- [Assignment 3](assignments/assignment-3.md): Pipelining. This assignment extends assignment 2 to a pipelined RISC-V design.
-- [Assignment 4](assignments/assignment-4.md): Adding a branch predictor. In this assignment, students implement two different branch predictors and compare their performance.
-
 # How to run
 
 First you should set up the [Singularity container](documentation/singularity.md) or follow the [documentation for installing Chisel](https://github.com/freechipsproject/chisel3#installation).
@@ -73,25 +65,16 @@ sbt:dinocpu> runMain elaborate single-cycle
 
 See [Compiling code to run on DINO CPU](documentation/compiling.md) for details on how to [compile baremetal RISC-V programs](documentation/compiling.md#Getting-baremetal-programs-working) and [compile full C applications](documentation/compiling.md#Compiling-C-programs).
 
-# Using this with singularity
-
-[Singularity](https://www.sylabs.io/singularity/) is yet another container (LXC) wrapper.
-It's somewhat like docker, but it's built for scientific computing instead of microservices.
-The biggest benefit is that you can "lock" an image instead of depending on docker's layers which can constantly change.
-This allows you to have much more reproducible containers.
-
-However, this reproducibility comes at a cost of disk space.
-Each image is stored in full in the current working directory.
-This is compared to docker which only stores unique layers and stores them in /var instead of the local directory.
-
-The other benefit of singularity is that it's "safer" than docker.
-Instead of having to run everything with root privileges like in docker, with singularity you still run with your user permissions.
-Also, singularity does a better job at automatically binding local directories than docker.
-[By default](https://singularity.lbl.gov/docs-mount#system-defined-bind-points) it binds `$HOME`, the current working directory, and a few others (e.g., `/tmp`, etc.)
-
-
 # Documentation for Teachers
 
 - [Creating the code templates](documentation/teaching/template.md)
 - [Setting up grading on Gradescope](documentation/teaching/grading.md)
 - [Updating the Singularity container](documentation/teaching/singularity.md)
+
+## DINO CPU-based assignments
+
+The `assignments` directory contains some assignments that we have used at UC Davis with the DINO CPU.
+- [Assignment 1](assignments/assignment-1.md): Introduction assignment which begins the design of the DINO CPU with implementing the R-type instructions only.
+- [Assignment 2](assignments/assignment-2.md): A full implementation of a single-cycle RISC-V CPU. This assignment walks students through each type of RISC-V instruction.
+- [Assignment 3](assignments/assignment-3.md): Pipelining. This assignment extends assignment 2 to a pipelined RISC-V design.
+- [Assignment 4](assignments/assignment-4.md): Adding a branch predictor. In this assignment, students implement two different branch predictors and compare their performance.
