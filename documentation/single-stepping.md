@@ -74,3 +74,12 @@ There may be more in the future.
 # Adding a new test
 
 See [CPU Test Case](testing.md#cpu-test-case).
+
+# Disassembly
+
+I would like to add support for disassembly (see [this issue](https://github.com/jlpteaching/dinocpu-private/issues/18)).
+In the meantime, you can use pipe to automatically convert the `DASM` statements as the emulator is running.
+
+```
+./emulator +verbose 2>&1 | $RISV/bin/spike-dsm
+```

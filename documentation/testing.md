@@ -3,32 +3,105 @@ Author: Jason Lowe-Power
 Title: Testing DINO CPU
 ---
 
-This file explains how to run the tests, how to create unit tests, how to create instruction directed tests, and how to run the simulator.
-
 # Testing DINO CPU
 
-Start sbt in the REPL (Read-eval-print loop), by running the following code in the base DINO directory.
+This file explains how to run the tests, how to create unit tests, how to create instruction directed tests, and how to run the simulator.
+
+To run a test, first start the sbt REPL interface.
+If you are using singularity you can run the following command:
 
 ```
 singularity run library://jlowepower/default/dinocpu
 ```
 
-To run the tests, you execute the `SingleCycleCPUTester` suite as follows.
+You should see the following:
 
 ```
-dinocpu:sbt> testOnly dinocpu.SingleCycleCPUTester
+[info] Loading settings for project global-plugins from idea.sbt ...
+[info] Loading global plugins from /home/jlp/.sbt/1.0/plugins
+[info] Loading settings for project dinocpu-build from plugins.sbt ...
+[info] Loading project definition from /home/jlp/Code/chisel/dinocpu/project
+[info] Loading settings for project root from build.sbt ...
+[info] Set current project to dinocpu (in build file:/home/jlp/Code/chisel/dinocpu/)
+[info] sbt server started at local:///home/jlp/.sbt/1.0/server/054be10b189c032c309d/sock
+sbt:dinocpu>
 ```
-If you want to run only a single application from this suite of tests, you can add a parameter to the `test` `sbt` task.
-You can pass the option `-z` which will execute any tests that match the text given to the parameter.
-You must use `--` between the parameters to the `sbt` task (e.g., the suite to run) and the parameters for testing.
-For instance, to only run the subtract test, you would use the following:
+
+Now, you can run the command `test` to run *all of the tests* on the DINO CPU.
+When running in the template repository or in a specific lab branch, most (or all) of the tests will fail until you implement the requirements of that lab.
+
+There are three environments to run the tests:
+
+1. The default `Test` environment.
+This is the default environment, and the environment active when you simply run `test`.
+For each lab, this will be the LabX environment.
+For the master branch, this is the `TestAll` environment that contains all of the tests.
+2. The `LabX` environment.
+There is a specific set of tests for each lab. For instance, when you use the `Lab1` environment you will just run the tests for Lab 1.
+3. The `TestAll` environment contains all of the tests.
+
+To run tests in a specific environment prepend the environment name and `/` before the `test` command.
+As an example, to run the Lab 1 tests:
 
 ```
-dinocpu:sbt> testOnly dinocpu.SingleCycleCPUTester -- -z sub
+dinocpu:sbt> Lab1 / test
 ```
 
+## Running a single test
 
-# CPU Test Case
+The tests are grouped together into "suites".
+For the labs, each part of the lab is a single suite.
+To run one suite, use `testOnly` instead of `test`.
+
+For instance, to run just the ALU Control tests you can use the following.
+
+```
+sbt:dinocpu> testOnly dinocpu.ALUControlTester
+```
+
+Note: You can use tab completion in sbt to make searching for tests easier.
+
+Each of these suites runs a number of different tests.
+When trying to debug a test, you will often want to run just a single test case.
+To do that, you can use full text search on the name of the test.
+You can pass `-z <search>` to the tester.
+**Important**: This must be after `--` to distinguish the parameters.
+
+The name of the test is printed when you run the test.
+For instance, for the ALU control tester you will see the following output.
+
+```
+[info] [0.001] Elaborating design...
+[info] [0.081] Done elaborating.
+Total FIRRTL Compile Time: 175.6 ms
+Total FIRRTL Compile Time: 16.1 ms
+End of dependency graph
+Circuit state created
+[info] [0.000] SEED 1547141675482
+test ALUControl Success: 21 tests passed in 26 cycles taking 0.024443 seconds
+[info] [0.015] RAN 21 CYCLES PASSED
+[info] ALUControlTester:
+[info] ALUControl
+[info] - should match expectations for each intruction type
+[info] ScalaTest
+[info] Run completed in 649 milliseconds.
+[info] Total number of tests run: 1
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 1, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[info] Passed: Total 1, Failed 0, Errors 0, Passed 1
+[success] Total time: 1 s, completed Jan 10, 2019 5:34:36 PM
+```
+
+You can search in "should match expectations for each instruction type" (ignore the typo).
+
+So, let's say you only want to run the single cycle CPU test which executes the `add1` application, you can use the following.
+
+```
+sbt:dinocpu> testOnly dinocpu.SingleCycleCPUTester -- -z add1
+```
+
+## CPU Test Case
 
 The `InstTests` object in`src/test/scala/cpu-tests/InstTests.scala`contains lists of different instruction test cases for use with different CPU models.Each list is a different set of instruction types and corresponds to a RISC-V program in `src/test/resources/risc-v`.
 

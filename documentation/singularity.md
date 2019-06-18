@@ -124,3 +124,6 @@ To start sbt in the REPL (Read-Eval-Print Loop), run the following code in the b
 singularity run library://jlowepower/default/dinocpu
 ```
 
+# Singularity implementation details
+
+See [Singularity implementation details](teaching/singularity.md)
