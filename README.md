@@ -4,9 +4,7 @@
 
 [![Build Status](https://travis-ci.com/jlpteaching/dinocpu.svg?branch=master)](https://travis-ci.com/jlpteaching/dinocpu)
 [![Coverage Status](https://coveralls.io/repos/github/jlpteaching/dinocpu/badge.svg)](https://coveralls.io/github/jlpteaching/dinocpu)
-
 [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v1.4%20adopted-ff69b4.svg)](code-of-conduct.md)
-
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
