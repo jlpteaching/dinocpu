@@ -11,6 +11,26 @@ Originally from ECS 154B Lab 1, Winter 2019
 
 # Table of Contents
 
+* [Introduction](#introduction)
+  * [Goals](#goals)
+  * [Tools](#tools)
+      * [Using the CSIF machines](#using-the-csif-machines)
+* [Part I: Implement the ALU Control](#part-i-implement-the-alu-control)
+      * [Testing your ALU control unit](#testing-your-alu-control-unit)
+* [Part II: Draw a diagram for implementing R-type instructions](#part-ii-draw-a-diagram-for-implementing-r-type-instructions)
+* [Part III: Implement the ADD instruction](#part-iii-implement-the-add-instruction)
+  * [Testing your ADD instruction](#testing-your-add-instruction)
+* [Part IV: Implementing the rest of the R-type instructions](#part-iv-implementing-the-rest-of-the-r-type-instructions)
+  * [Testing the rest of the instructions](#testing-the-rest-of-the-instructions)
+* [Part V: Moving on to multiple cycles](#part-v-moving-on-to-multiple-cycles)
+  * [Testing](#testing)
+* [Grading](#grading)
+* [Submission](#submission)
+  * [Code portion](#code-portion)
+  * [Academic misconduct reminder](#academic-misconduct-reminder)
+* [Hints](#hints)
+  * [Printf debugging](#printf-debugging)
+
 
 # Introduction
 
