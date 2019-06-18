@@ -389,6 +389,7 @@ class CSRRegFile extends Module{
     io.evec := reg_mepc
   }
 
+
   //ECALL
   when(insn_call){
     io.evec := reg_mtvec.asUInt()
