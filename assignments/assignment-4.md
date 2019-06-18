@@ -40,7 +40,7 @@ Originally from ECS 154B Lab 4, Winter 2019
 
 # Introduction
 
-![Cute Dino](../dino-resources/dino-128.png)
+![Cute Dino](../dino-128.png)
 
 In the last assignment, you implemented a pipelined RISC-V CPU.
 You implemented forwarding to reduce the impact of data hazards, but control hazards still caused significant performance degradation.
@@ -80,7 +80,7 @@ There are three main differences, which are highlighted.
 Apologies for the messy diagram.
 It's gotten a bit complicated at this point.
 
-![Pipelined CPU](../dino-resources/pipelined-bp.svg)
+![Pipelined CPU](../documentation/pipelined-bp.svg)
 
 Additionally, a few minor differences include:
 
