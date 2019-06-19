@@ -291,6 +291,10 @@ You only need to implement the *R-type* instructions, not all RISC-V instruction
 **Hint 2**: The control unit as provided is *completely empty* and has `false` or 0 on every output.
 *You do not need to use the control unit for this assignment!*
 
+When you're done, your solution should look like the figure below.
+
+![R-Type only datapath](./r-type.svg)
+
 # Part III: Implement the ADD instruction
 
 **The test for this part is `dinocpu.SingleCycleAddTesterLab1`.**
