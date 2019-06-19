@@ -10,6 +10,14 @@
 
 This repository contains Chisel implementations of the CPU models from Patterson and Hennessy's Computer Organization and Design primarily for use in UC Davis's Computer Architecture course (ECS 154B).
 
+Any other educators are highly encouraged to take this repository and modify it to meet the needs of your class.
+Please [open an issue](https://github.com/jlpteaching/dinocpu/issues/new) with any questions or feature requests.
+We would also appreciate [contributions](CONTRIBUTING.md) via [pull requests](https://github.com/jlpteaching/dinocpu/pulls)!
+
+We published a summary paper on DINO CPU at the [Workshop on Computer Architecture Education](https://people.engr.ncsu.edu/efg/wcae2019.html) held with [ISCA '19](https://iscaconf.org/isca2019/index.html).
+
+[Jason Lowe-Power](https://faculty.engineering.ucdavis.edu/lowepower/) and [Christopher Nitta](https://csiflabs.cs.ucdavis.edu/~cjnitta/). 2019. [The Davis In-Order (DINO) CPU: A Teaching-focused RISC-V CPU Design](https://arch.cs.ucdavis.edu/assets/papers/wcae19-dinocpu.pdf). In Workshop on Computer Architecture Education (WCAE’19), June 22, 2019, Phoenix, AZ, USA. ACM, New York, NY, USA, 8 pages. https://doi.org/10.1145/3338698.3338892
+
 The repository was originally cloned from https://github.com/ucb-bar/chisel-template.git.
 
 # Getting the code
