@@ -117,7 +117,7 @@ Each test case looks like:
 
   ```
  CPUTestCase(  "binary_name",
-                Map("single-cycle" -> n_single, "five-cycle" -> n_fivecycle, "pipelined" -> n_pipelined),
+                Map("single-cycle" -> n_single, "pipelined" -> n_pipelined),
                 Map(rs1 -> data1, rs2 -> data2),
                 Map(0 -> 0, rd -> (data1 ? data2) , ...),
                 Map(), Map())
@@ -153,7 +153,7 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
 
   ```
 
-  - `Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5)` runs the single-cyle implementation for one cycle and the five-cycle, pipelined implementations for five cycles.
+  - `Map("single-cycle" -> 1, "pipelined" -> 5)` runs the single-cyle implementation for one cycle and the pipelined implementations for five cycles.
  - `Map(5 -> 1234, 20 -> 5678)` initializes `t0` (`reg[5]`) to 1234 and `s4` (`reg[20]`) to 5678.
  - `Map(0 -> 0, 10 -> 6912)` checks if the contents of `reg[0]` and `a0` are 0 and 6912 respectively.
 
@@ -162,7 +162,7 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
  Editing the already given CPU Test Cases with new values for initializing amd checking registers is very simple. Consider the test case for `add2.risv`. If we edit the test case to the following:
    ```
  CPUTestCase(  "add2",
-                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map("single-cycle" -> 1, "pipelined" -> 5),
                 Map(5 -> 2048, 20 -> 512),
                 Map(0 -> 0, 10 -> 2560),
                 Map(), Map())
@@ -174,13 +174,13 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
   ## 2. Adding new tests:
   ```
   CPUTestCase("add2",
-                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map("single-cycle" -> 1, "pipelined" -> 5),
                 Map(5 -> 1234, 20 -> 5678),
 								Map(0 -> 0, 10 -> 6912),
 								Map(), Map()),
 
   CPUTestCase("add2",
-                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map("single-cycle" -> 1, "pipelined" -> 5),
                 Map(5 -> 2048, 20 -> 512),
 								Map(0 -> 0, 10 -> 2560),
 								Map(), Map())
@@ -210,13 +210,13 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
 
    ```
   CPUTestCase("add2",
-                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map("single-cycle" -> 1, "pipelined" -> 5),
                 Map(5 -> 1234, 20 -> 5678),
 								Map(0 -> 0, 10 -> 6912),
 								Map(), Map()),
 
   CPUTestCase("add2",
-                Map("single-cycle" -> 1, "five-cycle" -> 5, "pipelined" -> 5),
+                Map("single-cycle" -> 1, "pipelined" -> 5),
                 Map(5 -> 2048, 20 -> 512),
 								Map(0 -> 0, 10 -> 2560),
 								Map(), Map(),"-addnew")
