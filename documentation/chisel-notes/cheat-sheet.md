@@ -6,7 +6,7 @@ Title: Chisel cheat sheet
 # Chisel cheat sheet for ECS 154B
 
 This document contains some of the Chisel patterns you will use while implementing the DINO CPU.
-The Chisel project provides [a more complete cheat sheet](https://chisel.eecs.berkeley.edu/2.2.0/chisel-cheatsheet.pdf).
+The Chisel project provides [a more complete cheat sheet](https://chisel.eecs.berkeley.edu/doc/chisel-cheatsheet3.pdf).
 
 # Wires
 
