@@ -37,7 +37,7 @@ For example:
 
 ```
 CPUTestCase("addi2",
-    Map("single-cycle" -> 2, "five-cycle" -> 0, "pipelined" -> 6),
+    Map("single-cycle" -> 2, "pipelined" -> 6),
     Map(),
     Map(0 -> 0, 10 -> 17, 11 -> 93),
     Map(), Map())
@@ -45,7 +45,7 @@ CPUTestCase("addi2",
 
 
 CPUTestCase("beq",
-    Map("single-cycle" -> 3, "five-cycle" -> 7, "pipelined" -> 9),
+    Map("single-cycle" -> 3, "pipelined" -> 9),
     Map(5 -> 1234, 6 -> 1, 7 -> 5678, 28 -> 9012),
     Map(5 -> 0, 6 -> 1, 7 -> 5678, 28 -> 9012),
     Map(), Map(), "-False"),
@@ -68,7 +68,6 @@ Right now, there are two public and one private implementation.
 There may be more in the future.
 
 - `single-cycle`: The single cycle DINO CPU
-- `five-cycle`: The five stage pipelined DINO CPU without forwarding or hazards (private only)
 - `pipelined`: The fully pipelined DINO CPU with forwarding and hazard detection
 
 # Adding a new test
