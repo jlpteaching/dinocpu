@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
-This repository contains Chisel implementations of the CPU models from Patterson and Hennessy's Computer Organization and Design primarily for use in UC Davis's Computer Architecture course (ECS 154B).
+This repository contains Chisel implementations of the CPU models from Patterson and Hennessy's Computer Organization and Design (RISC-V Edition) primarily for use in UC Davis's Computer Architecture course (ECS 154B).
 
 Any other educators are highly encouraged to take this repository and modify it to meet the needs of your class.
 Please [open an issue](https://github.com/jlpteaching/dinocpu/issues/new) with any questions or feature requests.
@@ -34,7 +34,6 @@ The `src/` directory:
 
 - `main/scala/`
   - `components/`: This contains a number of components that are needed to implement a CPU. You will be filling in some missing pieces to these components in this lab. You can also find all of the interfaces between components defined in this file.
-  - `five-cycle/`: This is the code for the five cycle CPU. Right now, this is just an empty template. You will implement this in Lab 3.
   - `pipelined/`: This is the code for the pipelined CPU. Right now, this is just an empty template. You will implement this in Lab 4.
   - `single-cycle/`: This is the code for the single cycle CPU. Right now, this is just an empty template. You will implement this in Lab 2.
   - `configuration.scala`: Contains a simple class to configure the CPU. **Do not modify.**
@@ -68,6 +67,7 @@ As an example:
 ```
 sbt:dinocpu> runMain elaborate single-cycle
 ```
+The generated verilog will be available in the root folder as `Top.v` along with some meta-data. You may also get some generated verilog for auxillary devices like memory as `Top.<device_name>.v
 
 # Compiling code for DINO CPU
 
