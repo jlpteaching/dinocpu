@@ -1,43 +1,13 @@
-// Asynchronous memory module
+// Non-combinational ('asynchronous') memory module
 
 package dinocpu
 
 import chisel3._
 import chisel3.util._
-import chisel3.internal.firrtl.Width
 
 import chisel3.util.experimental.loadMemoryFromFile
-import firrtl.annotations.MemoryLoadFileType
 
 import MemoryOperation._
-
-// A Bundle used for representing a memory access by instruction memory or data memory.
-class Request extends Bundle {
-  val address      = UInt(32.W)
-  val writedata    = UInt(32.W)
-  val operation    = UInt(1.W)
-}
-
-// A bundle used for representing the memory's response to a memory port.
-class Response extends Bundle {
-  // The 4-byte-wide block of data being returned by memory
-  val data         = UInt(32.W)
-}
-
-/**
- * The generic interface for communication between the IMem/DMemPort modules and the backing memory.
- *
- * Input:  request, the ready/valid interface for a MemPort module to issue Requests to. Memory
- *         will only accept a request when both request.valid (the MemPort is supplying valid data)
- *         and request.ready (the memory is idling for a request) are high.
- *
- * Output: response, the valid interface for the data outputted by memory if it was requested to read.
- *         the bits in response.bits should only be treated as valid data when response.valid is high.
- */
-class AsyncMemIO extends Bundle {
-  val request  = Flipped(Decoupled (new Request))
-  val response = Valid (new Response)
-}
 
 /**
  * The modified asynchronous form of the dual ported memory module.
@@ -48,10 +18,10 @@ class AsyncMemIO extends Bundle {
  * As with the synced memory module, this memory should only be instantiated in the Top file,
  * and never within the actual CPU.
  *
- * The I/O for this module is defined in [[AsyncMemIO]].
+ * The I/O for this module is defined in [[MemPortBusIO]].
  */
 class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Module {
-  def wireMemPipe(portio: AsyncMemIO, pipe: Pipe[Request]): Unit = {
+  def wireMemPipe(portio: MemPortBusIO, pipe: Pipe[Request]): Unit = {
     pipe.io.enq.bits      <> DontCare
     pipe.io.enq.valid     := false.B
     portio.response.valid := false.B
@@ -63,8 +33,8 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
   }
 
   val io = IO(new Bundle {
-    val imem = new AsyncMemIO
-    val dmem = new AsyncMemIO
+    val imem = new MemPortBusIO
+    val dmem = new MemPortBusIO
   })
   io <> DontCare
 
