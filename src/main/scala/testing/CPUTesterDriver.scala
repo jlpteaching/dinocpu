@@ -140,9 +140,11 @@ case class CPUTestCase(
   }
 }
 
+/* Only used in tests/scala/cpu-tests */
 object CPUTesterDriver {
   def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = ""): Boolean = {
-    val driver = new CPUTesterDriver(cpuType, branchPredictor, testCase.binary, testCase.extraName)
+    val cpustr = if (branchPredictor != "") { cpuType+"-bp" } else { cpuType }
+    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, testCase.extraName)
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))

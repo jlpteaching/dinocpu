@@ -1,4 +1,5 @@
 // This file is where all of the CPU components are assembled into the whole CPU
+// This CPU has a branch predictor and a slightly different pipeline design from the base pipelined CPU
 
 package dinocpu
 
@@ -8,10 +9,8 @@ import chisel3.util._
 /**
  * The main CPU definition that hooks up all of the other components.
  *
- * For more information, see section 4.6 of Patterson and Hennessy
- * This follows figure 4.49
  */
-class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
+class PipelinedCPUBP(implicit val conf: CPUConfig) extends Module {
   val io = IO(new CoreIO)
 
   // Bundles defining the pipeline registers and control structures
@@ -30,6 +29,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     val alusrc1   = UInt(2.W)
     val branch    = Bool()
     val jump      = UInt(2.W)
+    val prediction= Bool()
   }
 
   // Control signals used in MEM stage
@@ -62,6 +62,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     val wbcontrol = new WBControl
     val rs1       = UInt(5.W)    //pipelined only
     val rs2       = UInt(5.W)    //pipelined only
+    val branchpc  = UInt(32.W)
   }
 
   // Everything in the register between ID and EX stages
@@ -69,7 +70,6 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     val writereg  = UInt(5.W)
     val readdata2 = UInt(32.W)
     val aluresult = UInt(32.W)
-    val taken     = Bool()
     val nextpc    = UInt(32.W)
     val pcplusfour= UInt(32.W)
     val mcontrol  = new MControl
@@ -96,7 +96,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   val pcPlusFour = Module(new Adder())
   val branchAdd  = Module(new Adder())
   val forwarding = Module(new ForwardingUnit())  //pipelined only
-  val hazard     = Module(new HazardUnit())      //pipelined only
+  val hazard     = Module(new HazardUnitBP())    //pipelined only
+  val predictor  = Module(conf.getBranchPredictor)
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
   // The four pipeline registers
@@ -107,10 +108,21 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   if (conf.debug) { printf("Cycle=%d ", cycleCount) }
 
+  // For tracking branch predictor stats
+  val bpCorrect   = RegInit(0.U(32.W))
+  val bpIncorrect = RegInit(0.U(32.W))
+  when (bpCorrect > (1.U << 20)) {
+    // Force these wires not to disappear
+    printf(p"BP correct: $bpCorrect; incorrect: $bpIncorrect\n")
+  }
+
   // Forward declaration of wires that connect different stages
 
   // From memory back to fetch. Since we don't decide whether to take a branch or not until the memory stage.
-  val next_pc      = Wire(UInt())
+  val mem_next_pc = Wire(UInt())
+
+  // From the decode stage back to fetch. Used when branch is predicted true
+  val id_next_pc = Wire(UInt())
 
   // For wb back to other stages
   val write_data = Wire(UInt())
@@ -121,11 +133,13 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   // Note: This comes from the memory stage!
   // Only update the pc if the pcwrite flag is enabled
-  if (conf.debug) { printf(p"PC: $pc\n") }
   pc := MuxCase(0.U, Array(
                 (hazard.io.pcwrite === 0.U) -> pcPlusFour.io.result,
-                (hazard.io.pcwrite === 1.U) -> next_pc,
-                (hazard.io.pcwrite === 2.U) -> pc))
+                (hazard.io.pcwrite === 1.U) -> mem_next_pc,
+                (hazard.io.pcwrite === 2.U) -> pc,
+                (hazard.io.pcwrite === 3.U) -> id_next_pc))
+
+  if (conf.debug) { printf(p"PC: $pc\n") }
 
   // Send the PC to the instruction memory port to get the instruction
   io.imem.address := pc
@@ -162,6 +176,13 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   hazard.io.rs1 := rs1
   hazard.io.rs2 := rs2
 
+  // Set the predictor inputs
+  predictor.io.pc := if_id.pc
+
+  // Set the branch for this stage to the hazard
+  // This is needed for when the branch is predicted taken
+  hazard.io.id_branch := control.io.branch & predictor.io.prediction
+
   // Send opcode to control
   control.io.opcode := if_id.instruction(6,0)
 
@@ -172,7 +193,14 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   // Send the instruction to the immediate generator
   immGen.io.instruction := if_id.instruction
 
-  // FIll the id_ex register
+  // Connect the branchAdd unit
+  branchAdd.io.inputx := if_id.pc
+  branchAdd.io.inputy := immGen.io.sextImm
+
+  // Send the PC back to fetch
+  id_next_pc := branchAdd.io.result
+
+  // Fill the id_ex register
   id_ex.writereg   := if_id.instruction(11,7)
   id_ex.rs1        := rs1
   id_ex.rs2        := rs2
@@ -183,6 +211,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   id_ex.readdata1  := registers.io.readdata1
   id_ex.pc         := if_id.pc
   id_ex.pcplusfour := if_id.pcplusfour
+  id_ex.branchpc   := branchAdd.io.result
 
   // Set the execution control signals
   id_ex.excontrol.add       := control.io.add
@@ -190,6 +219,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   id_ex.excontrol.alusrc1   := control.io.alusrc1
   id_ex.excontrol.branch    := control.io.branch
   id_ex.excontrol.jump      := control.io.jump
+  id_ex.excontrol.prediction:= predictor.io.prediction
 
   // Set the memory control signals
   id_ex.mcontrol.memread  := control.io.memread
@@ -268,10 +298,6 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   // Set the ALU operation
   alu.io.operation := aluControl.io.operation
 
-  // Connect the branchAdd unit
-  branchAdd.io.inputx := id_ex.pc
-  branchAdd.io.inputy := id_ex.imm
-
   // Set the EX/MEM register values
   ex_mem.readdata2  := alu_inputy
   ex_mem.aluresult  := alu.io.result
@@ -280,16 +306,47 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   ex_mem.mcontrol   := id_ex.mcontrol
   ex_mem.wbcontrol  := id_ex.wbcontrol
 
-  // Calculate whether which PC we should use and set the taken flag (line 92 in single-cycle/cpu.scala)
-  when (branchCtrl.io.taken || id_ex.excontrol.jump === 2.U) {
-    ex_mem.nextpc := branchAdd.io.result
-    ex_mem.taken  := true.B
-  } .elsewhen (id_ex.excontrol.jump === 3.U) {
-    ex_mem.nextpc := alu.io.result & Cat(Fill(31, 1.U), 0.U)
-    ex_mem.taken  := true.B
+  // Update the branch predictor
+  when (id_ex.excontrol.branch && ~hazard.io.exmem_bubble) {
+    // when it's a branch, update the branch predictor
+    predictor.io.update := true.B
+    predictor.io.taken  := branchCtrl.io.taken
+
+    // Update the branch predictor stats
+    when (id_ex.excontrol.prediction === branchCtrl.io.taken) {
+      bpCorrect   := bpCorrect + 1.U
+    } .otherwise {
+      bpIncorrect := bpIncorrect + 1.U
+    }
+
   } .otherwise {
-    ex_mem.taken  := false.B
-    ex_mem.nextpc := DontCare // No need to set the PC if not a branch
+    // If not a branch, don't update
+    predictor.io.update := false.B
+    predictor.io.taken  := DontCare
+  }
+
+  // Calculate whether which PC we should use and set the taken flag (line 92 in single-cycle/cpu.scala)
+  when (id_ex.excontrol.jump(1)) {
+    // If the high bit in the jump control is set, then we jump no matter what.
+    when (id_ex.excontrol.jump(0) === 0.U) {
+      // jal, use the immediate computed result
+      ex_mem.nextpc := id_ex.branchpc
+      ex_mem.mcontrol.taken := true.B
+    } .otherwise {
+      // jalr, use the result from the ALU
+      ex_mem.nextpc := alu.io.result & Cat(Fill(31, 1.U), 0.U)
+      ex_mem.mcontrol.taken := true.B
+    }
+  } .otherwise {
+    // No need to do anything unless the prediction was wrong
+    when (branchCtrl.io.taken =/= id_ex.excontrol.prediction && id_ex.excontrol.branch) {
+      when (branchCtrl.io.taken) { ex_mem.nextpc := id_ex.branchpc }
+      .otherwise { ex_mem.nextpc := id_ex.pcplusfour }
+      ex_mem.mcontrol.taken := true.B
+    } .otherwise {
+      ex_mem.mcontrol.taken  := false.B
+      ex_mem.nextpc := DontCare
+    }
   }
 
   // Check for bubble EX/MEM register
@@ -297,7 +354,6 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
     // Set the ex_mem control to 0 to indicate a bubble
     ex_mem.mcontrol  := 0.U.asTypeOf(new MControl)
     ex_mem.wbcontrol := 0.U.asTypeOf(new WBControl)
-    ex_mem.taken := 0.U
   }
 
   if (conf.debug) { printf(p"EX/MEM: $ex_mem\n") }
@@ -315,10 +371,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.sext      := ex_mem.mcontrol.sext
 
   // Send next_pc back to the fetch stage
-  next_pc := ex_mem.nextpc
+  mem_next_pc := ex_mem.nextpc
 
   // Send input signals to the hazard detection unit
-  hazard.io.exmem_taken := ex_mem.taken
+  hazard.io.exmem_taken := ex_mem.mcontrol.taken
 
   // Send input signals to the forwarding unit
   forwarding.io.exmemrd := ex_mem.writereg
