@@ -67,7 +67,7 @@ As an example:
 ```
 sbt:dinocpu> runMain elaborate single-cycle
 ```
-The generated verilog will be available in the root folder as `Top.v` along with some meta-data. You may also get some generated verilog for auxillary devices like memory as `Top.<device_name>.v
+The generated verilog will be available in the root folder as `Top.v` along with some meta-data. You may also get some generated verilog for auxillary devices like memory as `Top.<device_name>.v`
 
 # Compiling code for DINO CPU
 
