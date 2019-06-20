@@ -9,14 +9,6 @@ import chisel3.internal.firrtl.Width
 import chisel3.util.experimental.loadMemoryFromFile
 import firrtl.annotations.MemoryLoadFileType
 
-/**
- * Enumerator to assign names to the UInt constants representing memory operations
- */
-object MemoryOperation {
-  val Read = 0.U
-  val Write = 1.U
-}
-
 import MemoryOperation._
 
 // A Bundle used for representing a memory access by instruction memory or data memory.
@@ -120,10 +112,11 @@ class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Mo
     dmemPipe.io.enq.bits  := inRequest
     dmemPipe.io.enq.valid := true.B
   } .otherwise {
-  //  dmemPipe.io.enq.valid := false.B
+    dmemPipe.io.enq.valid := false.B
   }
 
   when (dmemPipe.io.deq.valid) {
+    assert (dmemPipe.io.deq.bits.operation =/= ReadWrite)
     // Dequeue request and execute
     val outRequest = dmemPipe.io.deq.asTypeOf (new Request)
     val address = outRequest.address >> 2
