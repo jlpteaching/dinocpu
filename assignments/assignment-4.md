@@ -84,7 +84,7 @@ It's gotten a bit complicated at this point.
 
 Additionally, a few minor differences include:
 
-1. Updates to the hazard detection logic to deal with taken branches in the ID stage.
+1. Updates to the hazard detection logic to deal with taken branches in the ID stage. For this, you should modify the hazard detection unit in `src/main/scala/components/hazardbp.scala`.
 2. Updates to the `taken` logic in the execute stage.
 3. Logic to update the branch predictor.
 4. Generally cleaning up of some of the other code in the pipelined CPU.
@@ -127,22 +127,22 @@ You will be evaluating five CPU designs: the single cycle from Lab 2, and then t
 - `pipelined`: The pipelined CPU design.
 
 After the word `pipelined`, you can specify the branch predictor type.
-For instance, for "always taken" you would say: `pipelined:always-taken`.
+For instance, for "always taken" you would say: `pipelined-bp:always-taken`.
 
 Therefore, you will be running the following CPU types:
 
 - `single-cycle`: The single cycle CPU design.
-- `pipelined:always-not-taken`: The pipelined CPU design from lab 3.
-- `pipelined:always-taken`: The pipelined CPU design with an always taken branch predictor
-- `pipelined:local`: The pipelined CPU design with a local history predictor.
-- `pipelined:global`: The pipelined CPU design with a global history predictor.
+- `pipelined-bp:always-not-taken`: The pipelined CPU design from lab 3.
+- `pipelined-bp:always-taken`: The pipelined CPU design with an always taken branch predictor
+- `pipelined-bp:local`: The pipelined CPU design with a local history predictor.
+- `pipelined-bp:global`: The pipelined CPU design with a global history predictor.
 
 As an example, below runs the median workload with the always not taken predictor:
 
 ```
-sbt:dinocpu> runMain dinocpu.simulate src/test/resources/c/median.riscv pipelined:always-not-taken
+sbt:dinocpu> runMain dinocpu.simulate src/test/resources/c/median.riscv pipelined-bp:always-not-taken
 [warn] Multiple main classes detected.  Run 'show discoveredMainClasses' to see the list
-[info] Running dinocpu.simulate src/test/resources/c/median.riscv pipelined:always-not-taken
+[info] Running dinocpu.simulate src/test/resources/c/median.riscv pipelined-bp:always-not-taken
 [info] [0.001] Elaborating design...
 [info] [0.805] Done elaborating.
 Total FIRRTL Compile Time: 602.0 ms

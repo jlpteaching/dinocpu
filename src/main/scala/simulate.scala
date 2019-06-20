@@ -109,7 +109,12 @@ object simulate {
     val conf = new CPUConfig()
 
     val params = args(1).split(":")
-    val cpuType = params(0)
+    val cpuType =
+    if (params.length == 2) {
+      "pipelined-bp"
+    } else {
+      params(0)
+    }
 
     val predictor =
     if (params.length == 2) {
