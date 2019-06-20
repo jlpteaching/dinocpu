@@ -45,7 +45,7 @@ class ALUControlUnitRTypeTester(c: ALUControl) extends PeekPokeTester(c) {
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly dinocpu.ALUControlTesterLab1'
+  * sbt 'Lab1 / testOnly dinocpu.ALUControlTesterLab1'
   * }}}
   */
 class ALUControlTesterLab1 extends ChiselFlatSpec {
@@ -60,11 +60,11 @@ class ALUControlTesterLab1 extends ChiselFlatSpec {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly dinocpu.SingleCycleAddTesterLab1
+  * Lab1 / testOnly dinocpu.SingleCycleAddTesterLab1
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly dinocpu.SingleCycleAddTesterLab1'
+  * sbt 'Lab1 / testOnly dinocpu.SingleCycleAddTesterLab1'
   * }}}
   */
 class SingleCycleAddTesterLab1 extends CPUFlatSpec {
@@ -78,11 +78,11 @@ class SingleCycleAddTesterLab1 extends CPUFlatSpec {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly dinocpu.SingleCycleRTypeTesterLab1
+  * Lab1 / testOnly dinocpu.SingleCycleRTypeTesterLab1
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly dinocpu.SingleCycleRTypeTesterLab1'
+  * sbt 'Lab1 / testOnly dinocpu.SingleCycleRTypeTesterLab1'
   * }}}
   *
   * To run a **single** test from this suite, you can use the -z option to sbt test.
@@ -105,11 +105,11 @@ class SingleCycleRTypeTesterLab1 extends CPUFlatSpec {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly dinocpu.SingleCycleMultiCycleTesterLab1
+  * Lab1 / testOnly dinocpu.SingleCycleMultiCycleTesterLab1
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly dinocpu.SingleCycleMultiCycleTesterLab1'
+  * sbt 'Lab1 / testOnly dinocpu.SingleCycleMultiCycleTesterLab1'
   * }}}
   *
   * To run a **single** test from this suite, you can use the -z option to sbt test.
