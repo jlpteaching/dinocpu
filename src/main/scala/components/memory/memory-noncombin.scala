@@ -20,7 +20,7 @@ import MemoryOperation._
  *
  * The I/O for this module is defined in [[MemPortBusIO]].
  */
-class DualPortedAsyncMemory(size: Int, memfile: String, latency: Int) extends Module {
+class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extends Module {
   def wireMemPipe(portio: MemPortBusIO, pipe: Pipe[Request]): Unit = {
     pipe.io.enq.bits      <> DontCare
     pipe.io.enq.valid     := false.B
