@@ -5,6 +5,7 @@ package dinocpu
 import chisel3._
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import components.memory.{DMemPortIO, DNonCombinMemPort, DualPortedNonCombinMemory, IMemPortIO, INonCombinMemPort}
 
 // To generate random latencies
 import scala.util.Random
@@ -12,17 +13,17 @@ import scala.util.Random
 
 
 /** 
- * Testing harness for the asynchronous memory
+ * Testing harness for the non-combinational memory
  *
  * Bundles every I/O port of instruction and data memory into
  * a single interface so that the testers can poke all necessary inputs.
  *
- * Also serves as an example on how to set up the asynchronous memory in
+ * Also serves as an example on how to set up the non-combinational memory in
  * an actual CPU by connecting the imem and dmem ports to the memory.
  
  * See: [[IMemPortIO]] and [[DMemPortIO]]
  */
-class AsyncMemoryTestHarness(size: Int, memFile: String, latency: Int) extends Module {
+class NonCombinMemoryTestHarness(size: Int, memFile: String, latency: Int) extends Module {
   val io = IO(new Bundle {
     val imem_address      = Input(UInt(32.W))
     val imem_valid        = Input(Bool())
@@ -41,10 +42,10 @@ class AsyncMemoryTestHarness(size: Int, memFile: String, latency: Int) extends M
   })
   io := DontCare
 
-  val imem = Module(new IMemPort)
+  val imem = Module(new INonCombinMemPort)
 
-  val dmem = Module(new DMemPort)
-  val memory = Module(new DualPortedAsyncMemory (size, memFile, latency))
+  val dmem = Module(new DNonCombinMemPort)
+  val memory = Module(new DualPortedNonCombinMemory (size, memFile, latency))
   memory.io := DontCare
 
 
@@ -69,12 +70,10 @@ class AsyncMemoryTestHarness(size: Int, memFile: String, latency: Int) extends M
   // Connect memory dmem IO to dmem accessor
   memory.io.dmem.request  <> dmem.io.request
   dmem.io.response        <> memory.io.dmem.response 
-
-  //printf(">>>>cycle\n")
 }
 
 // Test instruction port reading a zeroed memory file
-class AsyncMemoryUnitTester$IMemZero(m: AsyncMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+class AsyncMemoryUnitTester$IMemZero(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
   expect(m.io.imem_good, 0)
 
   // Expect 0's on the instruction port
@@ -95,7 +94,7 @@ class AsyncMemoryUnitTester$IMemZero(m: AsyncMemoryTestHarness, size: Int, laten
 }
 
 // Test instruction port reading an ascending memory file
-class AsyncMemoryUnitTester$IMemRead(m: AsyncMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+class AsyncMemoryUnitTester$IMemRead(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
   // Expect ascending bytes on instruction port
   expect(m.io.imem_good, 0)
 
@@ -116,7 +115,7 @@ class AsyncMemoryUnitTester$IMemRead(m: AsyncMemoryTestHarness, size: Int, laten
   }
 }
 // Test data port writes and instruction port reads
-class AsyncMemoryUnitTester$IMemWrite(m: AsyncMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+class AsyncMemoryUnitTester$IMemWrite(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
   expect(m.io.dmem_good, 0)
   // write ascending data to memory 
   for (i <- 0 until size/8) {
@@ -166,7 +165,7 @@ class AsyncMemoryUnitTester$IMemWrite(m: AsyncMemoryTestHarness, size: Int, late
 }
 
 // Test data port reading a zeroed memory file
-class AsyncMemoryUnitTester$DMemZero(m: AsyncMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+class AsyncMemoryUnitTester$DMemZero(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
   expect(m.io.dmem_good, 0)
 
   // Expect 0's on the data port
@@ -190,7 +189,7 @@ class AsyncMemoryUnitTester$DMemZero(m: AsyncMemoryTestHarness, size: Int, laten
 }
 
 // Test data port reading an ascending memory file
-class AsyncMemoryUnitTester$DMemRead(m: AsyncMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+class AsyncMemoryUnitTester$DMemRead(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
   expect(m.io.dmem_good, 0)
 
   // Expect ascending bytes on data port
@@ -214,7 +213,7 @@ class AsyncMemoryUnitTester$DMemRead(m: AsyncMemoryTestHarness, size: Int, laten
 }
 
 // Test data port writes and data port reads
-class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
   expect(m.io.dmem_good, 0)
   // write ascending data to memory 
   for (i <- 0 until size/8) {
@@ -278,41 +277,41 @@ class AsyncMemoryUnitTester$DMemWrite(m: AsyncMemoryTestHarness, size: Int, late
   * sbt 'testOnly dinocpu.AsyncMemoryTester'
   * }}}
   */
-class AsyncMemoryTester extends ChiselFlatSpec {
+class NonCombinMemoryTester extends ChiselFlatSpec {
   val latency = new Random().nextInt (49) + 1
 
   // imem side
-  "DualPortedAsyncMemory" should s"have all zeros in instruction port (with treadle and $latency latency cycles)"  in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency), "treadle") {
+  "DualPortedNonCombinMemory" should s"have all zeros in instruction port (with treadle and $latency latency cycles)"  in {
+    Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$IMemZero(m, 2048, latency)
     } should be (true)
   }
-  "DualPortedAsyncMemory" should s"have increasing words in instruction port (with treadle and $latency latency cycles)" in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
+  "DualPortedNonCombinMemory" should s"have increasing words in instruction port (with treadle and $latency latency cycles)" in {
+    Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$IMemRead(m, 2048, latency)
     } should be (true)
   } 
-  "DualPortedAsyncMemory" should s"store words with data port and load with instruction port (with treadle and $latency latency cycles)" in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
+  "DualPortedNonCombinMemory" should s"store words with data port and load with instruction port (with treadle and $latency latency cycles)" in {
+    Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$IMemWrite(m, 2048, latency)
     } should be (true)
   }
   
   // dmem side
-  "DualPortedAsyncMemory" should s"have all zeros in data port (with treadle and $latency latency cycles)"  in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency), "treadle") {
+  "DualPortedNonCombinMemory" should s"have all zeros in data port (with treadle and $latency latency cycles)"  in {
+    Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$DMemZero(m, 2048, latency)
     } should be (true)
   }
 
-  "DualPortedAsyncMemory" should s"have increasing words in data port (with treadle and $latency latency cycles)" in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
+  "DualPortedNonCombinMemory" should s"have increasing words in data port (with treadle and $latency latency cycles)" in {
+    Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$DMemRead(m, 2048, latency)
     } should be (true)
   }
   
-  "DualPortedAsyncMemory" should s"store words with data port and load with data port (with treadle and $latency latency cycles)" in {
-    Driver(() => new AsyncMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
+  "DualPortedNonCombinMemory" should s"store words with data port and load with data port (with treadle and $latency latency cycles)" in {
+    Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$DMemWrite(m, 2048, latency)
     } should be (true)
   }

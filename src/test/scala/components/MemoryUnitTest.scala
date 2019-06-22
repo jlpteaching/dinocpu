@@ -4,6 +4,7 @@ package dinocpu
 
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import components.memory.DualPortedMemory
 
 class MemoryUnitZeroTester(m: DualPortedMemory, size: Int) extends PeekPokeTester(m) {
 

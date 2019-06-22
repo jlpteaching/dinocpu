@@ -1,13 +1,11 @@
 // Non-combinational ('asynchronous') memory module
 
-package dinocpu
+package components.memory
 
 import chisel3._
 import chisel3.util._
-
 import chisel3.util.experimental.loadMemoryFromFile
-
-import MemoryOperation._
+import components.memory.MemoryOperation._
 
 /**
  * The modified asynchronous form of the dual ported memory module.

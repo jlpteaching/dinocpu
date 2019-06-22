@@ -1,15 +1,10 @@
-// Asynchronous memory module
+// Non-combinational/'asynchronous' memory module
 
-package dinocpu
+package components.memory
 
 import chisel3._
 import chisel3.util._
-import chisel3.internal.firrtl.Width
-
-import chisel3.util.experimental.loadMemoryFromFile
-import firrtl.annotations.MemoryLoadFileType
-
-import MemoryOperation._
+import components.memory.MemoryOperation._
 
 // A Bundle used for temporarily storing the necessary information for a  read/write in the data memory accessor.
 class OutstandingReq extends Bundle {
@@ -117,9 +112,9 @@ class DNonCombinMemPort extends Module {
         val data = Wire (UInt (32.W))
         // Mask the portion of the existing data so it can be or'd with the writedata
         when (outstandingReq.bits.maskmode === 0.U) {
-          data := io.response.bits.data & ~(0xff.U << (offset * 8.U))
+          data := readdata & ~(0xff.U << (offset * 8.U))
         } .otherwise {
-          data := io.response.bits.data & ~(0xffff.U << (offset * 8.U))
+          data := readdata & ~(0xffff.U << (offset * 8.U))
         }
         writedata := data | (outstandingReq.bits.writedata << (offset * 8.U))
       } .otherwise {
