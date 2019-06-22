@@ -5,6 +5,8 @@ package dinocpu
 // For file length
 import java.io.{File, FileNotFoundException}
 
+import components.memory.DualPortedMemory
+
 import scala.math.max
 
 /**
@@ -59,7 +61,7 @@ class CPUConfig
    *
    * @param minSize is the minimum size for the memory. If the binary file is
    *        smaller than this, create a memory that is this size.
-   * @return [[dinocpu.DualPortedMemory]] object
+   * @return [[DualPortedMemory]] object
    */
   def getMem(minSize: Int = 1 << 16) = {
     val f = new File(memFile)

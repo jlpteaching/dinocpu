@@ -1,13 +1,11 @@
 // The instruction and data memory modules
 
-package dinocpu
+package components.memory
 
 import chisel3._
 import chisel3.util._
 import chisel3.util.experimental.loadMemoryFromFile
-import firrtl.annotations.MemoryLoadFileType
-
-import MemoryOperation._
+import components.memory.MemoryOperation._
 
 /**
  * This is the *interface* to memory from the instruction side of the pipeline
