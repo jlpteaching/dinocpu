@@ -4,9 +4,10 @@ package dinocpu
 
 import chisel3._
 import chisel3.util._
-
 import chisel3.util.experimental.loadMemoryFromFile
 import firrtl.annotations.MemoryLoadFileType
+
+import MemoryOperation._
 
 /**
  * This is the *interface* to memory from the instruction side of the pipeline
@@ -47,6 +48,9 @@ class DMemIO extends Bundle {
 /**
  * This is the actual memory. You should never directly use this in the CPU.
  * This module should only be instantiated in the Top file.
+ *
+ * Note: this module is **deprecated**. See [[DualPortedCombinMemory]] for a functionally equivalent backing memory
+ * which utilizes the newer memory module system.
  *
  * The I/O for this module is defined in [[IMemIO]] and [[DMemIO]].
  */
@@ -113,5 +117,78 @@ class DualPortedMemory(size: Int, memfile: String) extends Module {
     } .otherwise {
       memory(io.dmem.address >> 2) := io.dmem.writedata
     }
+  }
+}
+
+
+/**
+  * This is the actual memory. You should never directly use this in the CPU.
+  * This module should only be instantiated in the Top file.
+  *
+  * The I/O for this module is defined in [[MemPortBusIO]].
+  */
+
+class DualPortedCombinMemory(size: Int, memfile: String) extends Module {
+  def wireMemPipe(portio: MemPortBusIO): Unit = {
+    portio.response.valid := false.B
+    // Combinational memory is inherently always ready for port requests
+    portio.request.ready := true.B
+  }
+
+  val io = IO(new Bundle {
+    val imem = new MemPortBusIO
+    val dmem = new MemPortBusIO
+  })
+  io <> DontCare
+
+  val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
+  loadMemoryFromFile(memory, memfile)
+
+  // Instruction port
+
+  wireMemPipe(io.imem)
+
+  when (io.imem.request.valid) {
+    // Put the Request into the instruction pipe and signal that instruction memory is busy
+    val request = io.imem.request.asTypeOf(new Request)
+
+    // We should only be expecting a read from instruction memory
+    assert(request.operation === Read)
+    // Check that address is pointing to a valid location in memory
+    assert (request.address < size.U)
+
+    io.imem.response.valid        := true.B
+    io.imem.response.bits.data    := memory(request.address >> 2)
+  } .otherwise {
+    io.imem.response.valid := false.B
+  }
+
+  // Data port
+
+  wireMemPipe(io.dmem)
+
+  when (io.dmem.request.valid) {
+    val request = io.dmem.request.asTypeOf (new Request)
+
+    assert (request.operation =/= Write)
+    assert (request.address < size.U)
+    // Dequeue request and execute
+    // Check that address is pointing to a valid location in memory
+
+    when (request.operation === Read || request.operation === ReadWrite) {
+      io.dmem.response.valid        := true.B
+      io.dmem.response.bits.data    := memory(request.address >> 2)
+
+      when (request.operation === ReadWrite) {
+        // Since the data ports are tasked with performing write data manipulation like masking and sign extension, we
+        // expect the combinational data port to be outputting the processed data that it receives from io.dmem.response
+        // as the request's write data..
+        // So, just feed it directly to memory
+        memory(request.address >> 2) := request.writedata
+
+      }
+    }
+  } .otherwise {
+    io.dmem.response.valid := false.B
   }
 }

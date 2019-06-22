@@ -25,7 +25,7 @@ class OutstandingReq extends Bundle {
  *
  * The I/O for this module is defined in [[IMemPortIO]].
  */
-class IMemPort extends Module {
+class INonCombinMemPort extends Module {
   val io = IO (new IMemPortIO)
   io := DontCare
 
@@ -54,7 +54,7 @@ class IMemPort extends Module {
  *
  * The I/O for this module is defined in [[DMemPortIO]].
  */
-class DMemPort extends Module {
+class DNonCombinMemPort extends Module {
   val io = IO (new DMemPortIO)
   io      := DontCare
   io.good := io.response.valid
