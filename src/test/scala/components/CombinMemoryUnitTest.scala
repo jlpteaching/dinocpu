@@ -110,9 +110,8 @@ class CombinMemoryUnitTester$IMemWrite(m: CombinMemoryTestHarness, size: Int) ex
 
     step(1)
 
-    // Memory shouldn't be outputting high on good
-    // but we'll temporarily expect it to be high until we fix the combin loop
-    expect(m.io.dmem_good, 1)
+    // Memory shouldn't be outputting high on good after a write, since it isn't reading
+    expect(m.io.dmem_good, 0)
   }
 
   poke (m.io.dmem_memwrite, 0)
@@ -181,7 +180,8 @@ class CombinMemoryUnitTester$DMemWrite(m: CombinMemoryTestHarness, size: Int) ex
 
     step(1)
 
-    expect(m.io.dmem_good, 1)
+    // Memory shouldn't be outputting high on good after a write, since it isn't reading
+    expect(m.io.dmem_good, 0)
   }
 
   poke (m.io.dmem_memwrite, 0)
