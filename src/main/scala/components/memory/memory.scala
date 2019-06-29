@@ -168,11 +168,13 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends Module {
   val memAddress = Wire(UInt(32.W))
   val memWriteData = Wire(UInt(32.W))
 
-
+  // Read path
   memAddress := io.dmem.request.bits.address
   io.dmem.response.bits.data := memory.read(memAddress >> 2)
-  memWriteData := io.dmem.request.bits.writedata
+  io.dmem.response.valid := true.B
 
+  // Write path
+  memWriteData := io.dmem.request.bits.writedata
   memory(memAddress >> 2) := memWriteData
 
   when (io.dmem.request.valid) {
@@ -182,8 +184,6 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends Module {
     assert (request.operation =/= Write)
     // Check that address is pointing to a valid location in memory
     assert (request.address < size.U)
-
-    io.dmem.response.valid := true.B
   } .otherwise {
     memAddress := DontCare
     io.dmem.response.bits.data := DontCare

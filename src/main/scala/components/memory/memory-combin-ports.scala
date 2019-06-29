@@ -43,7 +43,7 @@ class ICombinMemPort extends Module {
 class DCombinMemPort extends Module {
   val io = IO (new DMemPortIO)
   io      := DontCare
-  io.good := io.response.valid
+  io.good := io.response.valid && io.memread && !io.memwrite
 
   when (io.valid && (io.memread || io.memwrite)) {
     // Check that we are not issuing a read and write at the same time
