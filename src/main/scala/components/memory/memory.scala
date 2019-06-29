@@ -164,8 +164,16 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends Module {
   // Data port
 
   wireMemPipe(io.dmem)
-  io.dmem.response.bits.data := memory.read(io.dmem.request.bits.address >> 2)
-  memory(io.dmem.request.bits.address >> 2) := io.dmem.request.bits.writedata
+
+  val memAddress = Wire(UInt(32.W))
+  val memWriteData = Wire(UInt(32.W))
+
+
+  memAddress := io.dmem.request.bits.address
+  io.dmem.response.bits.data := memory.read(memAddress >> 2)
+  memWriteData := io.dmem.request.bits.writedata
+
+  memory(memAddress >> 2) := memWriteData
 
   when (io.dmem.request.valid) {
     val request = io.dmem.request.asTypeOf (new Request)
@@ -177,6 +185,10 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends Module {
 
     io.dmem.response.valid := true.B
   } .otherwise {
+    memAddress := DontCare
+    io.dmem.response.bits.data := DontCare
+    memWriteData := DontCare
+
     io.dmem.response.valid := false.B
   }
 }
