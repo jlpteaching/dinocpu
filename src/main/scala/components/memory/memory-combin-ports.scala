@@ -47,7 +47,7 @@ class DCombinMemPort extends Module {
 
   when (io.valid && (io.memread || io.memwrite)) {
     // Check that we are not issuing a read and write at the same time
-    assert(!(io.memread || io.memwrite))
+    assert(!(io.memread && io.memwrite))
 
     io.request.bits.address := io.address
     io.request.valid := true.B
@@ -57,14 +57,13 @@ class DCombinMemPort extends Module {
       // Basic run-down of the ReadWrite operation:
       // - DCombinMemPort sends a ReadWrite at a specific address, **addr**.
       // - Backing memory outputs the data at **addr** in io.response
-      // - DCombinMemPort receives high for io.response.valid, and notes that io.memwrite is high. io.response.bits.data
+      // - DCombinMemPort notes that io.memwrite is high in the response path. io.response.bits.data
       //   is masked and sign extended, and sent down io.request.writedata
       // - Backing memory receives the modified writedata and feeds it into the memory at **addr**.
       // Since this is combinational logic, this should theoretically all resolve in one clock cycle with no issues
       io.request.bits.operation := ReadWrite
     } .otherwise {
       // Issue a normal read to the backing memory
-
       io.request.bits.operation := Read
     }
   } .otherwise {
@@ -76,7 +75,6 @@ class DCombinMemPort extends Module {
   when (io.response.valid) {
     when (io.memwrite) {
       // Perform writedata modification and send it down io.request.writedata.
-
       val writedata = Wire (UInt (32.W))
 
       // When not writing a whole word
@@ -84,7 +82,9 @@ class DCombinMemPort extends Module {
         // Read in the existing piece of data at the address, so we "overwrite" only part of it
         val offset = io.address (1, 0)
         val readdata = Wire (UInt (32.W))
+
         readdata := io.response.bits.data
+
         val data = Wire (UInt (32.W))
         // Mask the portion of the existing data so it can be or'd with the writedata
         when (io.maskmode === 0.U) {
@@ -99,7 +99,7 @@ class DCombinMemPort extends Module {
       }
 
       io.request.bits.writedata := writedata
-    } .otherwise {
+    } .elsewhen (io.memread) {
       // Perform normal masking and sign extension on the read data
       val readdata_mask      = Wire(UInt(32.W))
       val readdata_mask_sext = Wire(UInt(32.W))

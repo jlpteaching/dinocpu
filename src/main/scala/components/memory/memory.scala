@@ -139,7 +139,7 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends Module {
   })
   io <> DontCare
 
-  val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
+  val memory   = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
 
   // Instruction port
@@ -164,28 +164,18 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends Module {
   // Data port
 
   wireMemPipe(io.dmem)
+  io.dmem.response.bits.data := memory.read(io.dmem.request.bits.address >> 2)
+  memory(io.dmem.request.bits.address >> 2) := io.dmem.request.bits.writedata
 
   when (io.dmem.request.valid) {
     val request = io.dmem.request.asTypeOf (new Request)
 
+    // Check that non-combin write isn't being used
     assert (request.operation =/= Write)
-    assert (request.address < size.U)
-    // Dequeue request and execute
     // Check that address is pointing to a valid location in memory
+    assert (request.address < size.U)
 
-    when (request.operation === Read || request.operation === ReadWrite) {
-      io.dmem.response.valid        := true.B
-      io.dmem.response.bits.data    := memory(request.address >> 2)
-
-      when (request.operation === ReadWrite) {
-        // Since the data ports are tasked with performing write data manipulation like masking and sign extension, we
-        // expect the combinational data port to be outputting the processed data that it receives from io.dmem.response
-        // as the request's write data..
-        // So, just feed it directly to memory
-        memory(request.address >> 2) := request.writedata
-
-      }
-    }
+    io.dmem.response.valid := true.B
   } .otherwise {
     io.dmem.response.valid := false.B
   }
