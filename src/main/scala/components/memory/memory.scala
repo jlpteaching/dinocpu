@@ -1,11 +1,87 @@
 // The instruction and data memory modules
 
-package components.memory
+package dinocpu
 
 import chisel3._
 import chisel3.util._
 import chisel3.util.experimental.loadMemoryFromFile
-import components.memory.MemoryOperation._
+import dinocpu.MemoryOperation._
+
+/**
+  * This is the actual memory. You should never directly use this in the CPU.
+  * This module should only be instantiated in the Top file.
+  *
+  * The I/O for this module is defined in [[MemPortBusIO]].
+  */
+
+class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedMemory (size, memfile) {
+  // Instruction port
+
+  wireMemPipe(io.imem)
+
+  when (io.imem.request.valid) {
+    // Put the Request into the instruction pipe and signal that instruction memory is busy
+    val request = io.imem.request.asTypeOf(new Request)
+
+    // We should only be expecting a read from instruction memory
+    assert(request.operation === Read)
+    // Check that address is pointing to a valid location in memory
+    assert (request.address < size.U)
+
+    io.imem.response.valid        := true.B
+    io.imem.response.bits.data    := memory(request.address >> 2)
+  } .otherwise {
+    io.imem.response.valid := false.B
+  }
+
+  // Data port
+
+  wireMemPipe(io.dmem)
+
+  val memAddress = Wire(UInt(32.W))
+  val memWriteData = Wire(UInt(32.W))
+
+  // Read path
+  memAddress := io.dmem.request.bits.address
+  io.dmem.response.bits.data := memory.read(memAddress >> 2)
+  io.dmem.response.valid := true.B
+
+  // Write path
+  memWriteData := io.dmem.request.bits.writedata
+  memory(memAddress >> 2) := memWriteData
+
+  when (io.dmem.request.valid) {
+    val request = io.dmem.request.asTypeOf (new Request)
+
+    // Check that non-combin write isn't being used
+    assert (request.operation =/= Write)
+    // Check that address is pointing to a valid location in memory
+    assert (request.address < size.U)
+  } .otherwise {
+    memAddress := DontCare
+    io.dmem.response.bits.data := DontCare
+    memWriteData := DontCare
+
+    io.dmem.response.valid := false.B
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/** DEPRECATED MEMORY **/
+
 
 /**
  * This is the *interface* to memory from the instruction side of the pipeline
@@ -59,136 +135,62 @@ class DualPortedMemory(size: Int, memfile: String) extends Module {
   })
   io := DontCare
 
-  val memory = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
+  val memory = Mem(math.ceil(size.toDouble / 4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
 
-  when (io.imem.address >= size.U) {
+  when(io.imem.address >= size.U) {
     io.imem.instruction := 0.U
-  } .otherwise {
+  }.otherwise {
     io.imem.instruction := memory(io.imem.address >> 2)
   }
 
-  when (io.dmem.memread) {
+  when(io.dmem.memread) {
     assert(io.dmem.address < size.U)
     val readdata = Wire(UInt(32.W))
 
-    when (io.dmem.maskmode =/= 2.U) { // When not loading a whole word
-      val offset = io.dmem.address(1,0)
+    when(io.dmem.maskmode =/= 2.U) { // When not loading a whole word
+      val offset = io.dmem.address(1, 0)
       readdata := memory(io.dmem.address >> 2) >> (offset * 8.U)
-      when (io.dmem.maskmode === 0.U) { // Reading a byte
+      when(io.dmem.maskmode === 0.U) { // Reading a byte
         readdata := memory(io.dmem.address >> 2) & 0xff.U
-      } .otherwise {
+      }.otherwise {
         readdata := memory(io.dmem.address >> 2) & 0xffff.U
       }
-    } .otherwise {
+    }.otherwise {
       readdata := memory(io.dmem.address >> 2)
     }
 
-    when (io.dmem.sext) {
-      when (io.dmem.maskmode === 0.U) {
-        io.dmem.readdata := Cat(Fill(24, readdata(7)), readdata(7,0))
-      } .elsewhen(io.dmem.maskmode === 1.U) {
-        io.dmem.readdata := Cat(Fill(16, readdata(15)), readdata(15,0))
-      } .otherwise {
+    when(io.dmem.sext) {
+      when(io.dmem.maskmode === 0.U) {
+        io.dmem.readdata := Cat(Fill(24, readdata(7)), readdata(7, 0))
+      }.elsewhen(io.dmem.maskmode === 1.U) {
+        io.dmem.readdata := Cat(Fill(16, readdata(15)), readdata(15, 0))
+      }.otherwise {
         io.dmem.readdata := readdata
       }
-    } .otherwise {
+    }.otherwise {
       io.dmem.readdata := readdata
     }
   }
 
-  when (io.dmem.memwrite) {
+  when(io.dmem.memwrite) {
     assert(io.dmem.address < size.U)
-    when (io.dmem.maskmode =/= 2.U) { // When not storing a whole word
-      val offset = io.dmem.address(1,0)
+    when(io.dmem.maskmode =/= 2.U) { // When not storing a whole word
+      val offset = io.dmem.address(1, 0)
       // first read the data since we are only overwriting part of it
       val readdata = Wire(UInt(32.W))
       readdata := memory(io.dmem.address >> 2)
       // mask off the part we're writing
       val data = Wire(UInt(32.W))
-      when (io.dmem.maskmode === 0.U) { // Reading a byte
+      when(io.dmem.maskmode === 0.U) { // Reading a byte
         data := readdata & ~(0xff.U << (offset * 8.U))
-      } .otherwise {
+      }.otherwise {
         data := readdata & ~(0xffff.U << (offset * 8.U))
       }
       memory(io.dmem.address >> 2) := data | (io.dmem.writedata << (offset * 8.U))
-    } .otherwise {
+    }.otherwise {
       memory(io.dmem.address >> 2) := io.dmem.writedata
     }
   }
 }
 
-
-/**
-  * This is the actual memory. You should never directly use this in the CPU.
-  * This module should only be instantiated in the Top file.
-  *
-  * The I/O for this module is defined in [[MemPortBusIO]].
-  */
-
-class DualPortedCombinMemory(size: Int, memfile: String) extends Module {
-  def wireMemPipe(portio: MemPortBusIO): Unit = {
-    portio.response.valid := false.B
-    // Combinational memory is inherently always ready for port requests
-    portio.request.ready := true.B
-  }
-
-  val io = IO(new Bundle {
-    val imem = new MemPortBusIO
-    val dmem = new MemPortBusIO
-  })
-  io <> DontCare
-
-  val memory   = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
-  loadMemoryFromFile(memory, memfile)
-
-  // Instruction port
-
-  wireMemPipe(io.imem)
-
-  when (io.imem.request.valid) {
-    // Put the Request into the instruction pipe and signal that instruction memory is busy
-    val request = io.imem.request.asTypeOf(new Request)
-
-    // We should only be expecting a read from instruction memory
-    assert(request.operation === Read)
-    // Check that address is pointing to a valid location in memory
-    assert (request.address < size.U)
-
-    io.imem.response.valid        := true.B
-    io.imem.response.bits.data    := memory(request.address >> 2)
-  } .otherwise {
-    io.imem.response.valid := false.B
-  }
-
-  // Data port
-
-  wireMemPipe(io.dmem)
-
-  val memAddress = Wire(UInt(32.W))
-  val memWriteData = Wire(UInt(32.W))
-
-  // Read path
-  memAddress := io.dmem.request.bits.address
-  io.dmem.response.bits.data := memory.read(memAddress >> 2)
-  io.dmem.response.valid := true.B
-
-  // Write path
-  memWriteData := io.dmem.request.bits.writedata
-  memory(memAddress >> 2) := memWriteData
-
-  when (io.dmem.request.valid) {
-    val request = io.dmem.request.asTypeOf (new Request)
-
-    // Check that non-combin write isn't being used
-    assert (request.operation =/= Write)
-    // Check that address is pointing to a valid location in memory
-    assert (request.address < size.U)
-  } .otherwise {
-    memAddress := DontCare
-    io.dmem.response.bits.data := DontCare
-    memWriteData := DontCare
-
-    io.dmem.response.valid := false.B
-  }
-}

@@ -1,10 +1,10 @@
 // Non-combinational/'asynchronous' memory module
 
-package components.memory
+package dinocpu
 
 import chisel3._
 import chisel3.util._
-import components.memory.MemoryOperation._
+import dinocpu.MemoryOperation._
 
 // A Bundle used for temporarily storing the necessary information for a  read/write in the data memory accessor.
 class OutstandingReq extends Bundle {
@@ -16,32 +16,12 @@ class OutstandingReq extends Bundle {
 }
 
 /**
- * The instruction memory port.
+ * The instruction memory port. Since both the combinational and noncombinational instruction ports just issue
+ * read requests in the same way both ports have the same implementation
  *
  * The I/O for this module is defined in [[IMemPortIO]].
  */
-class INonCombinMemPort extends Module {
-  val io = IO (new IMemPortIO)
-  io := DontCare
-
-  // When the pipeline is supplying a high valid signal
-  when (io.valid) {
-    val request = Wire(new Request)
-    request := DontCare
-    request.address   := io.address
-    request.operation := Read
-
-    io.request.bits  := request
-    io.request.valid := true.B
-  } .otherwise {
-    io.request.valid := false.B
-  }
-
-  // When the memory is outputting a valid instruction
-  io.good := io.response.valid
-  when (io.response.valid) {
-    io.instruction := io.response.bits.data
-  }
+class INonCombinMemPort extends ICombinMemPort {
 }
 
 /**
@@ -49,10 +29,7 @@ class INonCombinMemPort extends Module {
  *
  * The I/O for this module is defined in [[DMemPortIO]].
  */
-class DNonCombinMemPort extends Module {
-  val io = IO (new DMemPortIO)
-  io      := DontCare
-  io.good := io.response.valid
+class DNonCombinMemPort extends BaseDMemPort {
 
   // A register to hold intermediate data (e.g., write data, mask mode) while the request
   // is outstanding to memory.

@@ -1,6 +1,6 @@
 // Contains the memory port IOs for use in port/cache implementations
 
-package components.memory
+package dinocpu
 
 import chisel3._
 import chisel3.util._

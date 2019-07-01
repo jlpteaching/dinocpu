@@ -1,11 +1,11 @@
 // Non-combinational ('asynchronous') memory module
 
-package components.memory
+package dinocpu
 
 import chisel3._
 import chisel3.util._
 import chisel3.util.experimental.loadMemoryFromFile
-import components.memory.MemoryOperation._
+import dinocpu.MemoryOperation._
 
 /**
  * The modified asynchronous form of the dual ported memory module.
@@ -18,7 +18,7 @@ import components.memory.MemoryOperation._
  *
  * The I/O for this module is defined in [[MemPortBusIO]].
  */
-class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extends Module {
+class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extends BaseDualPortedMemory(size, memfile) {
   def wireMemPipe(portio: MemPortBusIO, pipe: Pipe[Request]): Unit = {
     pipe.io.enq.bits      <> DontCare
     pipe.io.enq.valid     := false.B
@@ -29,17 +29,7 @@ class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extend
     // executing memory operations
     portio.request.ready := true.B
   }
-
-  val io = IO(new Bundle {
-    val imem = new MemPortBusIO
-    val dmem = new MemPortBusIO
-  })
-  io <> DontCare
-
   assert(latency > 0) // Check for attempt to make combinational memory
-
-  val memory    = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
-  loadMemoryFromFile(memory, memfile)
 
   // Instruction port
   val imemPipe = Module(new Pipe(new Request, latency))

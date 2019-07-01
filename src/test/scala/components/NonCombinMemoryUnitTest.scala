@@ -5,7 +5,7 @@ package dinocpu
 import chisel3._
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
-import components.memory.{DMemPortIO, DNonCombinMemPort, DualPortedNonCombinMemory, IMemPortIO, INonCombinMemPort}
+import dinocpu.{DMemPortIO, DNonCombinMemPort, DualPortedNonCombinMemory, IMemPortIO, INonCombinMemPort}
 
 // To generate random latencies
 import scala.util.Random
