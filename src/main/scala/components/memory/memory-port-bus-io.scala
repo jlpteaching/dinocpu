@@ -1,6 +1,6 @@
 // IO Bundles for the bus that connecting the memory ports to the backing memory.
 
-package components.memory
+package dinocpu
 
 import chisel3._
 import chisel3.util._

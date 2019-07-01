@@ -5,7 +5,7 @@ package dinocpu
 // For file length
 import java.io.{File, FileNotFoundException}
 
-import components.memory.DualPortedMemory
+import dinocpu.{BaseDualPortedMemory, DCombinMemPort, DNonCombinMemPort, DualPortedCombinMemory, DualPortedMemory, DualPortedNonCombinMemory, ICombinMemPort, INonCombinMemPort}
 
 import scala.math.max
 
@@ -27,6 +27,12 @@ class CPUConfig
 
   /** The memory file location */
   var memFile = "test"
+  /** The noncombinational memory latency */
+  var memLatency = 5
+  /** The port types **/
+  var memPortType = "combinational-ports"
+  /** The backing memory type */
+  var memType = "combinational"
 
   /** For debugging output */
   var debug = false
@@ -46,7 +52,7 @@ class CPUConfig
     }
   }
 
-  def getBranchPredictor = {
+  def getBranchPredictor: BaseBranchPredictor = {
     implicit val conf = this
     branchPredictor match {
       case "always-taken"     => new AlwaysTakenPredictor
@@ -58,17 +64,76 @@ class CPUConfig
   }
 
   /**
+   * Deprecated. See [[getMem]], [[getIMemPort]], and [[getDMemPort]].
    * Create a memory with data from a file
    *
    * @param minSize is the minimum size for the memory. If the binary file is
    *        smaller than this, create a memory that is this size.
    * @return [[DualPortedMemory]] object
    */
-  def getMem(minSize: Int = 1 << 16) = {
+  def getMem(minSize: Int = 1 << 16): DualPortedMemory = {
     val f = new File(memFile)
     if (f.length == 0) {
       println("WARNING: No file will be loaded for data memory")
     }
     new DualPortedMemory(minSize, memFile)
+  }
+
+  /**
+    * Create a memory with data from a file
+    *
+    * @param minSize is the minimum size for the memory. If the binary file is
+    *        smaller than this, create a memory that is this size.
+    * @return [[BaseDualPortedMemory]] object
+    */
+  def getNewMem(minSize: Int = 1 << 16): BaseDualPortedMemory = {
+    val f = new File(memFile)
+    if (f.length == 0) {
+      println("WARNING: No file will be loaded for data memory")
+    }
+
+    memType match {
+      case "combinational"     => new DualPortedCombinMemory (minSize, memFile)
+      case "non-combinational" => new DualPortedNonCombinMemory (minSize, memFile, memLatency)
+      case _ => throw new IllegalArgumentException("Must specify known backing memory type")
+    }
+  }
+
+  /**
+    * Create an instruction memory port
+    *
+    * @return [[BaseIMemPort]] object
+    */
+  def getIMemPort: BaseIMemPort = {
+    val f = new File(memFile)
+    if (f.length == 0) {
+      println("WARNING: No file will be loaded for data memory")
+    }
+
+    memPortType match {
+      case "combinational-port"     => new ICombinMemPort
+      case "non-combinational-port" => new INonCombinMemPort
+      // case "non-combinational-cache" => new ICache
+      case _ => throw new IllegalArgumentException("Must specify known instruction memory port type")
+    }
+  }
+
+  /**
+    * Create a data memory port
+    *
+    * @return [[BaseDMemPort]] object
+    */
+  def getDMemPort: BaseDMemPort = {
+    val f = new File(memFile)
+    if (f.length == 0) {
+      println("WARNING: No file will be loaded for data memory")
+    }
+
+    memPortType match {
+      case "combinational-port"     => new DCombinMemPort
+      case "non-combinational-port" => new DNonCombinMemPort
+      // case "non-combinational-cache" => new DCache
+      case _ => throw new IllegalArgumentException("Must specify known data memory port type")
+    }
   }
 }

@@ -1,6 +1,6 @@
 // Asynchronous memory module
 
-package components.memory
+package dinocpu
 
 import chisel3._
 

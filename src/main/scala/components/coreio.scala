@@ -3,7 +3,7 @@
 package dinocpu
 
 import chisel3._
-import components.memory.{DMemIO, IMemIO}
+import dinocpu.{DMemIO, IMemIO}
 
 class CoreIO extends Bundle {
   val imem = Flipped(new IMemIO)

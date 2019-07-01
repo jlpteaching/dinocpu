@@ -1,20 +1,17 @@
 // Combinational/'synchronous' memory module
 
-package components.memory
+package dinocpu
 
 import chisel3._
 import chisel3.util._
-import components.memory.MemoryOperation._
+import dinocpu.MemoryOperation._
 
 /**
   * The instruction memory port.
   *
   * The I/O for this module is defined in [[IMemPortIO]].
   */
-class ICombinMemPort extends Module {
-  val io = IO (new IMemPortIO)
-  io := DontCare
-
+class ICombinMemPort extends BaseIMemPort {
   // When the pipeline is supplying a high valid signal
   when (io.valid) {
     val request = Wire(new Request)
@@ -40,9 +37,7 @@ class ICombinMemPort extends Module {
   *
   * The I/O for this module is defined in [[DMemPortIO]].
   */
-class DCombinMemPort extends Module {
-  val io = IO (new DMemPortIO)
-  io      := DontCare
+class DCombinMemPort extends BaseDMemPort {
   io.good := io.response.valid && io.memread && !io.memwrite
 
   when (io.valid && (io.memread || io.memwrite)) {

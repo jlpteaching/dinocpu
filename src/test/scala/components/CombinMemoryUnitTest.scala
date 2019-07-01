@@ -2,7 +2,7 @@ package dinocpu
 
 import chisel3._
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
-import components.memory.{DMemPortIO, DCombinMemPort, DualPortedCombinMemory, IMemPortIO, ICombinMemPort}
+import dinocpu.{DMemPortIO, DCombinMemPort, DualPortedCombinMemory, IMemPortIO, ICombinMemPort}
 
 
 
