@@ -14,6 +14,7 @@ import chisel3.util._
  * Input:  address, the address of a piece of data in memory.
  * Input:  valid, true when the address specified is valid
  * Output: good, true when memory is responding with a piece of data (used to un-stall the pipeline)
+ *
  */
 class MemPortIO extends Bundle {
   // Pipeline <=> Port
@@ -25,10 +26,11 @@ class MemPortIO extends Bundle {
 /**
  * The *interface* of the IMemPort module.
  *
- * Input:  address, the address of an instruction in memory
- * Input:  valid, true when the address specified is valid
- * Output: instruction, the requested instruction
- * Output: good, true when memory is responding with a piece of data
+ * Pipeline <=> Port:
+ *   Input:  address, the address of an instruction in memory
+ *   Input:  valid, true when the address specified is valid
+ *   Output: instruction, the requested instruction
+ *   Output: good, true when memory is responding with a piece of data
  */
 class IMemPortIO extends MemPortIO {
   val instruction = Output(UInt(32.W))
@@ -37,15 +39,16 @@ class IMemPortIO extends MemPortIO {
 /**
  * The *interface* of the DMemPort module.
  *
- * Input:  address, the address of a piece of data in memory.
- * Input:  writedata, valid interface for the data to write to the address
- * Input:  valid, true when the address (and writedata during a write) specified is valid
- * Input:  memread, true if we are reading from memory
- * Input:  memwrite, true if we are writing to memory
- * Input:  maskmode, mode to mask the result. 0 means byte, 1 means halfword, 2 means word
- * Input:  sext, true if we should sign extend the result
- * Output: readdata, the data read and sign extended
- * Output: good, true when memory is responding with a piece of data
+ * Pipeline <=> Port:
+ *   Input:  address, the address of a piece of data in memory.
+ *   Input:  writedata, valid interface for the data to write to the address
+ *   Input:  valid, true when the address (and writedata during a write) specified is valid
+ *   Input:  memread, true if we are reading from memory
+ *   Input:  memwrite, true if we are writing to memory
+ *   Input:  maskmode, mode to mask the result. 0 means byte, 1 means halfword, 2 means word
+ *   Input:  sext, true if we should sign extend the result
+ *   Output: readdata, the data read and sign extended
+ *   Output: good, true when memory is responding with a piece of data
  */
 class DMemPortIO extends MemPortIO {
   // Pipeline <=> Port
