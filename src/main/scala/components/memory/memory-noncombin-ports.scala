@@ -11,7 +11,7 @@ class OutstandingReq extends Bundle {
   val address   = UInt(32.W)
   val writedata = UInt(32.W)
   val maskmode  = UInt(2.W)
-  val operation = UInt(1.W)
+  val operation = MemoryOperation()
   val sext      = Bool()
 }
 
@@ -44,7 +44,7 @@ class DNonCombinMemPort extends BaseDMemPort {
   // Ready if either we don't have an outstanding request or the outstanding request is a read and
   // it has been satisfied this cycle. Note: we cannot send a read until one cycle after the write has
   // been sent.
-  val ready = !outstandingReq.valid || (io.response.valid && (outstandingReq.valid && outstandingReq.bits.operation === Read))
+  val ready = !outstandingReq.valid || (io.response.valid && (outstandingReq.valid && outstandingReq.bits.operation === MemoryOperation.Read))
   when (io.valid && (io.memread || io.memwrite) && ready) {
     // Check if we aren't issuing both a read and write at the same time
     assert (! (io.memread && io.memwrite))
@@ -77,7 +77,7 @@ class DNonCombinMemPort extends BaseDMemPort {
   // Response path
   when (io.response.valid) {
     assert(outstandingReq.valid)
-    when (outstandingReq.bits.operation === Write) {
+    when (outstandingReq.bits.operation === MemoryOperation.Write) {
       val writedata = Wire (UInt (32.W))
 
       // When not writing a whole word

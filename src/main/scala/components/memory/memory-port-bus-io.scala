@@ -1,4 +1,4 @@
-// IO Bundles for the bus that connecting the memory ports to the backing memory.
+// IO Bundles for the bus that connect the memory ports to the backing memory.
 
 package dinocpu
 
@@ -9,7 +9,7 @@ import chisel3.util._
 class Request extends Bundle {
   val address      = UInt(32.W)
   val writedata    = UInt(32.W)
-  val operation    = UInt(2.W)
+  val operation    = MemoryOperation()
 }
 
 // A bundle used for representing the memory's response to a memory read operation, which
