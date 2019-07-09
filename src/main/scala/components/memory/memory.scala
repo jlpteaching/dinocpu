@@ -43,8 +43,6 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
 
   wireMemPipe(io.dmem)
 
-  val memAddress = Wire(UInt(32.W))
-  val memWriteData = Wire(UInt(32.W))
 
   when (io.dmem.request.valid) {
     val request = io.dmem.request.asTypeOf (new Request)
@@ -55,17 +53,17 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
     assert (request.address < size.U)
 
     // Read path
-    memAddress := io.dmem.request.bits.address
+    val memAddress = io.dmem.request.bits.address
     io.dmem.response.bits.data := memory.read(memAddress >> 2)
     io.dmem.response.valid := true.B
 
     // Write path
-    memWriteData := io.dmem.request.bits.writedata
+    val memWriteData = io.dmem.request.bits.writedata
     memory(memAddress >> 2) := memWriteData
   } .otherwise {
-    memAddress := DontCare
-    io.dmem.response.bits.data := DontCare
-    memWriteData := DontCare
+    //memAddress := DontCare
+    //io.dmem.response.bits.data := DontCare
+    //memWriteData := DontCare
 
     io.dmem.response.valid := false.B
   }
