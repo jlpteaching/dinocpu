@@ -27,9 +27,7 @@ class ICombinMemPort extends BaseIMemPort {
 
   // When the memory is outputting a valid instruction
   io.good := io.response.valid
-  when (io.response.valid) {
-    io.instruction := io.response.bits.data
-  }
+  io.instruction := io.response.bits.data
 }
 
 /**

@@ -9,12 +9,6 @@ import chisel3.util.experimental.loadMemoryFromFile
   * Base class for all modular backing memories. Simply declares the IO and the memory file.
   */
 class BaseDualPortedMemory(size: Int, memfile: String) extends Module {
-  def wireMemPipe(portio: MemPortBusIO): Unit = {
-    portio.response.valid := false.B
-    // Combinational memory is inherently always ready for port requests
-    portio.request.ready := true.B
-  }
-
   def wireMemory (imem: BaseIMemPort, dmem: BaseDMemPort): Unit = {
     // Connect memory imem IO to dmem accessor
     this.io.imem.request <> imem.io.request
