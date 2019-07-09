@@ -1,4 +1,4 @@
-// Main entry point for single cycle CPU
+// Main entry point for CPU
 package dinocpu
 
 import chisel3._
@@ -12,8 +12,12 @@ class Top(val conf: CPUConfig) extends Module
   io.success := DontCare
 
   val cpu   = Module(conf.getCPU())
-  val mem  = Module(conf.getMem())
+  val mem  = Module(conf.getNewMem())
+  val imem = Module(conf.getIMemPort)
+  val dmem = Module(conf.getDMemPort)
 
-  cpu.io.imem <> mem.io.imem
-  cpu.io.dmem <> mem.io.dmem
+  mem.wireMemory (imem, dmem)
+
+  cpu.io.imem <> imem.io
+  cpu.io.dmem <> dmem.io
 }

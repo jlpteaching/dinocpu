@@ -13,6 +13,7 @@ import chisel3.util._
  */
 class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   val io = IO(new CoreIO)
+  io <> DontCare
 
   // Bundles defining the pipeline registers and control structures
 
@@ -129,6 +130,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
 
   // Send the PC to the instruction memory port to get the instruction
   io.imem.address := pc
+  io.imem.valid := true.B
 
   // Get the PC + 4
   pcPlusFour.io.inputx := pc
@@ -313,6 +315,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.memwrite  := ex_mem.mcontrol.memwrite
   io.dmem.maskmode  := ex_mem.mcontrol.maskmode
   io.dmem.sext      := ex_mem.mcontrol.sext
+  io.dmem.valid     := true.B
 
   // Send next_pc back to the fetch stage
   next_pc := ex_mem.nextpc

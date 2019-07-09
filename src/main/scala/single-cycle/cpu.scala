@@ -13,7 +13,7 @@ import chisel3.util._
  */
 class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val io = IO(new CoreIO())
-  io := DontCare
+  io <> DontCare
 
   // All of the structures required
   val pc         = RegInit(0.U)
@@ -29,6 +29,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
   //FETCH
+  io.imem.valid := true.B
   io.imem.address := pc
 
   pcPlusFour.io.inputx := pc
@@ -81,6 +82,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
 
   //MEMORY
   io.dmem.address   := alu.io.result
+  io.dmem.valid     := true.B
   io.dmem.writedata := registers.io.readdata2
   io.dmem.memread   := control.io.memread
   io.dmem.memwrite  := control.io.memwrite

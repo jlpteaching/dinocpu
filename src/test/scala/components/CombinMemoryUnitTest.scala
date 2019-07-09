@@ -1,8 +1,9 @@
+// Unit tests for testing combinational memory reads and writes using combinational data ports
+
 package dinocpu
 
 import chisel3._
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
-import dinocpu.{DMemPortIO, DCombinMemPort, DualPortedCombinMemory, IMemPortIO, ICombinMemPort}
 
 
 
@@ -57,13 +58,7 @@ class CombinMemoryTestHarness(size: Int, memFile: String) extends Module {
   io.dmem_readdata    := dmem.io.readdata
   io.dmem_good        := dmem.io.good
 
-
-  // Connect memory imem IO to dmem accessor
-  memory.io.imem.request  <> imem.io.request
-  imem.io.response        <> memory.io.imem.response
-  // Connect memory dmem IO to dmem accessor
-  memory.io.dmem.request  <> dmem.io.request
-  dmem.io.response        <> memory.io.dmem.response
+  memory.wireMemory (imem, dmem)
 }
 
 

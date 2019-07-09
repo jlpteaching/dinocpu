@@ -3,9 +3,7 @@
 package dinocpu
 
 import chisel3._
-import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
-import dinocpu.{DMemPortIO, DNonCombinMemPort, DualPortedNonCombinMemory, IMemPortIO, INonCombinMemPort}
 
 // To generate random latencies
 import scala.util.Random
@@ -63,13 +61,7 @@ class NonCombinMemoryTestHarness(size: Int, memFile: String, latency: Int) exten
   io.dmem_readdata    := dmem.io.readdata
   io.dmem_good        := dmem.io.good
 
-
-  // Connect memory imem IO to dmem accessor
-  memory.io.imem.request  <> imem.io.request
-  imem.io.response        <> memory.io.imem.response 
-  // Connect memory dmem IO to dmem accessor
-  memory.io.dmem.request  <> dmem.io.request
-  dmem.io.response        <> memory.io.dmem.response 
+  memory.wireMemory (imem, dmem)
 }
 
 // Test instruction port reading a zeroed memory file
