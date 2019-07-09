@@ -9,7 +9,7 @@ import chisel3.util._
 class Request extends Bundle {
   val address      = UInt(32.W)
   val writedata    = UInt(32.W)
-  val operation    = UInt(1.W)
+  val operation    = UInt(2.W)
 }
 
 // A bundle used for representing the memory's response to a memory read operation, which

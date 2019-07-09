@@ -15,6 +15,11 @@ import dinocpu.MemoryOperation._
   */
 
 class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedMemory (size, memfile) {
+  def wireMemPipe(portio: MemPortBusIO): Unit = {
+    portio.response.valid := false.B
+    // Combinational memory is inherently always ready for port requests
+    portio.request.ready := true.B
+  }
   // Instruction port
 
   wireMemPipe(io.imem)
@@ -41,15 +46,6 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
   val memAddress = Wire(UInt(32.W))
   val memWriteData = Wire(UInt(32.W))
 
-  // Read path
-  memAddress := io.dmem.request.bits.address
-  io.dmem.response.bits.data := memory.read(memAddress >> 2)
-  io.dmem.response.valid := true.B
-
-  // Write path
-  memWriteData := io.dmem.request.bits.writedata
-  memory(memAddress >> 2) := memWriteData
-
   when (io.dmem.request.valid) {
     val request = io.dmem.request.asTypeOf (new Request)
 
@@ -57,6 +53,15 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
     assert (request.operation =/= Write)
     // Check that address is pointing to a valid location in memory
     assert (request.address < size.U)
+
+    // Read path
+    memAddress := io.dmem.request.bits.address
+    io.dmem.response.bits.data := memory.read(memAddress >> 2)
+    io.dmem.response.valid := true.B
+
+    // Write path
+    memWriteData := io.dmem.request.bits.writedata
+    memory(memAddress >> 2) := memWriteData
   } .otherwise {
     memAddress := DontCare
     io.dmem.response.bits.data := DontCare
