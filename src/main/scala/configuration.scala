@@ -30,7 +30,7 @@ class CPUConfig
   /** The noncombinational memory latency */
   var memLatency = 5
   /** The port types **/
-  var memPortType = "combinational-ports"
+  var memPortType = "combinational-port"
   /** The backing memory type */
   var memType = "combinational"
 
