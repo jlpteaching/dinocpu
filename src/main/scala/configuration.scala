@@ -64,7 +64,7 @@ class CPUConfig
   }
 
   /**
-   * Deprecated. See [[getMem]], [[getIMemPort]], and [[getDMemPort]].
+   * Deprecated. See [[getNewMem]], [[getIMemPort]], and [[getDMemPort]].
    * Create a memory with data from a file
    *
    * @param minSize is the minimum size for the memory. If the binary file is
@@ -104,7 +104,7 @@ class CPUConfig
     *
     * @return [[BaseIMemPort]] object
     */
-  def getIMemPort: BaseIMemPort = {
+  def getIMemPort(): BaseIMemPort = {
     val f = new File(memFile)
     if (f.length == 0) {
       println("WARNING: No file will be loaded for data memory")
@@ -123,7 +123,7 @@ class CPUConfig
     *
     * @return [[BaseDMemPort]] object
     */
-  def getDMemPort: BaseDMemPort = {
+  def getDMemPort(): BaseDMemPort = {
     val f = new File(memFile)
     if (f.length == 0) {
       println("WARNING: No file will be loaded for data memory")
