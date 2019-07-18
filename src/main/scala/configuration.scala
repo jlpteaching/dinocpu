@@ -60,22 +60,6 @@ class CPUConfig
   }
 
   /**
-   * Deprecated. See [[getNewMem]], [[getIMemPort]], and [[getDMemPort]].
-   * Create a memory with data from a file
-   *
-   * @param minSize is the minimum size for the memory. If the binary file is
-   *        smaller than this, create a memory that is this size.
-   * @return [[DualPortedMemory]] object
-   */
-  def getMem(minSize: Int = 1 << 16): DualPortedMemory = {
-    val f = new File(memFile)
-    if (f.length == 0) {
-      println("WARNING: No file will be loaded for data memory")
-    }
-    new DualPortedMemory(minSize, memFile)
-  }
-
-  /**
     * Create a memory with data from a file
     *
     * @param minSize is the minimum size for the memory. If the binary file is
