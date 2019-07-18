@@ -29,26 +29,21 @@ interfaces _only_.
 
 
 ##### MemPortIO
-`MemPortIO` is the primary abstract interface for memory ports. This interface is split into two parts: 
+`MemPortIO` is the primary abstract interface for memory ports. As such, it has IO corresponding with the signals a port receives from the pipeline, and a `Flipped[MemPortBusIO]` which connects to a backing memory.
 
-- Pipeline <=> Port: the interface between the pipelined CPU and the memory port
-  * Input:  `address`, the address of a piece of data in memory, aligned to 4-byte wide blocks. 
-  * Input:  `valid`, true when the address specified is valid
-  * Output: `good`, true when memory is responding with a piece of data (used to un-stall the pipeline)
-- Port <=> Memory: the interface between the memory port and the backing memory
-  * Input:  `bus.response`, the return route from memory to a memory port. This is primarily meant for connecting to an AsyncMemIO's response output, and should not be connected to anything else in any circumstance (or things will possibly break) 
-  * Output: `bus.request`, a DecoupledIO that delivers a request from a memory port to memory. This is primarily meant for connecting to an AsynMemIO's request input, and should not be connected to anything else
+Inputs: 
+- address: The address of the location in memory
+- valid:   High when the pipeline is actively requesting a memory operation
 
-`IMemPortIO` and `DMemPortIO` implement this interface with additional signals for instruction ports and data ports, respectively.
+Outputs:
+- good:    High when the backing memory is idling and ready for another operation; relevant for latent memories
+
+Amongst the base memory port IO, `IMemPortIO` and `DMemPortIO` implement this interface with additional signals for instruction ports and data ports, respectively.
 
 ##### MemPortBusIO
 
 `MemPortBusIO` is the primary interface of the backing memory. For every port that connects to the backing memory, it contains a distinct `MemPortBusIO` for that port to connect to.
 This interface contains two channels for a `Request` and `Response` to pass through, where requests originate from the memory ports and responses from the backing memory.
-
-Bundled signals:
-- Input:  `request`, the ready/valid interface for a MemPort module to issue Requests to. Memory will only accept a request when both request.valid (the MemPort is supplying valid data) and request.ready (the memory is idling for a request) are high.
-- Output: `response`, the valid interface for the data outputted by memory if it was requested to read. The bits in response.bits should be treated as valid data only when response.valid is high.
 
 ## Dual ported memory
 The DINO CPU exclusively uses a dual ported memory system, where a instruction port and data port both interface 
