@@ -35,7 +35,7 @@ interfaces _only_.
   * Input:  `address`, the address of a piece of data in memory, aligned to 4-byte wide blocks. 
   * Input:  `valid`, true when the address specified is valid
   * Output: `good`, true when memory is responding with a piece of data (used to un-stall the pipeline)
-- Port <=> Memory:
+- Port <=> Memory: the interface between the memory port and the backing memory
   * Input:  `bus.response`, the return route from memory to a memory port. This is primarily meant for connecting to an AsyncMemIO's response output, and should not be connected to anything else in any circumstance (or things will possibly break) 
   * Output: `bus.request`, a DecoupledIO that delivers a request from a memory port to memory. This is primarily meant for connecting to an AsynMemIO's request input, and should not be connected to anything else
 
