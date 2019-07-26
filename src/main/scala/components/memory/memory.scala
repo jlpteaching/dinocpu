@@ -31,10 +31,15 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
     // We should only be expecting a read from instruction memory
     assert(request.operation === Read)
     // Check that address is pointing to a valid location in memory
-    assert (request.address < size.U)
 
-    io.imem.response.valid        := true.B
-    io.imem.response.bits.data    := memory(request.address >> 2)
+    // TODO: Revert this back to the assert form "assert (request.address < size.U)"
+    // TODO: once CSR is integrated into CPU
+    when (request.address < size.U) {
+      io.imem.response.valid := true.B
+      io.imem.response.bits.data := memory(request.address >> 2)
+    } .otherwise {
+      io.imem.response.valid := false.B
+    }
   } .otherwise {
     io.imem.response.valid := false.B
   }
