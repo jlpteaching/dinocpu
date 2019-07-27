@@ -3,11 +3,7 @@
 package dinocpu
 
 // For file length
-import java.io.{File, FileNotFoundException}
-
-import dinocpu.{BaseDualPortedMemory, DCombinMemPort, DNonCombinMemPort, DualPortedCombinMemory, DualPortedMemory, DualPortedNonCombinMemory, ICombinMemPort, INonCombinMemPort}
-
-import scala.math.max
+import java.io.{File}
 
 /**
  * This class configures all of the dinocpus. It takes parameters for the type of CPU model
@@ -42,7 +38,7 @@ class CPUConfig
    *
    * @return A CPU to elaborate.
    */
-  def getCPU() = {
+  def getCPU(): BaseCPU = {
     implicit val conf = this
     cpuType match {
       case "single-cycle" => new SingleCycleCPU
