@@ -8,7 +8,7 @@ import chisel3.util.experimental.loadMemoryFromFile
 /**
   * Base class for all modular backing memories. Simply declares the IO and the memory file.
   */
-class BaseDualPortedMemory(size: Int, memfile: String) extends Module {
+abstract class BaseDualPortedMemory(size: Int, memfile: String) extends Module {
   def wireMemory (imem: BaseIMemPort, dmem: BaseDMemPort): Unit = {
     // Connect memory imem IO to dmem accessor
     this.io.imem.request <> imem.io.request
@@ -32,7 +32,7 @@ class BaseDualPortedMemory(size: Int, memfile: String) extends Module {
 /**
   * Base class for all instruction ports. Simply declares the IO.
   */
-class BaseIMemPort extends Module {
+abstract class BaseIMemPort extends Module {
   val io = IO (new IMemPortIO)
   io := DontCare
 }
@@ -40,7 +40,7 @@ class BaseIMemPort extends Module {
 /**
   * Base class for all data ports. Simply declares the IO.
   */
-class BaseDMemPort extends Module {
+abstract class BaseDMemPort extends Module {
   val io = IO (new DMemPortIO)
   io      := DontCare
   io.good := io.response.valid
