@@ -26,7 +26,7 @@ class BranchPredIO extends Bundle {
  * Base class for all branch predictors. Simply declares the IO and has some
  * simple functions for updating saturating counters
  */
-class BaseBranchPredictor(val c: CPUConfig) extends Module {
+abstract class BaseBranchPredictor(val c: CPUConfig) extends Module {
   val io = IO(new BranchPredIO)
 
   // Default value is weakly taken for each branch
