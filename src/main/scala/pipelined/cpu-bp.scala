@@ -10,9 +10,7 @@ import chisel3.util._
  * The main CPU definition that hooks up all of the other components.
  *
  */
-class PipelinedCPUBP(implicit val conf: CPUConfig) extends Module {
-  val io = IO(new CoreIO)
-
+class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   // Bundles defining the pipeline registers and control structures
 
   // Everything in the register between IF and ID stages

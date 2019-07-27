@@ -11,10 +11,7 @@ import chisel3.util._
  * For more information, see section 4.4 of Patterson and Hennessy
  * This follows figure 4.21
  */
-class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
-  val io = IO(new CoreIO())
-  io <> DontCare
-
+class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // All of the structures required
   val pc         = RegInit(0.U)
   val control    = Module(new Control())
