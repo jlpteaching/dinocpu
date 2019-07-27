@@ -11,10 +11,7 @@ import chisel3.util._
  * For more information, see section 4.6 of Patterson and Hennessy
  * This follows figure 4.49
  */
-class PipelinedCPU(implicit val conf: CPUConfig) extends Module {
-  val io = IO(new CoreIO)
-  io <> DontCare
-
+class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Bundles defining the pipeline registers and control structures
 
   // Everything in the register between IF and ID stages
