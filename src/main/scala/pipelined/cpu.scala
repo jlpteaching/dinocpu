@@ -138,6 +138,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
     if_id.instruction := io.imem.instruction
     if_id.pc          := pc
     if_id.pcplusfour  := pcPlusFour.io.result
+
+    io.imem.valid := true.B
+  } .otherwise {
+    io.imem.valid := false.B
   }
 
   // Flush IF/ID when required
@@ -311,6 +315,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   io.dmem.memwrite  := ex_mem.mcontrol.memwrite
   io.dmem.maskmode  := ex_mem.mcontrol.maskmode
   io.dmem.sext      := ex_mem.mcontrol.sext
+
+  // Set dmem request as valid when a write or read is being requested
+  io.dmem.valid := (io.dmem.memread || io.dmem.memwrite)
+
 
   // Send next_pc back to the fetch stage
   next_pc := ex_mem.nextpc
