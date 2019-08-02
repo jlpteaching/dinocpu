@@ -27,6 +27,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   //FETCH
   io.imem.address := pc
+  io.imem.valid := true.B
 
   pcPlusFour.io.inputx := pc
   pcPlusFour.io.inputy := 4.U
@@ -83,6 +84,11 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
   io.dmem.memwrite  := control.io.memwrite
   io.dmem.maskmode  := instruction(13,12)
   io.dmem.sext      := ~instruction(14)
+  when(io.dmem.memread || io.dmem.memwrite) {
+    io.dmem.valid := true.B
+  } .otherwise {
+    io.dmem.valid := false.B
+  }
 
   //WRITEBACK
   val write_data = Wire(UInt())
@@ -135,5 +141,4 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
   }
 
   pc := next_pc
-
 }
