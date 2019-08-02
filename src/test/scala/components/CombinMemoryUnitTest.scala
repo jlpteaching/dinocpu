@@ -66,7 +66,7 @@ class CombinMemoryTestHarness(size: Int, memFile: String) extends Module {
 
 // Test instruction port reading a zeroed memory file
 class CombinMemoryUnitTester$IMemZero(m: CombinMemoryTestHarness, size: Int) extends PeekPokeTester(m) {
-  expect(m.io.imem_good, 0)
+  expect(m.io.imem_good, 1)
 
   // Expect 0's on the instruction port
   for (i <- 0 until size/4) {
@@ -81,7 +81,7 @@ class CombinMemoryUnitTester$IMemZero(m: CombinMemoryTestHarness, size: Int) ext
 // Test instruction port reading an ascending memory file
 class CombinMemoryUnitTester$IMemRead(m: CombinMemoryTestHarness, size: Int) extends PeekPokeTester(m) {
   // Expect ascending bytes on instruction port
-  expect(m.io.imem_good, 0)
+  expect(m.io.imem_good, 1)
 
   for (i <- 0 until size/4) {
     poke(m.io.imem_address, i*4)
@@ -93,7 +93,7 @@ class CombinMemoryUnitTester$IMemRead(m: CombinMemoryTestHarness, size: Int) ext
 }
 // Test data port writes and instruction port reads
 class CombinMemoryUnitTester$IMemWrite(m: CombinMemoryTestHarness, size: Int) extends PeekPokeTester(m) {
-  expect(m.io.dmem_good, 0)
+  expect(m.io.dmem_good, 1)
   // write ascending data to memory
   for (i <- 0 until size/8) {
     poke(m.io.dmem_address, i*4)
@@ -105,8 +105,7 @@ class CombinMemoryUnitTester$IMemWrite(m: CombinMemoryTestHarness, size: Int) ex
 
     step(1)
 
-    // Memory shouldn't be outputting high on good after a write, since it isn't reading
-    expect(m.io.dmem_good, 0)
+    expect(m.io.dmem_good, 1)
   }
 
   poke (m.io.dmem_memwrite, 0)
@@ -129,7 +128,7 @@ class CombinMemoryUnitTester$IMemWrite(m: CombinMemoryTestHarness, size: Int) ex
 
 // Test data port reading a zeroed memory file
 class CombinMemoryUnitTester$DMemZero(m: CombinMemoryTestHarness, size: Int) extends PeekPokeTester(m) {
-  expect(m.io.dmem_good, 0)
+  expect(m.io.dmem_good, 1)
 
   // Expect 0's on the data port
   for (i <- 0 until size/4) {
@@ -146,7 +145,7 @@ class CombinMemoryUnitTester$DMemZero(m: CombinMemoryTestHarness, size: Int) ext
 
 // Test data port reading an ascending memory file
 class CombinMemoryUnitTester$DMemRead(m: CombinMemoryTestHarness, size: Int) extends PeekPokeTester(m) {
-  expect(m.io.dmem_good, 0)
+  expect(m.io.dmem_good, 1)
 
   // Expect ascending bytes on data port
   for (i <- 0 until size/4) {
@@ -163,7 +162,7 @@ class CombinMemoryUnitTester$DMemRead(m: CombinMemoryTestHarness, size: Int) ext
 
 // Test data port writes and data port reads
 class CombinMemoryUnitTester$DMemWrite(m: CombinMemoryTestHarness, size: Int) extends PeekPokeTester(m) {
-  expect(m.io.dmem_good, 0)
+  expect(m.io.dmem_good, 1)
   // write ascending data to memory
   for (i <- 0 until size/8) {
     poke(m.io.dmem_address, i*4)
@@ -175,12 +174,11 @@ class CombinMemoryUnitTester$DMemWrite(m: CombinMemoryTestHarness, size: Int) ex
 
     step(1)
 
-    // Memory shouldn't be outputting high on good after a write, since it isn't reading
-    expect(m.io.dmem_good, 0)
+    expect(m.io.dmem_good, 1)
   }
 
   poke (m.io.dmem_memwrite, 0)
-  poke (m.io.dmem_valid, 0)
+  poke (m.io.dmem_valid, 1)
 
   // expect ascending bytes, the first size/8 of them being incremented by 100, on instruction port
   for (i <- 0 until size/4) {
