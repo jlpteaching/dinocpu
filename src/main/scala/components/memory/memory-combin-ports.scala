@@ -26,7 +26,7 @@ class ICombinMemPort extends BaseIMemPort {
   }
 
   // When the memory is outputting a valid instruction
-  io.pipeline.good := io.bus.response.valid
+  io.pipeline.good := true.B
   io.pipeline.instruction := io.bus.response.bits.data
 }
 
@@ -36,7 +36,7 @@ class ICombinMemPort extends BaseIMemPort {
   * The I/O for this module is defined in [[DMemPortIO]].
   */
 class DCombinMemPort extends BaseDMemPort {
-  io.pipeline.good := io.bus.response.valid && io.pipeline.memread && !io.pipeline.memwrite
+  io.pipeline.good := true.B
 
   when (io.pipeline.valid && (io.pipeline.memread || io.pipeline.memwrite)) {
     // Check that we are not issuing a read and write at the same time
