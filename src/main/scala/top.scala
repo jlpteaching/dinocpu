@@ -18,7 +18,6 @@ class Top(val conf: CPUConfig) extends Module
   val dmem = Module(conf.getDMemPort())
 
   mem.wireMemory (imem, dmem)
-
-  cpu.io.imem <> mem.io.imem
-  cpu.io.dmem <> mem.io.dmem
+  cpu.io.imem <> imem.io.pipeline
+  cpu.io.dmem <> dmem.io.pipeline
 }

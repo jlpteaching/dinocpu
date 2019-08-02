@@ -20,15 +20,17 @@ class Response extends Bundle {
 }
 
 /**
-  * The generic interface for communication between the IMem/DMemPort modules and the backing memory.
-  *
-  * Input:  request, the ready/valid interface for a MemPort module to issue Requests to. Memory
-  *         will only accept a request when both request.valid (the MemPort is supplying valid data)
-  *         and request.ready (the memory is idling for a request) are high.
-  *
-  * Output: response, the valid interface for the data outputted by memory if it was requested to read.
-  *         the bits in response.bits should only be treated as valid data when response.valid is high.
-  */
+ * The generic interface for communication between the IMem/DMemPort modules and the backing memory.
+ * This interface corresponds with the port <=> memory interface between the
+ * memory port and the backing memory.
+ *
+ * Input:  request, the ready/valid interface for a MemPort module to issue Requests to. Memory
+ *         will only accept a request when both request.valid (the MemPort is supplying valid data)
+ *         and request.ready (the memory is idling for a request) are high.
+ *
+ * Output: response, the valid interface for the data outputted by memory if it was requested to read.
+ *         the bits in response.bits should only be treated as valid data when response.valid is high.
+ */
 class MemPortBusIO extends Bundle {
   val request  = Flipped(Decoupled (new Request))
   val response = Valid (new Response)
