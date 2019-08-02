@@ -47,19 +47,19 @@ class NonCombinMemoryTestHarness(size: Int, memFile: String, latency: Int) exten
   memory.io := DontCare
 
 
-  imem.io.address     := io.imem_address
-  imem.io.valid       := io.imem_valid
-  io.imem_instruction := imem.io.instruction
-  io.imem_good        := imem.io.good
-  dmem.io.address     := io.dmem_address
-  dmem.io.valid       := io.dmem_valid
-  dmem.io.writedata   := io.dmem_writedata
-  dmem.io.memread     := io.dmem_memread
-  dmem.io.memwrite    := io.dmem_memwrite
-  dmem.io.maskmode    := io.dmem_maskmode
-  dmem.io.sext        := io.dmem_sext
-  io.dmem_readdata    := dmem.io.readdata
-  io.dmem_good        := dmem.io.good
+  imem.io.pipeline.address     := io.imem_address
+  imem.io.pipeline.valid       := io.imem_valid
+  io.imem_instruction := imem.io.pipeline.instruction
+  io.imem_good        := imem.io.pipeline.good
+  dmem.io.pipeline.address     := io.dmem_address
+  dmem.io.pipeline.valid       := io.dmem_valid
+  dmem.io.pipeline.writedata   := io.dmem_writedata
+  dmem.io.pipeline.memread     := io.dmem_memread
+  dmem.io.pipeline.memwrite    := io.dmem_memwrite
+  dmem.io.pipeline.maskmode    := io.dmem_maskmode
+  dmem.io.pipeline.sext        := io.dmem_sext
+  io.dmem_readdata    := dmem.io.pipeline.readdata
+  io.dmem_good        := dmem.io.pipeline.good
 
   memory.wireMemory (imem, dmem)
 }

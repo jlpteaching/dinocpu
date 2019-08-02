@@ -22,6 +22,7 @@ class OutstandingReq extends Bundle {
  * The I/O for this module is defined in [[IMemPortIO]].
  */
 class INonCombinMemPort extends ICombinMemPort {
+  io.pipeline.good := io.bus.response.valid
 }
 
 /**
@@ -44,19 +45,19 @@ class DNonCombinMemPort extends BaseDMemPort {
   // Ready if either we don't have an outstanding request or the outstanding request is a read and
   // it has been satisfied this cycle. Note: we cannot send a read until one cycle after the write has
   // been sent.
-  val ready = !outstandingReq.valid || (io.response.valid && (outstandingReq.valid && outstandingReq.bits.operation === MemoryOperation.Read))
-  when (io.valid && (io.memread || io.memwrite) && ready) {
+  val ready = !outstandingReq.valid || (io.bus.response.valid && (outstandingReq.valid && outstandingReq.bits.operation === MemoryOperation.Read))
+  when (io.pipeline.valid && (io.pipeline.memread || io.pipeline.memwrite) && ready) {
     // Check if we aren't issuing both a read and write at the same time
-    assert (! (io.memread && io.memwrite))
+    assert (! (io.pipeline.memread && io.pipeline.memwrite))
 
     // On either a read or write we must read a whole block from memory. Store the necessary
     // information to redirect the memory's response back into itself through a write
     // operation and get the right subset of the block on a read.
-    outstandingReq.bits.address   := io.address
-    outstandingReq.bits.writedata := io.writedata
-    outstandingReq.bits.maskmode  := io.maskmode
-    outstandingReq.bits.sext      := io.sext
-    when (io.memwrite) {
+    outstandingReq.bits.address   := io.pipeline.address
+    outstandingReq.bits.writedata := io.pipeline.writedata
+    outstandingReq.bits.maskmode  := io.pipeline.maskmode
+    outstandingReq.bits.sext      := io.pipeline.sext
+    when (io.pipeline.memwrite) {
       outstandingReq.bits.operation := Write
     } .otherwise {
       outstandingReq.bits.operation := Read
@@ -64,18 +65,18 @@ class DNonCombinMemPort extends BaseDMemPort {
     sending := true.B
 
     // Program memory to perform a read. Always read since we must read before write.
-    io.request.bits.address   := io.address
-    io.request.bits.writedata := 0.U
-    io.request.bits.operation := Read
-    io.request.valid          := true.B
+    io.bus.request.bits.address   := io.pipeline.address
+    io.bus.request.bits.writedata := 0.U
+    io.bus.request.bits.operation := Read
+    io.bus.request.valid          := true.B
   } .otherwise {
     // no request coming in so don't send a request out
-    io.request.valid := false.B
+    io.bus.request.valid := false.B
     sending := false.B
   }
 
   // Response path
-  when (io.response.valid) {
+  when (io.bus.response.valid) {
     assert(outstandingReq.valid)
     when (outstandingReq.bits.operation === MemoryOperation.Write) {
       val writedata = Wire (UInt (32.W))
@@ -85,7 +86,7 @@ class DNonCombinMemPort extends BaseDMemPort {
         // Read in the existing piece of data at the address, so we "overwrite" only part of it
         val offset = outstandingReq.bits.address (1, 0)
         val readdata = Wire (UInt (32.W))
-        readdata := io.response.bits.data
+        readdata := io.bus.response.bits.data
         val data = Wire (UInt (32.W))
         // Mask the portion of the existing data so it can be or'd with the writedata
         when (outstandingReq.bits.maskmode === 0.U) {
@@ -104,8 +105,8 @@ class DNonCombinMemPort extends BaseDMemPort {
       request.address   := outstandingReq.bits.address
       request.writedata := writedata
       request.operation := Write
-      io.request.bits  := request
-      io.request.valid := true.B
+      io.bus.request.bits  := request
+      io.bus.request.valid := true.B
     } .otherwise {
       // Response is valid and we don't have a stored write.
       // Perform masking and sign extension on read data when memory is outputting it
@@ -115,12 +116,12 @@ class DNonCombinMemPort extends BaseDMemPort {
       val offset = outstandingReq.bits.address(1,0)
       when (outstandingReq.bits.maskmode === 0.U) {
         // Byte
-        readdata_mask := (io.response.bits.data >> (offset * 8.U)) & 0xff.U
+        readdata_mask := (io.bus.response.bits.data >> (offset * 8.U)) & 0xff.U
       } .elsewhen (outstandingReq.bits.maskmode === 1.U) {
         // Half-word
-        readdata_mask := (io.response.bits.data >> (offset * 8.U)) & 0xffff.U
+        readdata_mask := (io.bus.response.bits.data >> (offset * 8.U)) & 0xffff.U
       } .otherwise {
-        readdata_mask := io.response.bits.data
+        readdata_mask := io.bus.response.bits.data
       }
 
       when (outstandingReq.bits.sext) {
@@ -138,7 +139,7 @@ class DNonCombinMemPort extends BaseDMemPort {
         readdata_mask_sext := readdata_mask
       }
 
-      io.readdata := readdata_mask_sext
+      io.pipeline.readdata := readdata_mask_sext
     }
     // Mark the outstanding request register as being invalid, unless sending
     outstandingReq.valid := sending
