@@ -16,7 +16,9 @@ class CPUTesterDriver(cpuType: String,
   val optionsManager = new SimulatorOptionsManager()
 
   if (optionsManager.targetDirName == ".") {
-    optionsManager.setTargetDirName(s"test_run_dir/$cpuType/$binary$extraName")
+    // TODO: Revert this either by waiting for the chisel guys to fix the CWD bug, or moving the testing system over to
+    // FIRRTLMain instead of Driver
+    //optionsManager.setTargetDirName(s"test_run_dir/$cpuType/$binary$extraName")
   }
 
   val hexName = s"${optionsManager.targetDirName}/${binary}.hex"
