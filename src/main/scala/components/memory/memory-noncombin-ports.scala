@@ -6,7 +6,7 @@ import chisel3._
 import chisel3.util._
 import dinocpu.MemoryOperation._
 
-// A Bundle used for temporarily storing the necessary information for a  read/write in the data memory accessor.
+// A Bundle used for temporarily storing the necessary information for a read/write in the data memory accessor.
 class OutstandingReq extends Bundle {
   val address   = UInt(32.W)
   val writedata = UInt(32.W)
@@ -17,12 +17,22 @@ class OutstandingReq extends Bundle {
 
 /**
  * The instruction memory port. Since both the combinational and noncombinational instruction ports just issue
- * read requests in the same way both ports have the same implementation
+ * read requests in the same way both ports share the same implementation
  *
  * The I/O for this module is defined in [[IMemPortIO]].
  */
 class INonCombinMemPort extends ICombinMemPort {
-  io.pipeline.good := io.bus.response.valid
+  // To fake combinational writes
+  val imemBusy  = RegInit (false.B)
+  imemBusy := DontCare
+
+  when (io.pipeline.valid) {
+    imemBusy := true.B
+  } .elsewhen (io.bus.response.valid) {
+    imemBusy := false.B
+  }
+
+  io.pipeline.good := (~ imemBusy || io.bus.response.valid)
 }
 
 /**
@@ -31,6 +41,17 @@ class INonCombinMemPort extends ICombinMemPort {
  * The I/O for this module is defined in [[DMemPortIO]].
  */
 class DNonCombinMemPort extends BaseDMemPort {
+  // To fake combinational writes
+  val dmemBusy  = Reg (new Bool)
+  dmemBusy := DontCare
+
+  io.pipeline.good := (! dmemBusy || io.bus.response.valid)
+
+  when (io.pipeline.valid && io.pipeline.memread && !io.pipeline.memwrite) {
+    dmemBusy := true.B
+  } .elsewhen (io.bus.response.valid) {
+    dmemBusy := false.B
+  }
 
   // A register to hold intermediate data (e.g., write data, mask mode) while the request
   // is outstanding to memory.
@@ -45,7 +66,11 @@ class DNonCombinMemPort extends BaseDMemPort {
   // Ready if either we don't have an outstanding request or the outstanding request is a read and
   // it has been satisfied this cycle. Note: we cannot send a read until one cycle after the write has
   // been sent.
-  val ready = !outstandingReq.valid || (io.bus.response.valid && (outstandingReq.valid && outstandingReq.bits.operation === MemoryOperation.Read))
+  val wasRequestARead = outstandingReq.valid && outstandingReq.bits.operation === MemoryOperation.Read
+  val ready = !outstandingReq.valid || (io.bus.response.valid && wasRequestARead)
+
+  io.pipeline.good := ready
+
   when (io.pipeline.valid && (io.pipeline.memread || io.pipeline.memwrite) && ready) {
     // Check if we aren't issuing both a read and write at the same time
     assert (! (io.pipeline.memread && io.pipeline.memwrite))

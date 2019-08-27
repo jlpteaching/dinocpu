@@ -66,7 +66,7 @@ class NonCombinMemoryTestHarness(size: Int, memFile: String, latency: Int) exten
 
 // Test instruction port reading a zeroed memory file
 class AsyncMemoryUnitTester$IMemZero(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
-  expect(m.io.imem_good, 0)
+  expect(m.io.imem_good, 1)
 
   // Expect 0's on the instruction port
   for (i <- 0 until size/4) {
@@ -74,6 +74,7 @@ class AsyncMemoryUnitTester$IMemZero(m: NonCombinMemoryTestHarness, size: Int, l
     poke(m.io.imem_valid, 1)
 
     step(1)
+
     poke(m.io.imem_valid, 0)
     if (latency > 1) {
       expect(m.io.imem_good, 0)
@@ -88,7 +89,7 @@ class AsyncMemoryUnitTester$IMemZero(m: NonCombinMemoryTestHarness, size: Int, l
 // Test instruction port reading an ascending memory file
 class AsyncMemoryUnitTester$IMemRead(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
   // Expect ascending bytes on instruction port
-  expect(m.io.imem_good, 0)
+  expect(m.io.imem_good, 1)
 
   for (i <- 0 until size/4) {
     poke(m.io.imem_address, i*4)
@@ -105,11 +106,17 @@ class AsyncMemoryUnitTester$IMemRead(m: NonCombinMemoryTestHarness, size: Int, l
     expect(m.io.imem_instruction, i)
     expect(m.io.imem_good, 1)
   }
+
+  // Check that memory remains good after performing operations (idling)
+  for (i <- 0 until 4) {
+    step (1)
+    expect (m.io.imem_good, 1)
+  }
 }
 // Test data port writes and instruction port reads
 class AsyncMemoryUnitTester$IMemWrite(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
-  expect(m.io.dmem_good, 0)
-  // write ascending data to memory 
+  expect(m.io.dmem_good, 1)
+  // write ascending data to memory
   for (i <- 0 until size/8) {
     poke(m.io.dmem_address, i*4)
     poke(m.io.dmem_valid, 1)
@@ -125,16 +132,24 @@ class AsyncMemoryUnitTester$IMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
       expect(m.io.dmem_good, 0)
       step(latency - 1)
     }
+    // We expect not good from the dmemport, as this is the cycle used to perform a writeback
+    expect(m.io.dmem_good, 0)
     // We wait 1 extra cycle for the data memory to send the write back
     step(1)
 
-    // Memory shouldn't be outputting high on good
-    expect(m.io.dmem_good, 0)
+    // Memory should now be good
+    expect(m.io.dmem_good, 1)
   }
-
   poke (m.io.dmem_memwrite, 0)
   poke (m.io.dmem_valid, 0)
-  
+
+  // Check that data memory remains good after performing an operation
+  for (i <- 0 until 4) {
+    step(1)
+    expect(m.io.dmem_good, 1)
+  }
+  expect (m.io.imem_good, 1)
+
   // expect ascending bytes, the first size/8 of them being incremented by 100, on instruction port
   for (i <- 0 until size/4) {
     poke(m.io.imem_address, i*4)
@@ -154,11 +169,17 @@ class AsyncMemoryUnitTester$IMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
     }
     expect(m.io.imem_good, 1)
   }
+
+  // Check that memory remains good after performing operations (idling)
+  for (i <- 0 until 4) {
+    step (1)
+    expect (m.io.imem_good, 1)
+  }
 }
 
 // Test data port reading a zeroed memory file
 class AsyncMemoryUnitTester$DMemZero(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
-  expect(m.io.dmem_good, 0)
+  expect(m.io.dmem_good, 1)
 
   // Expect 0's on the data port
   for (i <- 0 until size/4) {
@@ -178,11 +199,17 @@ class AsyncMemoryUnitTester$DMemZero(m: NonCombinMemoryTestHarness, size: Int, l
     expect(m.io.dmem_readdata, 0)
     expect(m.io.dmem_good, 1)
   }
+
+  // Check that memory remains good after performing operations (idling)
+  for (i <- 0 until 4) {
+    step (1)
+    expect (m.io.dmem_good, 1)
+  }
 }
 
 // Test data port reading an ascending memory file
 class AsyncMemoryUnitTester$DMemRead(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
-  expect(m.io.dmem_good, 0)
+  expect(m.io.dmem_good, 1)
 
   // Expect ascending bytes on data port
   for (i <- 0 until size/4) {
@@ -202,11 +229,17 @@ class AsyncMemoryUnitTester$DMemRead(m: NonCombinMemoryTestHarness, size: Int, l
     expect(m.io.dmem_readdata, i)
     expect(m.io.dmem_good, 1)
   }
+
+  // Check that memory remains good after performing operations (idling)
+  for (i <- 0 until 4) {
+    step (1)
+    expect (m.io.dmem_good, 1)
+  }
 }
 
 // Test data port writes and data port reads
 class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
-  expect(m.io.dmem_good, 0)
+  expect(m.io.dmem_good, 1)
   // write ascending data to memory 
   for (i <- 0 until size/8) {
     poke(m.io.dmem_address, i*4)
@@ -222,10 +255,11 @@ class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
       expect(m.io.dmem_good, 0)
       step(latency - 1)
     }
-    // We wait 1 extra cycle for the data memory to send the write back
+    // Memory should not be outputting high since this is the cycle used for the writeback
+    expect(m.io.dmem_good, 0)
     step(1)
 
-    expect(m.io.dmem_good, 0)
+    expect(m.io.dmem_good, 1)
   }
 
   poke (m.io.dmem_memwrite, 0)
@@ -253,6 +287,12 @@ class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
     }
     expect(m.io.dmem_good, 1)
   }
+
+  // Check that memory remains good after performing operations (idling)
+  for (i <- 0 until 4) {
+    step (1)
+    expect (m.io.imem_good, 1)
+  }
 }
 
 
@@ -270,7 +310,7 @@ class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
   * }}}
   */
 class NonCombinMemoryTester extends ChiselFlatSpec {
-  val latency = new Random().nextInt (49) + 1
+  val latency = new Random().nextInt (4) + 3
 
   // imem side
   "DualPortedNonCombinMemory" should s"have all zeros in instruction port (with treadle and $latency latency cycles)"  in {
@@ -282,20 +322,18 @@ class NonCombinMemoryTester extends ChiselFlatSpec {
     Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$IMemRead(m, 2048, latency)
     } should be (true)
-  } 
+  }
   "DualPortedNonCombinMemory" should s"store words with data port and load with instruction port (with treadle and $latency latency cycles)" in {
     Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$IMemWrite(m, 2048, latency)
     } should be (true)
   }
-  
   // dmem side
   "DualPortedNonCombinMemory" should s"have all zeros in data port (with treadle and $latency latency cycles)"  in {
     Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/zero.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$DMemZero(m, 2048, latency)
     } should be (true)
   }
-
   "DualPortedNonCombinMemory" should s"have increasing words in data port (with treadle and $latency latency cycles)" in {
     Driver(() => new NonCombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex", latency), "treadle") {
       m => new AsyncMemoryUnitTester$DMemRead(m, 2048, latency)
