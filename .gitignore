@@ -349,3 +349,7 @@ simulator_run_dir
 # For containers
 *.sif
 .treadle_repl_history
+
+# For CPU tester binary files; due to tester directory bug requiring all of the testing files to be dumped into the CWD
+*.hex
+*.fir
