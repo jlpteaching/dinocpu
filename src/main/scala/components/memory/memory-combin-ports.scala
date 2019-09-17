@@ -12,6 +12,9 @@ import dinocpu.MemoryOperation._
   * The I/O for this module is defined in [[IMemPortIO]].
   */
 class ICombinMemPort extends BaseIMemPort {
+  // Combinational memory is always ready
+  io.pipeline.ready := true.B
+
   // When the pipeline is supplying a high valid signal
   when (io.pipeline.valid) {
     val request = Wire(new Request)
@@ -26,7 +29,6 @@ class ICombinMemPort extends BaseIMemPort {
   }
 
   // When the memory is outputting a valid instruction
-  io.pipeline.good := true.B
   io.pipeline.instruction := io.bus.response.bits.data
 }
 
@@ -36,7 +38,8 @@ class ICombinMemPort extends BaseIMemPort {
   * The I/O for this module is defined in [[DMemPortIO]].
   */
 class DCombinMemPort extends BaseDMemPort {
-  io.pipeline.good := true.B
+  // Combinational memory is always ready
+  io.pipeline.ready := true.B
 
   when (io.pipeline.valid && (io.pipeline.memread || io.pipeline.memwrite)) {
     // Check that we are not issuing a read and write at the same time

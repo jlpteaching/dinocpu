@@ -40,6 +40,8 @@ abstract class BaseIMemPort extends Module {
 
   io.pipeline <> 0.U.asTypeOf (new IMemPortIO)
   io.bus      <> 0.U.asTypeOf (new MemPortBusIO)
+
+  io.pipeline.good := io.bus.response.valid
 }
 
 /**
