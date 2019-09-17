@@ -48,6 +48,7 @@ class CPUConfig
       case "single-cycle" => new SingleCycleCPU
       case "pipelined" => new PipelinedCPU
       case "pipelined-bp" => new PipelinedCPUBP
+      case "pipelined-non-combin" => new PipelinedNonCombinCPU
       case _ => throw new IllegalArgumentException("Must specify known CPU model")
     }
   }

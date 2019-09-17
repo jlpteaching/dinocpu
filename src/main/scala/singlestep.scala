@@ -30,7 +30,22 @@ object singlestep {
       ""
     }
 
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
+    val memoryType =
+      if (params.length == 4) {
+        params(2)
+      } else {
+        "combinational"
+      }
+
+    val memoryPortType =
+      if (params.length == 4) {
+        params(3)
+      } else {
+        "combnational-port"
+      }
+
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true, memoryType,
+      memoryPortType)
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
     println("How many cycles to you want to run? \"Q\" to quit.")

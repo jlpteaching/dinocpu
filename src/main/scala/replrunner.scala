@@ -1,3 +1,5 @@
+// REPL debugger class
+
 package dinocpu
 
 import dinocpu._
@@ -37,7 +39,8 @@ object replrunner {
       }
 
     //setup test
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true,
+      "combinational", "combinational-port")
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
 
