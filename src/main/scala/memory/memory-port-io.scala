@@ -12,7 +12,9 @@ import chisel3._
  *
  * Input:  address, the address of a piece of data in memory.
  * Input:  valid, true when the address specified is valid
- * Output: good, true when memory is responding with a piece of data (used to un-stall the pipeline)
+ * Output: good, true when memory is responding with a piece of data (used to correctly write correct data to
+  *        each stage's register)
+ * Output: ready, true when the memory is ready to accept another request (used to un-stall the pipeline)
  *
  */
 class MemPortIO extends Bundle {
@@ -20,6 +22,7 @@ class MemPortIO extends Bundle {
   val address  = Input(UInt(32.W))
   val valid    = Input(Bool())
   val good     = Output(Bool())
+  val ready    = Output(Bool())
 }
 
 /**
@@ -30,6 +33,7 @@ class MemPortIO extends Bundle {
  *   Input:  valid, true when the address specified is valid
  *   Output: instruction, the requested instruction
  *   Output: good, true when memory is responding with a piece of data
+ *   Output: ready, true when the memory is ready to accept another request
  */
 class IMemPortIO extends MemPortIO {
   val instruction = Output(UInt(32.W))
@@ -48,6 +52,7 @@ class IMemPortIO extends MemPortIO {
  *   Input:  sext, true if we should sign extend the result
  *   Output: readdata, the data read and sign extended
  *   Output: good, true when memory is responding with a piece of data
+ *   Output: ready, true when the memory is ready to accept another request
  */
 class DMemPortIO extends MemPortIO {
   // Pipeline <=> Port
