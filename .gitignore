@@ -349,3 +349,9 @@ simulator_run_dir
 # For containers
 *.sif
 .treadle_repl_history
+
+# For test binary files, since we need to force CWD to be the root of the dinocpu directory instead
+# of test_run_dir.
+*.hex
+*Top.datastore.snapshot.json
+*Top.lo.fir
