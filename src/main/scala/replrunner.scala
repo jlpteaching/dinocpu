@@ -43,7 +43,7 @@ object replrunner {
     options.firrtlOptions = driver.optionsManager.firrtlOptions.copy()
 
     //copy the configured simulator in the REPL
-    val repl = new treadle.TreadleRepl(options)
+    val repl = treadle.TreadleRepl(options.toAnnotationSeq)
     repl.currentTreadleTesterOpt = Some(driver.simulator)
 
     repl.run()

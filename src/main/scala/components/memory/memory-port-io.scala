@@ -7,32 +7,20 @@ import chisel3.util._
 
 /**
  * A generic ready/valid interface for MemPort modules, whose IOs extend this.
- * This interface is split into two parts:
- *   - Pipeline <=> Port: the interface between the pipelined CPU and the memory port
- *   - Memory <=> Port:   the interface between the memory port and the backing memory
  *
- * Pipeline <=> Port:
- *   Input:  address, the address of a piece of data in memory.
- *   Input:  valid, true when the address specified is valid
- *   Output: good, true when memory is responding with a piece of data (used to un-stall the pipeline)
+ * This interface corresponds with the pipeline <=> port interface between the
+ * pipelined CPU and the memory port.
  *
+ * Input:  address, the address of a piece of data in memory.
+ * Input:  valid, true when the address specified is valid
+ * Output: good, true when memory is responding with a piece of data (used to un-stall the pipeline)
  *
- * Port <=> Memory:
- *   Input:  response, the return route from memory to a memory port. This is primarily meant for connecting to
- *           an AsyncMemIO's response output, and should not be connected to anything else in any circumstance
- *           (or things will possibly break)
- *   Output: request, a DecoupledIO that delivers a request from a memory port to memory. This is primarily
- *           meant for connecting to an AsynMemIO's request input, and should not be connected to anything else
  */
 class MemPortIO extends Bundle {
   // Pipeline <=> Port
   val address  = Input(UInt(32.W))
   val valid    = Input(Bool())
   val good     = Output(Bool())
-
-  // Port <=> Memory
-  val response = Flipped(Valid(new Response))
-  val request  = Decoupled(new Request)
 }
 
 /**

@@ -3,11 +3,7 @@
 package dinocpu
 
 // For file length
-import java.io.{File, FileNotFoundException}
-
-import dinocpu.{BaseDualPortedMemory, DCombinMemPort, DNonCombinMemPort, DualPortedCombinMemory, DualPortedMemory, DualPortedNonCombinMemory, ICombinMemPort, INonCombinMemPort}
-
-import scala.math.max
+import java.io.{File}
 
 /**
  * This class configures all of the dinocpus. It takes parameters for the type of CPU model
@@ -42,7 +38,7 @@ class CPUConfig
    *
    * @return A CPU to elaborate.
    */
-  def getCPU() = {
+  def getCPU(): BaseCPU = {
     implicit val conf = this
     cpuType match {
       case "single-cycle" => new SingleCycleCPU
@@ -61,22 +57,6 @@ class CPUConfig
       case "global"           => new GlobalHistoryPredictor
       case _ => throw new IllegalArgumentException("Must specify known branch predictor")
     }
-  }
-
-  /**
-   * Deprecated. See [[getNewMem]], [[getIMemPort]], and [[getDMemPort]].
-   * Create a memory with data from a file
-   *
-   * @param minSize is the minimum size for the memory. If the binary file is
-   *        smaller than this, create a memory that is this size.
-   * @return [[DualPortedMemory]] object
-   */
-  def getMem(minSize: Int = 1 << 16): DualPortedMemory = {
-    val f = new File(memFile)
-    if (f.length == 0) {
-      println("WARNING: No file will be loaded for data memory")
-    }
-    new DualPortedMemory(minSize, memFile)
   }
 
   /**

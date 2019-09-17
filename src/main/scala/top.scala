@@ -11,13 +11,13 @@ class Top(val conf: CPUConfig) extends Module
 
   io.success := DontCare
 
-  val cpu   = Module(conf.getCPU())
-  val mem  = Module(conf.getMem())
-  //val imem = Module(conf.getIMemPort())
-  //val dmem = Module(conf.getDMemPort())
+  val cpu  = Module(conf.getCPU())
+  val mem  = Module(conf.getNewMem())
 
-  //mem.wireMemory (imem, dmem)
+  val imem = Module(conf.getIMemPort())
+  val dmem = Module(conf.getDMemPort())
 
-  cpu.io.imem <> mem.io.imem
-  cpu.io.dmem <> mem.io.dmem
+  mem.wireMemory (imem, dmem)
+  cpu.io.imem <> imem.io.pipeline
+  cpu.io.dmem <> dmem.io.pipeline
 }

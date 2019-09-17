@@ -10,9 +10,7 @@ import chisel3.util._
  * The main CPU definition that hooks up all of the other components.
  *
  */
-class PipelinedCPUBP(implicit val conf: CPUConfig) extends Module {
-  val io = IO(new CoreIO)
-
+class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   // Bundles defining the pipeline registers and control structures
 
   // Everything in the register between IF and ID stages
@@ -154,6 +152,9 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends Module {
     if_id.instruction := io.imem.instruction
     if_id.pc          := pc
     if_id.pcplusfour  := pcPlusFour.io.result
+    io.imem.valid := true.B
+  } .otherwise {
+    io.imem.valid := false.B
   }
 
   // Flush IF/ID when required
@@ -370,6 +371,9 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends Module {
   io.dmem.maskmode  := ex_mem.mcontrol.maskmode
   io.dmem.sext      := ex_mem.mcontrol.sext
 
+  // Set dmem request as valid when a write or read is being requested
+  io.dmem.valid := (io.dmem.memread || io.dmem.memwrite)
+
   // Send next_pc back to the fetch stage
   mem_next_pc := ex_mem.nextpc
 
@@ -386,6 +390,9 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends Module {
   mem_wb.pcplusfour := ex_mem.pcplusfour
   mem_wb.readdata   := io.dmem.readdata
   mem_wb.wbcontrol  := ex_mem.wbcontrol
+
+  // Stall pipeline if neither instruction nor data memory are ready
+  val memStall = ~(io.imem.good && io.dmem.good)
 
   if (conf.debug) { printf(p"MEM/WB: $mem_wb\n") }
 

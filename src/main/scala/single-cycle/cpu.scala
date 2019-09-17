@@ -11,10 +11,7 @@ import chisel3.util._
  * For more information, see section 4.4 of Patterson and Hennessy
  * This follows figure 4.21
  */
-class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
-  val io = IO(new CoreIO())
-  io <> DontCare
-
+class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // All of the structures required
   val pc         = RegInit(0.U)
   val control    = Module(new Control())
@@ -30,6 +27,7 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
 
   //FETCH
   io.imem.address := pc
+  io.imem.valid := true.B
 
   pcPlusFour.io.inputx := pc
   pcPlusFour.io.inputy := 4.U
@@ -86,6 +84,11 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   io.dmem.memwrite  := control.io.memwrite
   io.dmem.maskmode  := instruction(13,12)
   io.dmem.sext      := ~instruction(14)
+  when(io.dmem.memread || io.dmem.memwrite) {
+    io.dmem.valid := true.B
+  } .otherwise {
+    io.dmem.valid := false.B
+  }
 
   //WRITEBACK
   val write_data = Wire(UInt())
@@ -138,5 +141,4 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends Module {
   }
 
   pc := next_pc
-
 }
