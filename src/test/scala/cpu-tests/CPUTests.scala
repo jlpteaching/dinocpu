@@ -48,7 +48,7 @@ class PipelinedBPTakenCPUTester extends CPUFlatSpec {
   val mytests = Map(
     "branch" -> InstTests.branch,
     "jump" -> InstTests.jump,
-		"applications" -> InstTests.smallApplications
+    "applications" -> InstTests.smallApplications
   )
   behavior of "Pipelined CPU with always-taken branch predictor"
   for ((group, tests) <- mytests) {
@@ -65,7 +65,7 @@ class PipelinedBPLocalCPUTester extends CPUFlatSpec {
   val mytests = Map(
     "branch" -> InstTests.branch,
     "jump" -> InstTests.jump,
-		"applications" -> InstTests.smallApplications
+    "applications" -> InstTests.smallApplications
   )
   behavior of "Pipelined CPU with local branch predictor"
   for ((group, tests) <- mytests) {
@@ -82,7 +82,7 @@ class PipelinedBPGlobalCPUTester extends CPUFlatSpec {
   val mytests = Map(
     "branch" -> InstTests.branch,
     "jump" -> InstTests.jump,
-		"applications" -> InstTests.smallApplications
+    "applications" -> InstTests.smallApplications
   )
   behavior of "Pipelined CPU with global branch predictor"
   for ((group, tests) <- mytests) {
@@ -94,11 +94,32 @@ class PipelinedBPGlobalCPUTester extends CPUFlatSpec {
   }
 }
 
+/** Just like [[SingleCycleCPUTester]], but for the pipelined CPU */
+class PipelinedNonCombinCPUTester extends CPUFlatSpec {
+  behavior of "Pipelined CPU with non-combinational memory"
+  for ((group, tests) <- InstTests.tests) {
+    for (test <- tests) {
+      it should s"run $group ${test.binary}${test.extraName}" in {
+        CPUTesterDriver(test, "pipelined-non-combin", "", "non-combinational", "non-combinational-port") should be(true)
+      }
+    }
+  }
+}
+
 class PipelinedFullApplicationTester extends CPUFlatSpec {
   behavior of "Pipelined CPU running full applications"
   for (test <- InstTests.fullApplications) {
     it should s"run ${test.binary}${test.extraName}" in {
       CPUTesterDriver(test, "pipelined") should be(true)
+    }
+  }
+}
+
+class PipelinedNonCombinFullApplicationTester extends CPUFlatSpec {
+  behavior of "Pipelined CPU with non-combinational memory running full applications"
+  for (test <- InstTests.fullApplications) {
+    it should s"run ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined-non-combin", "", "non-combinational", "non-combinational-port") should be(true)
     }
   }
 }

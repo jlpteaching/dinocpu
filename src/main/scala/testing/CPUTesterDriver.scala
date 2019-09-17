@@ -1,3 +1,5 @@
+// Driver main for running CPU tests
+
 package dinocpu
 
 import dinocpu.simulate.{build, elfToHex}
@@ -11,7 +13,9 @@ class CPUTesterDriver(cpuType: String,
                       branchPredictor: String,
                       binary: String,
                       extraName: String = "",
-                      forceDebug: Boolean = false) {
+                      forceDebug: Boolean = false,
+                      memType: String,
+                      memPorts: String) {
 
   val optionsManager = new SimulatorOptionsManager()
 
@@ -24,8 +28,10 @@ class CPUTesterDriver(cpuType: String,
   val hexName = s"${optionsManager.targetDirName}/${binary}.hex"
 
   val conf = new CPUConfig()
-  conf.cpuType = cpuType
-  conf.memFile = hexName
+  conf.cpuType     = cpuType
+  conf.memFile     = hexName
+  conf.memType     = memType
+  conf.memPortType = memPorts
   conf.debug = false // always run with debug print statements
 
   if (!branchPredictor.isEmpty) {
@@ -144,9 +150,11 @@ case class CPUTestCase(
 
 /* Only used in tests/scala/cpu-tests */
 object CPUTesterDriver {
-  def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = ""): Boolean = {
+  def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = "",
+            memType: String = "combinational", memPortType: String = "combinational-port"): Boolean = {
     val cpustr = if (branchPredictor != "") { cpuType+"-bp" } else { cpuType }
-    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, testCase.extraName)
+    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, testCase.extraName, false,
+      memType, memPortType)
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))
