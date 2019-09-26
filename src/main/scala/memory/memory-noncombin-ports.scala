@@ -26,9 +26,6 @@ class INonCombinMemPort extends ICombinMemPort {
   // But we want to be able to signal that the memory is holding a request, so a register is used to store
   // whether a request passed through this memory port
   val imemBusy  = RegInit (false.B)
-  // Wire register to DontCare so that it correctly observes and updates with a true or false value.
-  // Otherwise it will "lock" to true when we write true to the register
-  imemBusy := DontCare
 
   when (io.pipeline.valid) {
     imemBusy := true.B

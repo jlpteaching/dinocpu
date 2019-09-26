@@ -85,6 +85,13 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
     val wbcontrol = new WBControl
   }
 
+  // Combination of the ifid and memwb registers for use as a memory response buffer, ensuring synchronization of imem
+  // and dmem
+  class MemResponseBufferBundle extends Bundle {
+    val if_id = Valid (new IFIDBundle)
+    val mem_wb = Valid (new MEMWBBundle)
+  }
+
   // All of the structures required
   val pc = RegInit(0.U)
   val control = Module(new Control())
@@ -104,6 +111,9 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val id_ex = RegInit(0.U.asTypeOf(new IDEXBundle))
   val ex_mem = RegInit(0.U.asTypeOf(new EXMEMBundle))
   val mem_wb = RegInit(0.U.asTypeOf(new MEMWBBundle))
+
+  // Memory synchronization buffer register
+  val mem_buffer = RegInit(0.U.asTypeOf(new MemResponseBufferBundle))
 
   if (conf.debug) {
     printf("Cycle=%d ", cycleCount)
@@ -142,9 +152,17 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // otherwise, leave the IF/ID register *unchanged*
   when(!hazard.io.ifid_bubble) {
     when(io.imem.good) {
-      if_id.instruction := io.imem.instruction
-      if_id.pc := pc
-      if_id.pcplusfour := pcPlusFour.io.result
+      // If dmem is not ready, then we want to store this response in the mem response buffer
+      when (io.dmem.ready) {
+        if_id.instruction := io.imem.instruction
+        if_id.pc := pc
+        if_id.pcplusfour := pcPlusFour.io.result
+      } .otherwise {
+        mem_buffer.if_id.valid := true.B
+        mem_buffer.if_id.bits.instruction := io.imem.instruction
+        mem_buffer.if_id.bits.pc := pc
+        mem_buffer.if_id.bits.pcplusfour := pcPlusFour.io.result
+      }
     }
 
     // Flush IF/ID when required
@@ -152,11 +170,19 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
       if_id.instruction := 0.U
       if_id.pc := 0.U
       if_id.pcplusfour := 0.U
+
+      mem_buffer.if_id.bits := 0.U.asTypeOf(new IFIDBundle)
     }
 
     io.imem.valid := true.B
   }.otherwise {
     io.imem.valid := false.B
+  }
+
+  // Connect if_id to the mem_buffer's output when memory is not stalling the pipeline
+  when (mem_buffer.if_id.valid && io.imem.ready && io.dmem.ready) {
+    if_id := mem_buffer.if_id.bits
+    mem_buffer.if_id := 0.U.asTypeOf (Valid(new IFIDBundle))
   }
 
   if (conf.debug) {
@@ -363,13 +389,31 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   forwarding.io.exmemrd := ex_mem.writereg
   forwarding.io.exmemrw := ex_mem.wbcontrol.regwrite
 
-  mem_wb.writereg := ex_mem.writereg
-  mem_wb.aluresult := ex_mem.aluresult
-  mem_wb.pcplusfour := ex_mem.pcplusfour
-  mem_wb.wbcontrol := ex_mem.wbcontrol
+  val mem_wb_in = Wire(new MEMWBBundle)
+  mem_wb_in := 0.U.asTypeOf(new MEMWBBundle)
 
-  when (! hazard.io.memwb_freeze && io.dmem.good) {
-    mem_wb.readdata := io.dmem.readdata
+  mem_wb_in.writereg := ex_mem.writereg
+  mem_wb_in.aluresult := ex_mem.aluresult
+  mem_wb_in.pcplusfour := ex_mem.pcplusfour
+  mem_wb_in.wbcontrol := ex_mem.wbcontrol
+
+  when (! hazard.io.memwb_freeze) {
+    when (io.dmem.good) {
+      mem_wb_in.readdata := io.dmem.readdata
+    }
+
+    when (io.imem.ready) {
+      mem_wb := mem_wb_in
+    } .otherwise {
+      mem_buffer.mem_wb.valid := true.B
+      mem_buffer.mem_wb.bits := mem_wb_in
+    }
+  }
+
+  // Connect mem_wb to the mem_buffer's output when memory is not stalling the pipeline
+  when (mem_buffer.mem_wb.valid && io.imem.ready && io.dmem.ready) {
+    mem_wb := mem_buffer.mem_wb.bits
+    mem_buffer.mem_wb := 0.U.asTypeOf (Valid(new MEMWBBundle))
   }
 
   if (conf.debug) { printf(p"MEM/WB: $mem_wb\n") }
@@ -385,9 +429,16 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
                        (mem_wb.wbcontrol.toreg === 2.U) -> mem_wb.pcplusfour))
 
   // Write the data to the register file
-  registers.io.writedata := write_data
-  registers.io.writereg  := mem_wb.writereg
-  registers.io.wen       := mem_wb.wbcontrol.regwrite && (registers.io.writereg =/= 0.U)
+
+  when (! hazard.io.memwb_freeze) {
+    registers.io.writedata := write_data
+    registers.io.writereg := mem_wb.writereg
+    registers.io.wen := mem_wb.wbcontrol.regwrite && (registers.io.writereg =/= 0.U)
+  } .otherwise {
+    registers.io.writedata := 0.U(32.W)
+    registers.io.writereg := 0.U
+    registers.io.wen := false.B
+  }
 
   // Set the input signals for the forwarding unit
   forwarding.io.memwbrd := mem_wb.writereg
