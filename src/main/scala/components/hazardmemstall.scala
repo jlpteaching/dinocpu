@@ -42,6 +42,10 @@ class HazardUnitMemStall extends Module {
     val idex_bubble  = Output(Bool())
     val exmem_bubble = Output(Bool())
     val ifid_flush   = Output(Bool())
+
+    val idex_freeze  = Output(Bool())
+    val exmem_freeze = Output(Bool())
+    val memwb_freeze = Output(Bool())
   })
 
   // default
@@ -50,6 +54,10 @@ class HazardUnitMemStall extends Module {
   io.idex_bubble  := false.B
   io.exmem_bubble := false.B
   io.ifid_flush   := false.B
+
+  io.idex_freeze  := false.B
+  io.exmem_freeze := false.B
+  io.memwb_freeze := false.B
 
   // Load to use hazard.
   when (io.idex_memread &&
@@ -68,9 +76,11 @@ class HazardUnitMemStall extends Module {
   }
 
   // mem stall
-  when (~(io.imem_good && io.dmem_good)) {
-    io.pcwrite     := 2.U // freeze PC
-    io.idex_bubble  := true.B
-    //io.exmem_bubble := true.B
+  when (! (io.imem_good && io.dmem_good)) {
+    io.pcwrite := 2.U
+    io.ifid_bubble := true.B
+    io.idex_freeze := true.B
+    io.exmem_freeze := true.B
+    io.memwb_freeze := true.B
   }
 }
