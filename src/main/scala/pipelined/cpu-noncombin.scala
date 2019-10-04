@@ -138,8 +138,8 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   }
   pc := MuxCase(0.U, Array(
     (hazard.io.pcwrite === 0.U) -> pcPlusFour.io.result,
-    (hazard.io.pcwrite === 1.U) -> next_pc,
-    (hazard.io.pcwrite === 2.U) -> pc))
+    (hazard.io.pcwrite === 1.U && (io.imem.ready && io.dmem.ready)) -> next_pc,
+    (hazard.io.pcwrite === 2.U || !(io.imem.ready && io.dmem.ready)) -> pc))
 
   // Send the PC to the instruction memory port to get the instruction
   io.imem.address := pc
@@ -147,6 +147,12 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Get the PC + 4
   pcPlusFour.io.inputx := pc
   pcPlusFour.io.inputy := 4.U
+
+  printf (p"Cycle $cycleCount: PC=>${pc} (${pcPlusFour.io.result})\n")
+  printf (p"IMEM READY: ${io.imem.ready} DMEM READY: ${io.dmem.ready}\n")
+  when (io.imem.ready && io.dmem.ready) {
+    printf ("---------------------------------------------\n")
+  }
 
   // Fill the IF/ID register if we are not bubbling IF/ID, and imem is outputting valid data
   // otherwise, leave the IF/ID register *unchanged*
@@ -165,18 +171,18 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
       }
     }
 
-    // Flush IF/ID when required
-    when(hazard.io.ifid_flush) {
-      if_id.instruction := 0.U
-      if_id.pc := 0.U
-      if_id.pcplusfour := 0.U
-
-      mem_buffer.if_id.bits := 0.U.asTypeOf(new IFIDBundle)
-    }
-
     io.imem.valid := true.B
   }.otherwise {
     io.imem.valid := false.B
+  }
+
+  // Flush IF/ID when required
+  when(hazard.io.ifid_flush) {
+    if_id.instruction := 0.U
+    if_id.pc := 0.U
+    if_id.pcplusfour := 0.U
+
+    mem_buffer.if_id.bits := 0.U.asTypeOf(new IFIDBundle)
   }
 
   // Connect if_id to the mem_buffer's output when memory is not stalling the pipeline
@@ -239,13 +245,13 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
     // Set the writeback control signals
     id_ex.wbcontrol.toreg := control.io.toreg
     id_ex.wbcontrol.regwrite := control.io.regwrite
+  }
 
-    when(hazard.io.idex_bubble) {
-      // Set the id_ex control to 0 to indicate a bubble
-      id_ex.excontrol := 0.U.asTypeOf(new EXControl)
-      id_ex.mcontrol := 0.U.asTypeOf(new MControl)
-      id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
-    }
+  when(hazard.io.idex_bubble) {
+    // Set the id_ex control to 0 to indicate a bubble
+    id_ex.excontrol := 0.U.asTypeOf(new EXControl)
+    id_ex.mcontrol := 0.U.asTypeOf(new MControl)
+    id_ex.wbcontrol := 0.U.asTypeOf(new WBControl)
   }
 
   if (conf.debug) {
@@ -279,7 +285,6 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
     (forwarding.io.forwardA === 0.U) -> id_ex.readdata1,
     (forwarding.io.forwardA === 1.U) -> ex_mem.aluresult,
     (forwarding.io.forwardA === 2.U) -> write_data))
-
 
   val alu_inputx = Wire(UInt(32.W))
   alu_inputx := DontCare
@@ -342,14 +347,14 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
       ex_mem.taken := false.B
       ex_mem.nextpc := DontCare // No need to set the PC if not a branch
     }
+  }
 
-    // Check for bubble EX/MEM register
-    when(hazard.io.exmem_bubble) {
-      // Set the ex_mem control to 0 to indicate a bubble
-      ex_mem.mcontrol := 0.U.asTypeOf(new MControl)
-      ex_mem.wbcontrol := 0.U.asTypeOf(new WBControl)
-      ex_mem.taken := 0.U
-    }
+  // Check for bubble EX/MEM register
+  when(hazard.io.exmem_bubble) {
+    // Set the ex_mem control to 0 to indicate a bubble
+    ex_mem.mcontrol := 0.U.asTypeOf(new MControl)
+    ex_mem.wbcontrol := 0.U.asTypeOf(new WBControl)
+    ex_mem.taken := 0.U
   }
 
   if (conf.debug) {
