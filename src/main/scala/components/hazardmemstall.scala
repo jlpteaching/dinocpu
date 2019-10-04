@@ -68,7 +68,7 @@ class HazardUnitMemStall extends Module {
   }
 
   // branch flush
-  when (io.exmem_taken) {
+  when (io.exmem_taken && io.imem_good && io.dmem_good) {
     io.pcwrite := 1.U // use the PC from mem stage
     io.ifid_flush  := true.B
     io.idex_bubble  := true.B
@@ -78,6 +78,7 @@ class HazardUnitMemStall extends Module {
   // mem stall
   when (! (io.imem_good && io.dmem_good)) {
     io.pcwrite := 2.U
+
     io.ifid_bubble := true.B
     io.idex_freeze := true.B
     io.exmem_freeze := true.B
