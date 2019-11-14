@@ -162,17 +162,16 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Send a valid instruction request to instruction memory only if IFID isn't
   // being bubbled:
-  io.imem.valid := ~hazard.io.ifid_bubble
+  io.imem.valid := !hazard.io.ifid_bubble
 
   // Data supplied to if_id register is always valid every cycle
-  if_id.io.valid := true.B
+  if_id.io.valid := !hazard.io.ifid_bubble
   // Connect outputs of IF stage into the stage register's in port
   if_id.io.in.instruction := io.imem.instruction
   if_id.io.in.pc          := pc
   if_id.io.in.pcplusfour  := pcPlusFour.io.result
 
   // Flush IF/ID when required
-  if_id.io.bubble := hazard.io.ifid_bubble
   if_id.io.flush  := hazard.io.ifid_flush
 
   if (conf.debug) { printf(p"IF/ID: $if_id\n") }
@@ -214,9 +213,8 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Data supplied to id_ex register is always valid every cycle
   id_ex.io.valid  := true.B
-  // Don't need to flush nor bubble the data in this register
+  // Don't need to flush the data in this register
   id_ex.io.flush  := false.B
-  id_ex.io.bubble := false.B
 
   // Fill the id_ex register
   id_ex.io.in.writereg   := if_id.io.data.instruction(11,7)
@@ -233,8 +231,6 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Data supplied to id_ex_ctrl register is always valid every cycle
   id_ex_ctrl.io.valid  := true.B
-  // Don't need to bubble the data in this register
-  id_ex_ctrl.io.bubble := false.B
   // Set the execution control signals
   id_ex_ctrl.io.in.ex_ctrl.add        := control.io.add
   id_ex_ctrl.io.in.ex_ctrl.immediate  := control.io.immediate
@@ -319,9 +315,8 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Data supplied to ex_mem register is always valid every cycle
   ex_mem.io.valid  := true.B
-  // Don't need to flush nor bubble the data in this register
+  // Don't need to flush the data in this register
   ex_mem.io.flush  := false.B
-  ex_mem.io.bubble := false.B
   // Set the EX/MEM register values
   ex_mem.io.in.readdata2  := alu_inputy
   ex_mem.io.in.aluresult  := alu.io.result
@@ -330,8 +325,6 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Data supplied to ex_mem_ctrl register is always valid every cycle
   ex_mem_ctrl.io.valid := true.B
-  // Don't need to bubble the data in this register
-  ex_mem_ctrl.io.bubble := false.B
   ex_mem_ctrl.io.in.mem_ctrl := id_ex_ctrl.io.data.mem_ctrl
   ex_mem_ctrl.io.in.wb_ctrl  := id_ex_ctrl.io.data.wb_ctrl
 
@@ -410,8 +403,7 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Data supplied to mem_wb register is always valid every cycle
   mem_wb.io.valid := true.B
-  // No need to bubble nor flush the data of this register
-  mem_wb.io.bubble := false.B
+  // No need to flush the data of this register
   mem_wb.io.flush := false.B
   // Wire the MEM/WB register
   mem_wb.io.in.writereg   := ex_mem.io.data.writereg
@@ -421,8 +413,7 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Data supplied to mem_wb_ctrl register is always valid every cycle
   mem_wb_ctrl.io.valid := true.B
-  // No need to bubble nor flush the data of this register
-  mem_wb_ctrl.io.bubble := false.B
+  // No need to flush the data of this register
   mem_wb_ctrl.io.flush  := false.B
   mem_wb_ctrl.io.in.wb_ctrl := ex_mem_ctrl.io.data.wb_ctrl
 
