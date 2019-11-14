@@ -1,6 +1,6 @@
 // This file contains the ALU logic and the ALU control logic.
 
-package dinocpu
+package dinocpu.components
 
 import chisel3._
 import chisel3.util._

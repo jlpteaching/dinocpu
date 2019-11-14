@@ -4,10 +4,11 @@
 
 package dinocpu
 
+import dinocpu._
+import dinocpu.components._
+import dinocpu.test._
 import chisel3._
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
-import dinocpu.test._
-
 
 class ALUControlUnitRTypeTester(c: ALUControl) extends PeekPokeTester(c) {
   private val ctl = c

@@ -4,6 +4,7 @@ package dinocpu
 
 import chisel3._
 import chisel3.util._
+import dinocpu.components._
 
 /**
  * The main CPU definition that hooks up all of the other components.

@@ -4,7 +4,8 @@
 
 package dinocpu
 
-import chisel3.iotesters.{ChiselFlatSpec, Driver}
+import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import dinocpu.components._
 import dinocpu.test._
 import dinocpu.test.components._
 

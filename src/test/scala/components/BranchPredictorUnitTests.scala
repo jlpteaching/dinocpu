@@ -4,6 +4,7 @@ package dinocpu.test.components
 
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 import dinocpu._
+import dinocpu.components._
 
 import scala.util.Random
 

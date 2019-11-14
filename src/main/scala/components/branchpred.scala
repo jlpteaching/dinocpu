@@ -1,9 +1,10 @@
 // This file contains the branch preditor logic
 
-package dinocpu
+package dinocpu.components
 
 import chisel3._
 import chisel3.util._
+import dinocpu._
 
 /**
  * I/O for the branch predictors

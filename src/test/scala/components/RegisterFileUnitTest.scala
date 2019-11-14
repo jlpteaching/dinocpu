@@ -3,7 +3,8 @@
 package dinocpu.test.components
 
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
-import dinocpu._
+import dinocpu.CPUConfig
+import dinocpu.components.RegisterFile
 
 class RegisterFileUnitTester(c: RegisterFile) extends PeekPokeTester(c) {
   private val rf = c

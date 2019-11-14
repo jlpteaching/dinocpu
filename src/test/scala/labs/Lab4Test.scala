@@ -5,9 +5,9 @@
 package dinocpu
 
 import chisel3.iotesters.{ChiselFlatSpec, Driver}
+import dinocpu.components._
 import dinocpu.test._
 import dinocpu.test.components._
-
 
 class LocalPredictorUnitTesterLab4 extends CPUFlatSpec {
   "Local Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {

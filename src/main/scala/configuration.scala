@@ -4,6 +4,7 @@ package dinocpu
 
 // For file length
 import java.io.File
+import dinocpu.components._
 import dinocpu.memory._
 import dinocpu.pipelined.PipelinedCPU
 import dinocpu.pipelined.PipelinedCPUBP
