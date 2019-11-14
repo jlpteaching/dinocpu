@@ -23,10 +23,7 @@ class StageRegIO[+T <: Data](gen: T) extends Bundle {
   /** A bit that flushes the contents of a [[StageReg]] with 0 when high. */
   val flush = Input(Bool())
 
-  /** A bit that ignores any write request regardless of the valid bit. */
-  val bubble = Input(Bool())
-
-  /** A bit that writes valid data to a [[StageReg]]. */
+  /** A bit that writes the contents of @in to a [[StageReg]]. */
   val valid = Input(Bool())
 
   /** The outputted data from the internal register */
@@ -53,7 +50,7 @@ class StageReg[+T <: Data](val gen: T)(implicit compileOptions: CompileOptions) 
 
   io.data := reg
 
-  when (io.valid && ! io.bubble) {
+  when (io.valid) {
     reg := io.in
   }
 
