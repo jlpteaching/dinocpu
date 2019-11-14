@@ -1,10 +1,10 @@
 // Non-combinational/'asynchronous' memory module
 
-package dinocpu
+package dinocpu.memory
 
 import chisel3._
 import chisel3.util._
-import dinocpu.MemoryOperation._
+import dinocpu.memory.MemoryOperation._
 
 // A Bundle used for temporarily storing the necessary information for a  read/write in the data memory accessor.
 class OutstandingReq extends Bundle {

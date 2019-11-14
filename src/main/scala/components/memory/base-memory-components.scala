@@ -1,6 +1,6 @@
 // Base memory classes
 
-package dinocpu
+package dinocpu.memory
 
 import chisel3._
 import chisel3.util.experimental.loadMemoryFromFile

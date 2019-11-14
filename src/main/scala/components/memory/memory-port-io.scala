@@ -1,9 +1,8 @@
 // Contains the memory port IOs for use in port/cache implementations
 
-package dinocpu
+package dinocpu.memory
 
 import chisel3._
-import chisel3.util._
 
 /**
  * A generic ready/valid interface for MemPort modules, whose IOs extend this.

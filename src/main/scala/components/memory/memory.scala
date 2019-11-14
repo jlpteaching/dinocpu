@@ -1,11 +1,9 @@
 // The instruction and data memory modules
 
-package dinocpu
+package dinocpu.memory
 
 import chisel3._
-import chisel3.util._
-import chisel3.util.experimental.loadMemoryFromFile
-import dinocpu.MemoryOperation._
+import MemoryOperation._
 
 /**
   * This is the actual memory. You should never directly use this in the CPU.
