@@ -3,19 +3,12 @@
 // TODO: Change this to 'pipelined' package in a future patch
 package dinocpu
 
-
 import chisel3._
-import chisel3.internal._
-import chisel3.core.CompileOptions
 
-/** A [[Bundle]] which adds a `flush`, `bubble`, and `valid` bit to a data bundle.
+/** A [[Bundle]] which adds a `flush` and `valid` bit to a data bundle.
   * These values are observed by a StageReg during modification of its contents to
-  * either flush its contents to 0 when flush is high, ignore all writes when
-  * bubble is high, and write if `valid` is high.
-  *
+  * either flush its contents to 0 when flush is high and write if `valid` is high.
   */
-
-
 class StageRegIO[+T <: Data](gen: T) extends Bundle {
   /** Inputted data to the stage regster */
   val in = Input(gen)
@@ -42,7 +35,7 @@ object StageRegIO {
   * and writing to its contents when valid.
   */
 
-class StageReg[+T <: Data](val gen: T)(implicit compileOptions: CompileOptions) extends Module {
+class StageReg[+T <: Data](val gen: T) extends Module {
   val io = IO(new StageRegIO[T] (gen))
   io := DontCare
 
