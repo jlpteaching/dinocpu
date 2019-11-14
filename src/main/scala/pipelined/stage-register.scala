@@ -1,7 +1,7 @@
 // Definition for a pipeline stage register module and its interface
 
 // TODO: Change this to 'pipelined' package in a future patch
-package dinocpu
+package dinocpu.pipelined
 
 import chisel3._
 

@@ -3,8 +3,10 @@
 package dinocpu
 
 // For file length
-import java.io.{File}
+import java.io.File
 import dinocpu.memory._
+import dinocpu.pipelined.PipelinedCPU
+import dinocpu.pipelined.PipelinedCPUBP
 
 /**
  * This class configures all of the dinocpus. It takes parameters for the type of CPU model
