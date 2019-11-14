@@ -1,10 +1,9 @@
 // Describes a 32 entry two read port one write port register file
 
-package dinocpu
+package dinocpu.components
 
 import chisel3._
-
-import chisel3.util.experimental.BoringUtils
+import dinocpu._
 
 /**
  * A 32 entry two read port one write port register file.

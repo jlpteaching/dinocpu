@@ -1,6 +1,6 @@
 // Control logic for the processor
 
-package dinocpu
+package dinocpu.components
 
 import chisel3._
 import chisel3.util.{BitPat, ListLookup}

@@ -1,6 +1,6 @@
 // This file contains the hazard detection unit
 
-package dinocpu.pipelined
+package dinocpu.components
 
 import chisel3._
 

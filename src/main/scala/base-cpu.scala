@@ -2,6 +2,7 @@
 package dinocpu
 
 import chisel3._
+import dinocpu.components._
 
 /**
   * Base CPU module which all CPU models implement

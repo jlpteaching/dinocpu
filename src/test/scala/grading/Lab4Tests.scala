@@ -2,9 +2,10 @@
 
 package dinocpu
 
-import chisel3.iotesters.Driver
+import dinocpu.components._
 import dinocpu.test._
 import dinocpu.test.components._
+import chisel3.iotesters.Driver
 
 import com.gradescope.jh61b.grader.{GradedTest,GradedTestRunnerJSON}
 import org.junit.Test

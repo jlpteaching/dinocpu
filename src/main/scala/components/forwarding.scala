@@ -1,6 +1,6 @@
 // This file contains the forwarding unit
 
-package dinocpu.pipelined
+package dinocpu.components
 
 import chisel3._
 

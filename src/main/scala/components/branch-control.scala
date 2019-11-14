@@ -1,6 +1,6 @@
 // Control logic for whether branches are taken or not
 
-package dinocpu
+package dinocpu.components
 
 import chisel3._
 import chisel3.util._
