@@ -2,12 +2,12 @@
 // If you name your test class something that ends with "TesterLab4" it will
 // automatically be run when you use `Lab3 / test` at the sbt prompt.
 
-
 package dinocpu
 
-import chisel3._
+import chisel3.iotesters.{ChiselFlatSpec, Driver}
+import dinocpu.test._
+import dinocpu.test.components._
 
-import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
 class LocalPredictorUnitTesterLab4 extends CPUFlatSpec {
   "Local Branch predictor" should s"match expectations for 2-bit saturating counter tests" in {

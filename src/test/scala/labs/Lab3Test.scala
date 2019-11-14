@@ -2,12 +2,9 @@
 // If you name your test class something that ends with "TesterLab3" it will
 // automatically be run when you use `Lab3 / test` at the sbt prompt.
 
-
 package dinocpu
 
-import chisel3._
-
-import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import dinocpu.test._
 
 /**
   * This is a trivial example of how to run this Specification

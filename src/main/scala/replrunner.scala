@@ -1,4 +1,8 @@
 package dinocpu
+
+import dinocpu._
+import dinocpu.test._
+
 import treadle.TreadleOptionsManager
 import treadle.repl.HasReplConfig
 

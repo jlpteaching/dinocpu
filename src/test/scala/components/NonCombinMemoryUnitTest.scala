@@ -1,6 +1,6 @@
 // Unit tests for the async memory objects.
 
-package dinocpu
+package dinocpu.test.memory
 
 import chisel3._
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
@@ -8,8 +8,6 @@ import dinocpu.memory._
 
 // To generate random latencies
 import scala.util.Random
-
-
 
 /** 
  * Testing harness for the non-combinational memory

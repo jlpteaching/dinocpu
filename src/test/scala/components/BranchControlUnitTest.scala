@@ -1,10 +1,11 @@
 // Unit tests for the ALU control logic
 
-package dinocpu
+package dinocpu.test.components
 
 import chisel3._
-
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import dinocpu._
+
 
 class BranchControlUnitTester(c: BranchControl, branch: Boolean = true) extends PeekPokeTester(c) {
 

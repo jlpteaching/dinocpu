@@ -1,9 +1,9 @@
 // Unit tests for the register file.
 
-package dinocpu
+package dinocpu.test.components
 
-import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import dinocpu._
 
 class RegisterFileUnitTester(c: RegisterFile) extends PeekPokeTester(c) {
   private val rf = c
