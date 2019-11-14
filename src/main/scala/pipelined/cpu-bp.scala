@@ -1,8 +1,9 @@
 // This file is where all of the CPU components are assembled into the whole CPU
 // This CPU has a branch predictor and a slightly different pipeline design from the base pipelined CPU
 
-package dinocpu
+package dinocpu.pipelined
 
+import dinocpu._
 import chisel3._
 import chisel3.util._
 

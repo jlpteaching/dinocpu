@@ -1,9 +1,10 @@
 // This file is where all of the CPU components are assembled into the whole CPU
 
-package dinocpu
+package dinocpu.pipelined
 
 import chisel3._
 import chisel3.util._
+import dinocpu._
 
 /**
  * The main CPU definition that hooks up all of the other components.
