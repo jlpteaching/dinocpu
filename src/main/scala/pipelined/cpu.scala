@@ -61,9 +61,9 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Control block of the IDEX register
   class IDEXControl extends Bundle {
-    val ex = new EXControl
-    val m  = new MControl
-    val wb = new WBControl
+    val ex_ctrl = new EXControl
+    val mem_ctrl  = new MControl
+    val wb_ctrl = new WBControl
   }
 
   // Everything in the register between ID and EX stages
@@ -77,8 +77,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Control block of the EXMEM register
   class EXMEMControl extends Bundle {
-    val m  = new MControl
-    val wb = new WBControl
+    val mem_ctrl  = new MControl
+    val wb_ctrl = new WBControl
   }
 
   // Everything in the register between ID and EX stages
@@ -113,7 +113,9 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val ex_mem_ctrl = Module(new StageReg(new EXMEMControl))
 
   val mem_wb      = Module(new StageReg(new MEMWBBundle))
-  val mem_wb_ctrl = Module(new StageReg(new WBControl))
+  // To make the interface of the mem_wb_ctrl register consistent with the other control
+  // registers, we create an anonymous Bundle
+  val mem_wb_ctrl = Module(new StageReg(new Bundle { val wb_ctrl = new WBControl} ))
 
   if (conf.debug) { printf("Cycle=%d ", cycleCount) }
 
@@ -205,22 +207,22 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Don't need to bubble the data in this register
   id_ex_ctrl.io.bubble := false.B
   // Set the execution control signals
-  id_ex_ctrl.io.in.ex.add       := control.io.add
-  id_ex_ctrl.io.in.ex.immediate := control.io.immediate
-  id_ex_ctrl.io.in.ex.alusrc1   := control.io.alusrc1
-  id_ex_ctrl.io.in.ex.branch    := control.io.branch
-  id_ex_ctrl.io.in.ex.jump      := control.io.jump
+  id_ex_ctrl.io.in.ex_ctrl.add       := control.io.add
+  id_ex_ctrl.io.in.ex_ctrl.immediate := control.io.immediate
+  id_ex_ctrl.io.in.ex_ctrl.alusrc1   := control.io.alusrc1
+  id_ex_ctrl.io.in.ex_ctrl.branch    := control.io.branch
+  id_ex_ctrl.io.in.ex_ctrl.jump      := control.io.jump
 
   // Set the memory control signals
-  id_ex_ctrl.io.in.m.memread  := control.io.memread
-  id_ex_ctrl.io.in.m.memwrite := control.io.memwrite
-  id_ex_ctrl.io.in.m.maskmode := if_id.io.data.instruction(13,12)
-  id_ex_ctrl.io.in.m.sext     := ~if_id.io.data.instruction(14)
-  id_ex_ctrl.io.in.m.taken    := false.B
+  id_ex_ctrl.io.in.mem_ctrl.memread  := control.io.memread
+  id_ex_ctrl.io.in.mem_ctrl.memwrite := control.io.memwrite
+  id_ex_ctrl.io.in.mem_ctrl.maskmode := if_id.io.data.instruction(13,12)
+  id_ex_ctrl.io.in.mem_ctrl.sext     := ~if_id.io.data.instruction(14)
+  id_ex_ctrl.io.in.mem_ctrl.taken    := false.B
 
   // Set the writeback control signals
-  id_ex_ctrl.io.in.wb.toreg    := control.io.toreg
-  id_ex_ctrl.io.in.wb.regwrite := control.io.regwrite
+  id_ex_ctrl.io.in.wb_ctrl.toreg    := control.io.toreg
+  id_ex_ctrl.io.in.wb_ctrl.regwrite := control.io.regwrite
 
   // Set the id_ex control to 0 to indicate a bubble
   id_ex_ctrl.io.flush := hazard.io.idex_bubble
@@ -233,7 +235,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   /////////////////////////////////////////////////////////////////////////////
 
   // Set the inputs to the hazard detection unit from this stage
-  hazard.io.idex_memread := id_ex_ctrl.io.data.m.memread
+  hazard.io.idex_memread := id_ex_ctrl.io.data.mem_ctrl.memread
   hazard.io.idex_rd      := id_ex.io.data.writereg
 
   // Set the input to the forwarding unit from this stage
@@ -241,8 +243,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   forwarding.io.rs2 := id_ex.io.data.rs2
 
   // Connect the ALU control wires (line 45 of single-cycle/cpu.scala)
-  aluControl.io.add       := id_ex_ctrl.io.data.ex.add
-  aluControl.io.immediate := id_ex_ctrl.io.data.ex.immediate
+  aluControl.io.add       := id_ex_ctrl.io.data.ex_ctrl.add
+  aluControl.io.immediate := id_ex_ctrl.io.data.ex_ctrl.immediate
   aluControl.io.funct7    := id_ex.io.data.funct7
   aluControl.io.funct3    := id_ex.io.data.funct3
 
@@ -257,7 +259,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val alu_inputx = Wire(UInt(32.W))
   alu_inputx := DontCare
   // Insert the ALU inpux mux here (line 59 of single-cycle/cpu.scala)
-  switch(id_ex_ctrl.io.data.ex.alusrc1) {
+  switch(id_ex_ctrl.io.data.ex_ctrl.alusrc1) {
     is(0.U) { alu_inputx := forward_inputx }
     is(1.U) { alu_inputx := 0.U }
     is(2.U) { alu_inputx := id_ex.io.data.pc }
@@ -274,10 +276,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   alu_inputy := forward_inputy
 
   // Input y mux (line 66 of single-cycle/cpu.scala)
-  alu.io.inputy := Mux(id_ex_ctrl.io.data.ex.immediate, id_ex.io.data.imm, alu_inputy)
+  alu.io.inputy := Mux(id_ex_ctrl.io.data.ex_ctrl.immediate, id_ex.io.data.imm, alu_inputy)
 
   // Connect the branch control wire (line 54 of single-cycle/cpu.scala)
-  branchCtrl.io.branch := id_ex_ctrl.io.data.ex.branch
+  branchCtrl.io.branch := id_ex_ctrl.io.data.ex_ctrl.branch
   branchCtrl.io.funct3 := id_ex.io.data.funct3
   branchCtrl.io.inputx := forward_inputx
   branchCtrl.io.inputy := forward_inputy
@@ -304,19 +306,19 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   ex_mem_ctrl.io.valid := true.B
   // Don't need to bubble the data in this register
   ex_mem_ctrl.io.bubble := false.B
-  ex_mem_ctrl.io.in.m     := id_ex_ctrl.io.data.m
-  ex_mem_ctrl.io.in.wb    := id_ex_ctrl.io.data.wb
+  ex_mem_ctrl.io.in.mem_ctrl     := id_ex_ctrl.io.data.mem_ctrl
+  ex_mem_ctrl.io.in.wb_ctrl    := id_ex_ctrl.io.data.wb_ctrl
 
   // Calculate whether which PC we should use and set the taken flag (line 92 in single-cycle/cpu.scala)
-  when (branchCtrl.io.taken || id_ex_ctrl.io.data.ex.jump === 2.U) {
+  when (branchCtrl.io.taken || id_ex_ctrl.io.data.ex_ctrl.jump === 2.U) {
     ex_mem.io.in.nextpc := branchAdd.io.result
-    ex_mem_ctrl.io.in.m.taken  := true.B
-  } .elsewhen (id_ex_ctrl.io.data.ex.jump === 3.U) {
+    ex_mem_ctrl.io.in.mem_ctrl.taken  := true.B
+  } .elsewhen (id_ex_ctrl.io.data.ex_ctrl.jump === 3.U) {
     ex_mem.io.in.nextpc := alu.io.result & Cat(Fill(31, 1.U), 0.U)
-    ex_mem_ctrl.io.in.m.taken  := true.B
+    ex_mem_ctrl.io.in.mem_ctrl.taken  := true.B
   } .otherwise {
     ex_mem.io.in.nextpc := DontCare // No need to set the PC if not a branch
-    ex_mem_ctrl.io.in.m.taken  := false.B
+    ex_mem_ctrl.io.in.mem_ctrl.taken  := false.B
   }
 
   // Flush EXMEM's control signals if there is a bubble
@@ -328,13 +330,13 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // MEM STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  // Set data memory IO (line 71 of single-cycle/cpu.scala)
+  // Set data.mem_ctrlemory IO (line 71 of single-cycle/cpu.scala)
   io.dmem.address   := ex_mem.io.data.aluresult
   io.dmem.writedata := ex_mem.io.data.readdata2
-  io.dmem.memread   := ex_mem_ctrl.io.data.m.memread
-  io.dmem.memwrite  := ex_mem_ctrl.io.data.m.memwrite
-  io.dmem.maskmode  := ex_mem_ctrl.io.data.m.maskmode
-  io.dmem.sext      := ex_mem_ctrl.io.data.m.sext
+  io.dmem.memread   := ex_mem_ctrl.io.data.mem_ctrl.memread
+  io.dmem.memwrite  := ex_mem_ctrl.io.data.mem_ctrl.memwrite
+  io.dmem.maskmode  := ex_mem_ctrl.io.data.mem_ctrl.maskmode
+  io.dmem.sext      := ex_mem_ctrl.io.data.mem_ctrl.sext
 
   // Set dmem request as valid when a write or read is being requested
   io.dmem.valid := (io.dmem.memread || io.dmem.memwrite)
@@ -344,11 +346,11 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   next_pc := ex_mem.io.data.nextpc
 
   // Send input signals to the hazard detection unit
-  hazard.io.exmem_taken := ex_mem_ctrl.io.data.m.taken
+  hazard.io.exmem_taken := ex_mem_ctrl.io.data.mem_ctrl.taken
 
   // Send input signals to the forwarding unit
   forwarding.io.exmemrd := ex_mem.io.data.writereg
-  forwarding.io.exmemrw := ex_mem_ctrl.io.data.wb.regwrite
+  forwarding.io.exmemrw := ex_mem_ctrl.io.data.wb_ctrl.regwrite
 
   // Data supplied to mem_wb register is always valid every cycle
   mem_wb.io.valid := true.B
@@ -362,11 +364,11 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   mem_wb.io.in.readdata   := io.dmem.readdata
 
   // Data supplied to mem_wb_ctrl register is always valid every cycle
-  mem_wb_ctrl.io.valid := true.B
+  mem_wb_ctrl.io.valid       := true.B
   // No need to bubble nor flush the data of this register
-  mem_wb_ctrl.io.bubble := false.B
-  mem_wb_ctrl.io.flush := false.B
-  mem_wb_ctrl.io.in       := ex_mem_ctrl.io.data.wb
+  mem_wb_ctrl.io.bubble      := false.B
+  mem_wb_ctrl.io.flush       := false.B
+  mem_wb_ctrl.io.in.wb_ctrl  := ex_mem_ctrl.io.data.wb_ctrl
 
   if (conf.debug) { printf(p"MEM/WB: $mem_wb\n") }
 
@@ -374,20 +376,20 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // WB STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  // Set the writeback data mux (line 78 single-cycle/cpu.scala)
+  // Set the writeback data.mem_ctrlux (line 78 single-cycle/cpu.scala)
   write_data := MuxCase(mem_wb.io.data.aluresult, Array(
-                       (mem_wb_ctrl.io.data.toreg === 0.U) -> mem_wb.io.data.aluresult,
-                       (mem_wb_ctrl.io.data.toreg === 1.U) -> mem_wb.io.data.readdata,
-                       (mem_wb_ctrl.io.data.toreg === 2.U) -> mem_wb.io.data.pcplusfour))
+                       (mem_wb_ctrl.io.data.wb_ctrl.toreg === 0.U) -> mem_wb.io.data.aluresult,
+                       (mem_wb_ctrl.io.data.wb_ctrl.toreg === 1.U) -> mem_wb.io.data.readdata,
+                       (mem_wb_ctrl.io.data.wb_ctrl.toreg === 2.U) -> mem_wb.io.data.pcplusfour))
 
   // Write the data to the register file
   registers.io.writedata := write_data
   registers.io.writereg  := mem_wb.io.data.writereg
-  registers.io.wen       := mem_wb_ctrl.io.data.regwrite && (mem_wb.io.data.writereg =/= 0.U)
+  registers.io.wen       := mem_wb_ctrl.io.data.wb_ctrl.regwrite && (mem_wb.io.data.writereg =/= 0.U)
 
   // Set the input signals for the forwarding unit
   forwarding.io.memwbrd := mem_wb.io.data.writereg
-  forwarding.io.memwbrw := mem_wb_ctrl.io.data.regwrite
+  forwarding.io.memwbrw := mem_wb_ctrl.io.data.wb_ctrl.regwrite
 
   if (conf.debug) { printf("---------------------------------------------\n") }
 }
