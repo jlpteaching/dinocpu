@@ -1,6 +1,7 @@
 // Lists of different instruction test cases for use with different CPU models
 
-package dinocpu
+package dinocpu.test
+
 
 /**
  * This object contains a set of lists of tests. Each list is a different set of

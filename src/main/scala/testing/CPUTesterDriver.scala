@@ -1,9 +1,13 @@
-package dinocpu
+// Tester driver definition
 
+package dinocpu.test
+
+import dinocpu._
 import dinocpu.simulate.{build, elfToHex}
 import org.scalatest.{FlatSpec, Matchers}
 import treadle.TreadleTester
 import treadle.executable.TreadleException
+
 
 class CPUFlatSpec extends FlatSpec with Matchers
 

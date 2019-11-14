@@ -2,6 +2,9 @@
 
 package dinocpu
 
+import dinocpu.test._
+
+
 object singlestep {
   val helptext = "usage: singlestep <test name> <CPU type>"
 

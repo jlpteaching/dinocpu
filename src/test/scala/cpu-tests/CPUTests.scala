@@ -1,6 +1,7 @@
 // Unit tests for the CPU models running "full" RISC-V apps
 
-package dinocpu
+package dinocpu.test
+
 
 /**
   * This is a trivial example of how to run this Specification

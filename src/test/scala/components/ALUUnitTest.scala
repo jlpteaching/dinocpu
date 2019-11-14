@@ -1,11 +1,10 @@
 // Unit tests for the ALU
 
-package dinocpu
+package dinocpu.test.components
 
 import chisel3._
-
-import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import dinocpu._
 
 
 class ALURandomUnitTester(c: ALU) extends PeekPokeTester(c) {

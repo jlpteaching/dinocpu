@@ -1,11 +1,10 @@
 // Unit tests for the main control logic
 
-package dinocpu
+package dinocpu.test.components
 
 import chisel3._
-
-import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import dinocpu._
 
 class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
   private val ctl = c

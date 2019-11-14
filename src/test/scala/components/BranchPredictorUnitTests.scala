@@ -1,14 +1,12 @@
 // Unit tests for the Branch predictors
 
-package dinocpu
+package dinocpu.test.components
 
-import chisel3._
-
-import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
+import dinocpu._
 
-import scala.collection.mutable.Map
 import scala.util.Random
+
 
 class LocalPredictorUnitTester(p: LocalPredictor, stream: List[(Int,Boolean,Boolean)]) extends PeekPokeTester(p) {
   var step = 0

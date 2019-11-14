@@ -1,11 +1,16 @@
-package dinocpu
+// Lab 1 tester
 
+package dinocpu.test.grader
+
+import dinocpu._
+import dinocpu.test._
 import chisel3.iotesters.Driver
 
 import com.gradescope.jh61b.grader.{GradedTest,GradedTestRunnerJSON}
-import org.junit.Test;
+import org.junit.Test
 import org.scalatest.junit.JUnitSuite
 import org.junit.runner.RunWith
+
 
 @RunWith(classOf[GradedTestRunnerJSON])
 class Lab1Grader extends JUnitSuite {

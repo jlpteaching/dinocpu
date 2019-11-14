@@ -1,6 +1,6 @@
 // Unit tests for testing combinational memory reads and writes using combinational data ports
 
-package dinocpu
+package dinocpu.test.memory
 
 import chisel3._
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
