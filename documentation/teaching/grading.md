@@ -6,7 +6,7 @@ If you run the test under the "Grader" config, you can run just the grading scri
 This assumes that you are running inside the gradescope docker container.
 
 ```
-sbt "Grader / testOnly dinocpu.LabXGrader"
+sbt "Grader / testOnly dinocpu.test.grader.LabXGrader"
 ```
 
 See [run_autograder](run_autograder) for more details.

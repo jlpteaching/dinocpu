@@ -56,7 +56,7 @@ To run one suite, use `testOnly` instead of `test`.
 For instance, to run just the ALU Control tests you can use the following.
 
 ```
-sbt:dinocpu> testOnly dinocpu.ALUControlTester
+sbt:dinocpu> testOnly dinocpu.test.components.ALUControlTester
 ```
 
 Note: You can use tab completion in sbt to make searching for tests easier.
@@ -98,7 +98,7 @@ You can search in "should match expectations for each instruction type" (ignore 
 So, let's say you only want to run the single cycle CPU test which executes the `add1` application, you can use the following.
 
 ```
-sbt:dinocpu> testOnly dinocpu.SingleCycleCPUTester -- -z add1
+sbt:dinocpu> testOnly dinocpu.test.SingleCycleCPUTester -- -z add1
 ```
 
 ## CPU Test Case
@@ -188,9 +188,9 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
 
   Simply copying the CPU Test case as is and adding in changes to register values will throw the error show below.
  ```
- sbt:dinocpu> testOnly dinocpu.SingleCycleCPUTester -- -z add
+ sbt:dinocpu> testOnly dinocpu.test.SingleCycleCPUTester -- -z add
 [info] SingleCycleCPUTester:
-[info] dinocpu.SingleCycleCPUTester *** ABORTED ***
+[info] dinocpu.test.SingleCycleCPUTester *** ABORTED ***
 [info]   Duplicate test name: Single Cycle CPU should run rtype add2 (CPUTests.scala:27)
 [info] ScalaTest
 [info] Run completed in 411 milliseconds.
@@ -200,7 +200,7 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
 [info] *** 1 SUITE ABORTED ***
 [error] Error: Total 1, Failed 0, Errors 1, Passed 0
 [error] Error during tests:
-[error] 	dinocpu.SingleCycleCPUTester
+[error] 	dinocpu.test.SingleCycleCPUTester
 [error] (Test / testOnly) sbt.TestsFailedException: Tests unsuccessful
 [error] Total time: 3 s, completed Jan 14, 2019 6:29:23 AM
 
