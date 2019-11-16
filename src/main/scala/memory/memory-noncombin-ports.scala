@@ -34,7 +34,7 @@ class DNonCombinMemPort extends BaseDMemPort {
 
   // A register to hold intermediate data (e.g., write data, mask mode) while the request
   // is outstanding to memory.
-  val outstandingReq = RegInit(0.U.asTypeOf(Valid(new OutstandingReq)))
+  val outstandingReq = RegInit (0.U.asTypeOf (Valid (new OutstandingReq)))
 
   // Used to set the valid bit of the outstanding request
   val sending = Wire(Bool())
