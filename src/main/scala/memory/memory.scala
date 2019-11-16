@@ -24,7 +24,7 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
 
   when (io.imem.request.valid) {
     // Put the Request into the instruction pipe and signal that instruction memory is busy
-    val request = io.imem.request.asTypeOf(new Request)
+    val request = io.imem.request.bits
 
     // We should only be expecting a read from instruction memory
     assert(request.operation === Read)
@@ -50,7 +50,7 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
   val memWriteData = io.dmem.request.bits.writedata
 
   when (io.dmem.request.valid) {
-    val request = io.dmem.request.asTypeOf (new Request)
+    val request = io.dmem.request.bits
 
     // Check that non-combin write isn't being used
     assert (request.operation =/= Write)

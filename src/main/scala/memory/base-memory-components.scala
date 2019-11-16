@@ -2,6 +2,7 @@
 
 package dinocpu.memory
 
+import dinocpu.memory.MemoryOperation._
 import chisel3._
 import chisel3.util.experimental.loadMemoryFromFile
 
@@ -22,8 +23,12 @@ abstract class BaseDualPortedMemory(size: Int, memfile: String) extends Module {
     val imem = new MemPortBusIO
     val dmem = new MemPortBusIO
   })
-  io.imem <> 0.U.asTypeOf (new MemPortBusIO)
-  io.dmem <> 0.U.asTypeOf (new MemPortBusIO)
+  // Intentional DontCares:
+  // The connections between the ports and the backing memory, along with the
+  // ports internally assigning values to the, means that these DontCares
+  // should be completely 'overwritten' when the CPU is elaborated
+  io.imem <> DontCare
+  io.dmem <> DontCare
 
   val memory = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
@@ -39,7 +44,11 @@ abstract class BaseIMemPort extends Module {
   })
 
   io.pipeline <> 0.U.asTypeOf (new IMemPortIO)
-  io.bus      <> 0.U.asTypeOf (new MemPortBusIO)
+  // Intentional DontCare:
+  // The connections between the ports and the backing memory, along with the
+  // ports internally assigning values to the, means that these DontCares
+  // should be completely 'overwritten' when the CPU is elaborated
+  io.bus      <> DontCare
 }
 
 /**
@@ -52,7 +61,11 @@ abstract class BaseDMemPort extends Module {
   })
 
   io.pipeline <> 0.U.asTypeOf (new DMemPortIO)
-  io.bus      <> 0.U.asTypeOf (new MemPortBusIO)
+  // Intentional DontCare:
+  // The connections between the ports and the backing memory, along with the
+  // ports internally assigning values to the, means that these DontCares
+  // should be completely 'overwritten' when the CPU is elaborated
+  io.bus      <> DontCare
 
   io.pipeline.good := io.bus.response.valid
 }
