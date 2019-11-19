@@ -21,15 +21,16 @@ class StageRegIO[+T <: Data](gen: T) extends Bundle {
 
   /** The outputted data from the internal register */
   val data = Output(gen)
+
+  override def cloneType: this.type = StageRegIO (gen).asInstanceOf[this.type]
 }
 
 /**
   * Factory to wrap a data bundle in a stage register IO interface.
   */
 object StageRegIO {
-  def apply[T <: Data](gen: T): StageRegIO[T] = new StageRegIO(gen)
+  def apply[T <: Data](gen: T): StageRegIO[T] = new StageRegIO (gen)
 }
-
 
 /** A specialized register module that supports freezing, flushing,
   * and writing to its contents when valid.
