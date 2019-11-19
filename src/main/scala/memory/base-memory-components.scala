@@ -4,6 +4,7 @@ package dinocpu.memory
 
 import dinocpu.memory.MemoryOperation._
 import chisel3._
+import chisel3.util.{Decoupled, Valid}
 import chisel3.util.experimental.loadMemoryFromFile
 
 /**
@@ -23,12 +24,17 @@ abstract class BaseDualPortedMemory(size: Int, memfile: String) extends Module {
     val imem = new MemPortBusIO
     val dmem = new MemPortBusIO
   })
+
   // Intentional DontCares:
   // The connections between the ports and the backing memory, along with the
   // ports internally assigning values to the, means that these DontCares
   // should be completely 'overwritten' when the CPU is elaborated
-  io.imem <> DontCare
-  io.dmem <> DontCare
+  io.imem.request <> DontCare
+  io.dmem.request <> DontCare
+  // Zero out response ports to 0, so that the pipeline does not receive any
+  // 'DontCare' values from the memory ports
+  io.imem.response <> 0.U.asTypeOf(Valid (new Response))
+  io.dmem.response <> 0.U.asTypeOf(Valid (new Response))
 
   val memory = Mem(math.ceil(size.toDouble/4).toInt, UInt(32.W))
   loadMemoryFromFile(memory, memfile)
