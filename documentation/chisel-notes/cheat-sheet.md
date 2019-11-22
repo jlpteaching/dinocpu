@@ -6,7 +6,7 @@ Title: Chisel cheat sheet
 # Chisel cheat sheet for ECS 154B
 
 This document contains some of the Chisel patterns you will use while implementing the DINO CPU.
-The Chisel project provides [a more complete cheat sheet](https://chisel.eecs.berkeley.edu/doc/chisel-cheatsheet3.pdf).
+The Chisel project provides [a more complete cheat sheet](https://github.com/freechipsproject/chisel-cheatsheet/releases/latest/download/chisel_cheatsheet.pdf).
 
 # Wires
 
@@ -138,7 +138,7 @@ The indices are inclusive with the high-order bits on the left.
 ## Math
 
 You can use simple operators like `+`, `-`, `>>`, etc. and they will generate circuits to match those operations.
-See [the more complete cheat sheet](https://chisel.eecs.berkeley.edu/2.2.0/chisel-cheatsheet.pdf) for more details.
+See [the more complete cheat sheet](https://github.com/freechipsproject/chisel-cheatsheet/releases/latest/download/chisel_cheatsheet.pdf) for more details.
 
 ## Comparisons
 
