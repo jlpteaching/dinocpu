@@ -37,7 +37,7 @@ class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extend
 
   when (io.imem.request.valid) {
     // Put the Request into the instruction pipe and signal that instruction memory is busy
-    val inRequest = io.imem.request.asTypeOf(new Request)
+    val inRequest = io.imem.request.bits
     imemPipe.io.enq.bits  := inRequest
     imemPipe.io.enq.valid := true.B
   } .otherwise {
@@ -47,7 +47,7 @@ class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extend
   when (imemPipe.io.deq.valid) {
     // We should only be expecting a read from instruction memory
     assert(imemPipe.io.deq.bits.operation === Read)
-    val outRequest = imemPipe.io.deq.asTypeOf (new Request)
+    val outRequest = imemPipe.io.deq.bits
     // Check that address is pointing to a valid location in memory
     assert (outRequest.address < size.U)
     io.imem.response.valid        := true.B
@@ -65,7 +65,7 @@ class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extend
 
   when (io.dmem.request.valid) {
     // Put the Request into the data pipe and signal that data memory is busy
-    val inRequest = io.dmem.request.asTypeOf (new Request)
+    val inRequest = io.dmem.request.bits
     dmemPipe.io.enq.bits  := inRequest
     dmemPipe.io.enq.valid := true.B
   } .otherwise {
@@ -75,7 +75,7 @@ class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extend
   when (dmemPipe.io.deq.valid) {
     assert (dmemPipe.io.deq.bits.operation =/= ReadWrite)
     // Dequeue request and execute
-    val outRequest = dmemPipe.io.deq.asTypeOf (new Request)
+    val outRequest = dmemPipe.io.deq.bits
     val address = outRequest.address >> 2
     // Check that address is pointing to a valid location in memory
     assert (outRequest.address < size.U)
