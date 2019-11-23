@@ -1,8 +1,10 @@
 // This file is where all of the CPU components are assembled into the whole CPU
 // This CPU has extra stalling and bubbling procedures for delayed memory
 
-package dinocpu
+package dinocpu.pipelined
 
+import dinocpu._
+import dinocpu.components._
 import chisel3._
 import chisel3.util._
 
