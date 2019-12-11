@@ -91,6 +91,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
     val pcplusfour= UInt(32.W)
   }
 
+  class MEMWBControl extends Bundle {
+    val wb_ctrl = new WBControl
+  }
+
   // All of the structures required
   val pc         = RegInit(0.U)
   val control    = Module(new Control())
@@ -117,7 +121,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val mem_wb      = Module(new StageReg(new MEMWBBundle))
   // To make the interface of the mem_wb_ctrl register consistent with the other control
   // registers, we create an anonymous Bundle
-  val mem_wb_ctrl = Module(new StageReg(new Bundle { val wb_ctrl = new WBControl} ))
+  val mem_wb_ctrl = Module(new StageReg(new MEMWBControl))
 
   if (conf.debug) { printf("Cycle=%d ", cycleCount) }
 
