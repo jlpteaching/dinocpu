@@ -67,11 +67,12 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
   branchCtrl.io.inputy := registers.io.readdata2
 
   val alu_inputx = Wire(UInt())
-  alu_inputx := DontCare
-  switch(control.io.alusrc1) {
-    is(0.U) { alu_inputx := registers.io.readdata1 }
-    is(1.U) { alu_inputx := 0.U }
-    is(2.U) { alu_inputx := pc }
+  when (control.io.alusrc1 === 2.U) {
+    alu_inputx := pc
+  } .elsewhen (control.io.alusrc1 === 1.U) {
+    alu_inputx := 0.U
+  } .otherwise {
+    alu_inputx := registers.io.readdata1
   }
   val alu_inputy = Mux(control.io.immediate, imm, registers.io.readdata2)
   alu.io.inputx := alu_inputx
