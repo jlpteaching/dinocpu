@@ -52,12 +52,12 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   immGen.io.instruction := instruction
   val imm = immGen.io.sextImm
-  
+
   //ALU
-  csr.io.inst := instruction 
+  csr.io.inst := instruction
   csr.io.immid := imm
   csr.io.read_data := registers.io.readdata1
-  csr.io.retire_inst := true.B //mem is synchronous in this deisgn. no flushing as far as i'm aware
+  csr.io.retire_inst := true.B //mem is synchronous in this design. no flushing as far as i'm aware
   csr.io.illegal_inst := !control.io.validinst || csr.io.read_illegal || csr.io.write_illegal || csr.io.system_illegal //illegal inst exception?
   csr.io.pc :=  pc
 
