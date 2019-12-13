@@ -261,13 +261,12 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
 
   val alu_inputx = Wire(UInt(32.W))
-  alu_inputx := DontCare
   // Insert the ALU inpux mux here (line 59 of single-cycle/cpu.scala)
-  switch(id_ex_ctrl.io.data.ex_ctrl.alusrc1) {
-    is(0.U) { alu_inputx := forward_inputx }
-    is(1.U) { alu_inputx := 0.U }
-    is(2.U) { alu_inputx := id_ex.io.data.pc }
-  }
+  alu_inputx := MuxCase(0.U, Array(
+    (id_ex_ctrl.io.data.ex_ctrl.alusrc1 === 0.U) -> forward_inputx,
+    (id_ex_ctrl.io.data.ex_ctrl.alusrc1 === 1.U) -> 0.U,
+    (id_ex_ctrl.io.data.ex_ctrl.alusrc1 === 2.U) -> id_ex.io.data.pc
+  ))
   alu.io.inputx := alu_inputx
 
   // Insert forward inputy mux here
@@ -306,9 +305,9 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   ex_mem.io.in.pcplusfour := id_ex.io.data.pcplusfour
 
   // Data supplied to ex_mem_ctrl register is always valid every cycle
-  ex_mem_ctrl.io.valid := true.B
-  ex_mem_ctrl.io.in.mem_ctrl     := id_ex_ctrl.io.data.mem_ctrl
-  ex_mem_ctrl.io.in.wb_ctrl    := id_ex_ctrl.io.data.wb_ctrl
+  ex_mem_ctrl.io.valid       := true.B
+  ex_mem_ctrl.io.in.mem_ctrl := id_ex_ctrl.io.data.mem_ctrl
+  ex_mem_ctrl.io.in.wb_ctrl  := id_ex_ctrl.io.data.wb_ctrl
 
   // Calculate whether which PC we should use and set the taken flag (line 92 in single-cycle/cpu.scala)
   when (branchCtrl.io.taken || id_ex_ctrl.io.data.ex_ctrl.jump === 2.U) {
@@ -318,7 +317,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
     ex_mem.io.in.nextpc := alu.io.result & Cat(Fill(31, 1.U), 0.U)
     ex_mem_ctrl.io.in.mem_ctrl.taken  := true.B
   } .otherwise {
-    ex_mem.io.in.nextpc := DontCare // No need to set the PC if not a branch
+    ex_mem.io.in.nextpc := 0.U // No need to set the PC if not a branch
     ex_mem_ctrl.io.in.mem_ctrl.taken  := false.B
   }
 
@@ -341,7 +340,6 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Set dmem request as valid when a write or read is being requested
   io.dmem.valid := (io.dmem.memread || io.dmem.memwrite)
-
 
   // Send next_pc back to the fetch stage
   next_pc := ex_mem.io.data.nextpc
