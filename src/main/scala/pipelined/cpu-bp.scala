@@ -91,6 +91,11 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
     val readdata  = UInt(32.W)
     val pcplusfour= UInt(32.W)
   }
+
+  class MEMWBControl extends Bundle {
+    val wb_ctrl = new WBControl
+  }
+
   // All of the structures required
   val pc         = RegInit(0.U)
   val control    = Module(new Control())
@@ -118,7 +123,7 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   val mem_wb      = Module(new StageReg(new MEMWBBundle))
   // To make the interface of the mem_wb_ctrl register consistent with the other control
   // registers, we create an anonymous Bundle
-  val mem_wb_ctrl = Module(new StageReg(new Bundle { val wb_ctrl = new WBControl }))
+  val mem_wb_ctrl = Module(new StageReg(new MEMWBControl))
 
   if (conf.debug) { printf("Cycle=%d ", cycleCount) }
 
@@ -246,7 +251,7 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   id_ex_ctrl.io.in.mem_ctrl.memwrite := control.io.memwrite
   id_ex_ctrl.io.in.mem_ctrl.maskmode := if_id.io.data.instruction(13,12)
   id_ex_ctrl.io.in.mem_ctrl.sext     := ~if_id.io.data.instruction(14)
-  id_ex_ctrl.io.in.mem_ctrl.taken    := DontCare
+  id_ex_ctrl.io.in.mem_ctrl.taken    := 0.U
 
   // Set the writeback control signals
   id_ex_ctrl.io.in.wb_ctrl.toreg    := control.io.toreg
@@ -285,13 +290,12 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
 
   val alu_inputx = Wire(UInt(32.W))
-  alu_inputx := DontCare
   // Insert the ALU inpux mux here (line 59 of single-cycle/cpu.scala)
-  switch(id_ex_ctrl.io.data.ex_ctrl.alusrc1) {
-    is(0.U) { alu_inputx := forward_inputx }
-    is(1.U) { alu_inputx := 0.U }
-    is(2.U) { alu_inputx := id_ex.io.data.pc }
-  }
+  alu_inputx := MuxCase(0.U, Array(
+    (id_ex_ctrl.io.data.ex_ctrl.alusrc1 === 0.U) -> forward_inputx,
+    (id_ex_ctrl.io.data.ex_ctrl.alusrc1 === 1.U) -> 0.U,
+    (id_ex_ctrl.io.data.ex_ctrl.alusrc1 === 2.U) -> id_ex.io.data.pc
+  ))
   alu.io.inputx := alu_inputx
 
   // Insert forward inputy mux here
@@ -346,7 +350,7 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   } .otherwise {
     // If not a branch, don't update
     predictor.io.update := false.B
-    predictor.io.taken  := DontCare
+    predictor.io.taken  := 0.U
   }
 
   // Calculate whether which PC we should use and set the taken flag (line 92 in single-cycle/cpu.scala)
@@ -369,7 +373,7 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
       ex_mem_ctrl.io.in.mem_ctrl.taken := true.B
     } .otherwise {
       ex_mem_ctrl.io.in.mem_ctrl.taken  := false.B
-      ex_mem.io.in.nextpc := DontCare
+      ex_mem.io.in.nextpc := 0.U
     }
   }
 
