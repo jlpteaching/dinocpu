@@ -26,9 +26,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.7078586"
-     inkscape:cx="721.10506"
-     inkscape:cy="248.59816"
+     inkscape:zoom="0.8539293"
+     inkscape:cx="504.78645"
+     inkscape:cy="458.40338"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -61,6 +61,12 @@
      inkscape:groupmode="layer"
      id="layer1"
      transform="translate(15.969498,-97.420118)">
+    <path
+       id="path1588"
+       style="fill:none;stroke:#0000fc;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 186.01456,156.49449 h 1.96957 v 18.54662 H 209.4407 V 114.99499 H 92.475271"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cccccc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 128.21158,253.52057 H 110.75596 V 242.21133 H 98.827036"
@@ -2196,12 +2202,6 @@
        rx="0.52943546"
        ry="0.52942216" />
     <path
-       style="fill:none;stroke:#0000ff;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 184.9922,155.99111 h 24.4485 V 114.99499 H 92.475271"
-       id="path4886"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccc" />
-    <path
        style="fill:none;stroke:#0000fc;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="M 92.630193,117.80969 H 190.3854 v 12.85845"
        id="path4888"
@@ -2511,9 +2511,7 @@
        y="213.10878"
        x="142.85432"
        id="image5431"
-       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMEAAAABCAYAAABnqsooAAAABHNCSVQICAgIfAhkiAAAABhJREFU
-KJFjZGD4+59hFIyCEQoiIhi3AwAAfgNmJMC5uwAAAABJRU5ErkJggg==
-"
+       xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMEAAAABCAYAAABnqsooAAAABHNCSVQICAgIfAhkiAAAABhJREFU KJFjZGD4+59hFIyCEQoiIhi3AwAAfgNmJMC5uwAAAABJRU5ErkJggg== "
        style="image-rendering:optimizeSpeed"
        preserveAspectRatio="none"
        height="0.26458332"
@@ -2525,5 +2523,246 @@ KJFjZGD4+59hFIyCEQoiIhi3AwAAfgNmJMC5uwAAAABJRU5ErkJggg==
        cx="142.80132"
        id="ellipse5493"
        style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.26499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.1750052px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-148.10721"
+       y="52.181435"
+       id="text1246"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan1244"
+         x="-148.10721"
+         y="52.181435"
+         style="stroke-width:0.26458332">IF/ID</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.1750052px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-149.61255"
+       y="105.75711"
+       id="text1246-3"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan1244-6"
+         x="-149.61255"
+         y="105.75711"
+         style="stroke-width:0.26458332">ID/EX</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.1750052px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-153.51309"
+       y="191.77898"
+       id="text1268"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan1266"
+         x="-153.51309"
+         y="191.77898"
+         style="stroke-width:0.26458332">EX/MEM</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.1750052px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="-154.73007"
+       y="230.90417"
+       id="text1272"
+       transform="rotate(-90)"><tspan
+         sodipodi:role="line"
+         id="tspan1270"
+         x="-154.73007"
+         y="230.90417"
+         style="stroke-width:0.26458332">MEM/WB</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="5.4107199"
+       y="101.59946"
+       id="text1366"><tspan
+         sodipodi:role="line"
+         id="tspan1364"
+         x="5.4107199"
+         y="101.59946"
+         style="stroke-width:0.26458332">Fetch</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333333px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="74.862724"
+       y="101.59946"
+       id="text1370"><tspan
+         sodipodi:role="line"
+         id="tspan1368"
+         x="74.862724"
+         y="101.59946"
+         style="stroke-width:0.26458332">Decode</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="137.32051"
+       y="101.53435"
+       id="text1374"><tspan
+         sodipodi:role="line"
+         id="tspan1372"
+         x="137.32051"
+         y="101.53435"
+         style="stroke-width:0.26458332">Execute</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="202.13446"
+       y="101.12403"
+       id="text1378"><tspan
+         sodipodi:role="line"
+         id="tspan1376"
+         x="202.13446"
+         y="101.12403"
+         style="stroke-width:0.26458332">Memory</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="238.54454"
+       y="101.59946"
+       id="text1382"><tspan
+         sodipodi:role="line"
+         id="tspan1380"
+         x="238.54454"
+         y="101.59946"
+         style="stroke-width:0.26458332">Writeback</tspan></text>
+    <g
+       id="g1506"
+       transform="translate(75.014865,-1.3939971)">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.35300002;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect1421-6"
+         width="3.1177645"
+         height="11.928925"
+         x="28.173344"
+         y="171.7997" />
+      <text
+         transform="rotate(-90)"
+         id="text1386-2"
+         y="30.389809"
+         x="-183.32024"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.76388884px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.41646138"
+         xml:space="preserve"><tspan
+           id="tspan1388-8"
+           style="stroke-width:0.41646138"
+           y="30.389809"
+           x="-183.32024"
+           sodipodi:role="line">MEM Control</tspan></text>
+    </g>
+    <g
+       id="g1511"
+       transform="translate(70.284507,8.0668582)">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.35300004;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect1421-1"
+         width="3.1177645"
+         height="11.065394"
+         x="32.903702"
+         y="174.26776" />
+      <text
+         transform="rotate(-90)"
+         id="text1386-9"
+         y="35.120167"
+         x="-184.69464"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.76388884px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.41646138"
+         xml:space="preserve"><tspan
+           id="tspan1388-3"
+           style="stroke-width:0.41646138"
+           y="35.120167"
+           x="-184.69464"
+           sodipodi:role="line">WB Control</tspan></text>
+    </g>
+    <g
+       id="g1474"
+       transform="translate(76.839082,-0.24514881)">
+      <rect
+         y="160.27113"
+         x="26.349127"
+         height="10.379714"
+         width="3.1177645"
+         id="rect1421"
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.35300002;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal" />
+      <text
+         transform="rotate(-90)"
+         id="text1386"
+         y="28.565592"
+         x="-170.09895"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.76388884px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.41646138"
+         xml:space="preserve"><tspan
+           id="tspan1388"
+           style="stroke-width:0.41646138"
+           y="28.565592"
+           x="-170.09895"
+           sodipodi:role="line">EX Control</tspan></text>
+    </g>
+    <g
+       id="g1506-9"
+       transform="translate(161.03674,-2.2487055)">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.35300002;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect1421-6-3"
+         width="3.1177645"
+         height="11.928925"
+         x="28.173344"
+         y="171.7997" />
+      <text
+         transform="rotate(-90)"
+         id="text1386-2-1"
+         y="30.389809"
+         x="-183.32024"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.76388884px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.41646138"
+         xml:space="preserve"><tspan
+           id="tspan1388-8-9"
+           style="stroke-width:0.41646138"
+           y="30.389809"
+           x="-183.32024"
+           sodipodi:role="line">MEM Control</tspan></text>
+    </g>
+    <g
+       id="g1511-4"
+       transform="translate(156.30638,7.2121509)">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.35300004;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect1421-1-7"
+         width="3.1177645"
+         height="11.065394"
+         x="32.903702"
+         y="174.26776" />
+      <text
+         transform="rotate(-90)"
+         id="text1386-9-8"
+         y="35.120167"
+         x="-184.69464"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.76388884px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.41646138"
+         xml:space="preserve"><tspan
+           id="tspan1388-3-4"
+           style="stroke-width:0.41646138"
+           y="35.120167"
+           x="-184.69464"
+           sodipodi:role="line">WB Control</tspan></text>
+    </g>
+    <g
+       id="g1511-4-5"
+       transform="translate(195.43158,-1.5533348)">
+      <rect
+         style="fill:#ffffff;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.35300004;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect1421-1-7-0"
+         width="3.1177645"
+         height="11.065394"
+         x="32.903702"
+         y="174.26776" />
+      <text
+         transform="rotate(-90)"
+         id="text1386-9-8-3"
+         y="35.120167"
+         x="-184.69464"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:1.76388884px;line-height:1;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.41646138"
+         xml:space="preserve"><tspan
+           id="tspan1388-3-4-6"
+           style="stroke-width:0.41646138"
+           y="35.120167"
+           x="-184.69464"
+           sodipodi:role="line">WB Control</tspan></text>
+    </g>
   </g>
 </svg>
