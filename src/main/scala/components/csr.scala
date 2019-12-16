@@ -54,7 +54,7 @@ object MCSRs {
 
   //machine memory protection
   //DONT NEED
-  
+
   //machine counter/timers
   val mcycle = 0xb00 //machine cycle counter
   val minstret = 0xb02 //machine instructions retured counter
@@ -83,28 +83,77 @@ class MStatus extends Bundle{
   val mpie = Bool()
   val wpri3 = Bool() //reserved, zero
   val spie = Bool()
-  val upie = Bool() 
+  val upie = Bool()
   //interrupt enable
   val mie = Bool() //machine interrupt enable
   val wpri4 = Bool() //reserved, zero
   val sie = Bool() //supervisor interrupt enable
   val uie = Bool() //user interrupt enable
+
+  def reset: MStatus = {
+    val w = Wire(new MStatus)
+    w.sd := false.B
+    w.wpri1 := 0.U
+    w.tsr := false.B
+    w.tw := false.B
+    w.tvm := false.B
+    w.mxr := false.B
+    w.sum := false.B
+    w.mprv := false.B
+    w.xs := 0.U
+    w.fs := 0.U
+    w.mpp := MCSRCmd.MPRV // machine mode
+    w.wpri2 := 0.U
+    w.spp := 0.U
+    w.mpie := false.B
+    w.wpri3 := false.B
+    w.spie := false.B
+    w.upie := false.B
+    w.mie := true.B // machine mode
+    w.wpri4 := false.B
+    w.sie := false.B
+    w.uie := false.B
+    w
+  }
 }
 
 class MISA extends Bundle{
   val mxl = UInt(2.W) //rv32, 64 , 128
   val wlrl = UInt(4.W) //reserved
   val extensions = UInt(26.W) //isa extensions
+
+  def reset: MISA = {
+    val w = Wire(new MISA)
+    w.mxl := 1.U // 32-bit
+    w.wlrl := 0.U
+    w.extensions := (1 << 8).U // I only
+    w
+  }
 }
 
 class MVendorID extends Bundle{
   val bank = UInt(25.W)
   val offset = UInt(7.W)
+
+  def reset : MVendorID = {
+    // Use 0 since this is not a standard design
+    val w = Wire(new MVendorID)
+    w.bank := 0.U
+    w.offset := 0.U
+    w
+  }
 }
 
 class MTVec extends Bundle{
   val base = UInt(30.W)
   val mode = UInt(2.W)
+
+  def reset : MTVec = {
+    val w = Wire(new MTVec)
+    w.base := 0.U
+    w.mode := 0.U
+    w
+  }
 }
 
 class MIx extends Bundle{
@@ -121,6 +170,24 @@ class MIx extends Bundle{
  val wpri4 = UInt(1.W)
  val ssix = Bool()
  val usix = Bool()
+
+  def reset : MIx = {
+    val w = Wire(new MIx)
+    w.wpri1 := 0.U
+    w.meix := false.B
+    w.wpri2 := 0.U
+    w.seix := false.B
+    w.ueix := false.B
+    w.mtix := false.B
+    w.wpri3 := 0.U
+    w.stix := false.B
+    w.utix := false.B
+    w.msix := false.B
+    w.wpri4 := 0.U
+    w.ssix := false.B
+    w.usix := false.B
+    w
+  }
 }
 
 class XCounterEnInhibit extends Bundle{
@@ -156,11 +223,55 @@ class XCounterEnInhibit extends Bundle{
   val ir = Bool()
   val tmzero = Bool()
   val cy = Bool()
+
+  def reset : XCounterEnInhibit = {
+    val w = Wire(new XCounterEnInhibit)
+    w.hpm31 := false.B
+    w.hpm30 := false.B
+    w.hpm29 := false.B
+    w.hpm28 := false.B
+    w.hpm27 := false.B
+    w.hpm26 := false.B
+    w.hpm25 := false.B
+    w.hpm24 := false.B
+    w.hpm23 := false.B
+    w.hpm22 := false.B
+    w.hpm21 := false.B
+    w.hpm20 := false.B
+    w.hpm19 := false.B
+    w.hpm18 := false.B
+    w.hpm17 := false.B
+    w.hpm16 := false.B
+    w.hpm15 := false.B
+    w.hpm14 := false.B
+    w.hpm13 := false.B
+    w.hpm12 := false.B
+    w.hpm11 := false.B
+    w.hpm10 := false.B
+    w.hpm9 := false.B
+    w.hpm8 := false.B
+    w.hpm7 := false.B
+    w.hpm6 := false.B
+    w.hpm5 := false.B
+    w.hpm4 := false.B
+    w.hpm3 := false.B
+    w.ir := false.B
+    w.tmzero := false.B
+    w.cy := false.B
+    w
+  }
 }
 
 class MCause extends Bundle{
   val interrupt = Bool()
   val exceptioncode = UInt(31.W)
+
+  def reset : MCause = {
+    val w = Wire(new MCause)
+    w.interrupt := 0.U
+    w.exceptioncode := 0.U
+    w
+  }
 }
 
 object MCSRCmd{
@@ -173,7 +284,7 @@ object MCSRCmd{
   val clear = 3.asUInt(size)
   val interrupt = 4.asUInt(size)
   val read = 5.asUInt(size)
-  
+
   val SIZE = 3.W
   val MSB = 31
   val LSB = 20
@@ -184,13 +295,13 @@ object MCSRCmd{
 class CSRRegFile extends Module{
   //INIT CSR
   val io = IO(new Bundle{
-    val illegal_inst = Input(Bool())//an exception signal for a non existent instruction or bad fields 
+    val illegal_inst = Input(Bool())//an exception signal for a non existent instruction or bad fields
     val retire_inst = Input(Bool())//asserted if a valid instruction has finished
     val pc = Input(UInt(32.W)) //current program counter value
     val read_data = Input(UInt(32.W))//data from reg file used in csr instructions
     val inst = Input(UInt(32.W)) //full instruction used for decoding csrs internally
     val immid = Input(UInt(32.W)) //sext immidiate for immidiate csr instructions
-    
+
     val read_illegal = Output(Bool())//an exception raised interally by a bad csr inst, used to raise illegal inst signal
     val write_illegal = Output(Bool())//raised interally by a bad csr inst, used to raise illegal inst signal
     val system_illegal = Output(Bool())//bad syscall instruction raised interally, used to raise illegal inst signal
@@ -204,60 +315,65 @@ class CSRRegFile extends Module{
   })
   io := DontCare
 
-  val reset_mstatus = WireInit(0.U.asTypeOf(new MStatus()))
-  reset_mstatus.mpp := MCSRCmd.MPRV//machine mode
-  reset_mstatus.mie := true.B//machine mode
-
   //contains info about system interrupts and privlidge mode
-  val reg_mstatus = RegInit(reset_mstatus)
+  val reg_mstatus = RegInit((new MStatus).reset)
+
   //exception program counter, set when exception raised
   val reg_mepc = Reg(UInt(32.W))
+
   //contains cause of exception
-  val reg_mcause = RegInit(0.U.asTypeOf(new MCause()))
+  val reg_mcause = RegInit((new MCause).reset)
+
   //register that can hold data to assist with exceptions/traps
   val reg_mtval = Reg(UInt(32.W))
+
   //scratch register for trap handler, useful for switching between mode memory spaces
   val reg_mscratch = Reg(UInt(32.W))
+
   //register used to set time for when timer interrupt should be raised
   val reg_mtimecmp = Reg(UInt(64.W))
+
   //register to indicate if trap handler should go directly to a specifc modes' trap handler
   //rather than trap to machine mode then swap context to a less privileged mode. used to save
   //performance, our implementation does not implement hardware to do this.
   val reg_medeleg = Reg(UInt(32.W))
 
-  //indicates if we have a pending iterrupt for different interrupt types and modes
-  val reg_mip = RegInit(0.U.asTypeOf(new MIx()))
+  //indicates if we have a pending interrupt for different interrupt types and modes
+  val reg_mip = RegInit((new MIx).reset)
+
   //indicates which interrupts are enabled
-  val reg_mie = RegInit(0.U.asTypeOf(new MIx()))
+  val reg_mie = RegInit((new MIx).reset)
+
   //used to halt cpu if WFI inst is seen, or can also just do nothing. This cpu doesn't
   //implement WFI inst....yet
   val reg_wfi = RegInit(false.B)
+
   //trap vector/address
-  val reg_mtvec = RegInit(0.U.asTypeOf(new MTVec()))
+  val reg_mtvec = RegInit((new MTVec).reset)
+
   //current cpu time given in cycles
   val reg_time = WideCounter(64)
   //number of instructions that have been completed
   val reg_instret = WideCounter(64, io.retire_inst)
+
   //performance counters, not implemented
-  val reg_mcounterinhibit = RegInit(0.U.asTypeOf(new XCounterEnInhibit()))
+  val reg_mcounterinhibit = RegInit((new XCounterEnInhibit).reset)
+
   //performance counter control
-  val reg_mcounteren = RegInit(0.U.asTypeOf(new XCounterEnInhibit()))
+  val reg_mcounteren = RegInit((new XCounterEnInhibit).reset)
+
   //machine status, contains interrupt bits, and priviledge mode
   val read_mstatus = io.status.asUInt()
-  val isa_string = "I"
-  //takes user defined ISA string character by character and calculates ascii number for each,
-  //aligns the result to be a multiple of 2 then ors the results together to fit into MISA
-  //this tells the system what extensions are implemented
-  //val reg_misa = RegInit((BigInt(0) | isa_string.map(x => 1 << (x - 'A')).reduce(_|_)).U.asTypeOf(new MISA()))
-  //same as above but hardcoded for only I extension
-  val reg_misa = RegInit(16.U.asTypeOf(new MISA()))
+
+  val reg_misa = RegInit((new MISA).reset)
+
   //if we are a company we can hardcode our implementation info here
-  val reg_mvendorid = RegInit(0.U.asTypeOf(new MVendorID()))
+  val reg_mvendorid = RegInit((new MVendorID).reset)
 
   //this hashmap associates CSR addresses to the actual register contents
   //this is done to make decoding and working with csr's easier (avoid manual specification)
   val read_mapping = collection.mutable.LinkedHashMap[Int,Bits](
-    MCSRs.mcounterinhibit -> reg_mcounterinhibit.asUInt, 
+    MCSRs.mcounterinhibit -> reg_mcounterinhibit.asUInt,
     MCSRs.mcycle -> reg_time.value,
     MCSRs.minstret -> reg_instret.value,
     MCSRs.mimpid -> 0.U,
@@ -274,13 +390,13 @@ class CSRRegFile extends Module{
     MCSRs.mcause -> reg_mcause.asUInt(),
     MCSRs.mhartid -> 0.U,
     MCSRs.medeleg -> reg_medeleg,
-    MCSRs.mcycleh -> 0.U, 
+    MCSRs.mcycleh -> 0.U,
     MCSRs.minstreth -> 0.U
     )
-    
+
   //CSR DECODE
   val cmd = WireInit(3.U(3.W))
-  
+
   when( io.inst(6, 0) === ("b1110011".U)){
     switch(io.inst(14, 12)){
       is("b011".U){
@@ -290,7 +406,7 @@ class CSRRegFile extends Module{
       is("b111".U){
         cmd := MCSRCmd.clear
         io.reg_write := true.B
-      } 
+      }
       is("b010".U){
         cmd := MCSRCmd.set
         io.reg_write := true.B
@@ -316,7 +432,7 @@ class CSRRegFile extends Module{
     cmd := MCSRCmd.nop
     io.reg_write := false.B
   }
-  
+
   val csr = io.inst(MCSRCmd.MSB, MCSRCmd.LSB)
   val system_insn = cmd === MCSRCmd.interrupt
   val cpu_ren = cmd =/= MCSRCmd.nop && !system_insn
@@ -340,7 +456,7 @@ class CSRRegFile extends Module{
   val insn_wfi = system_insn && opcode(5) && priv_sufficient
 
   private def decodeAny(m: LinkedHashMap[Int,Bits]): Bool = m.map( { case(k: Int, _: Bits) => csr === k.U }).reduce(_ || _)
-  io.read_illegal := 3.U < csr(9,8) || !decodeAny(read_mapping) 
+  io.read_illegal := 3.U < csr(9,8) || !decodeAny(read_mapping)
   io.write_illegal := csr(11,10).andR
   io.system_illegal := 3.U < csr(9,8)
 
@@ -355,14 +471,14 @@ class CSRRegFile extends Module{
     io.evec := "h80000000".U
     reg_mepc := io.pc // misaligned memory exceptions not supported...
   }
-  
+
   //UNALIGNED MEM ACCESS
   /*
   when(io.???){
     reg_mcause.interrupt := MCauses.misaligned_fetch & "h80000000".U
     reg_mcause.exceptioncode := MCauses.misaligned_fetch & "h7fffffff".U
     io.evec := "h80000000".U
-    reg_mepc := 
+    reg_mepc :=
   }.elsewhen(io.???){
     reg_mcause.interrupt := MCauses.misaligned_load & "h80000000".U
     reg_mcause.exceptioncode := MCauses.misaligned_load & "h7fffffff".U
@@ -411,22 +527,22 @@ class CSRRegFile extends Module{
 
   when (wen) {
     //MISA IS FIXED IN THIS IMPLEMENATION
-    
+
     //MVENDORID IS FIXED IN THIS IMPLEMENTATION
 
     //MARCHID IS FIXED IN THIS IMPLEMENTATION
 
     //MIMPID IS FIXED IN THIS IMPLEMENTATION
-    
+
     //MHARTID IS FIXED IN THIS IMPLEMENTATION
-    
+
     //MSTATUS
     /* Only need to worry about m mode interrupts so no need to worry about setting
      * mpie, mpp, and mie correctly with respect to other modes.
      * non implemented modes wired to 0
      */
     when (decoded_addr(MCSRs.mstatus)) {
-      val new_mstatus = wdata.asTypeOf(new MStatus())
+      val new_mstatus = wdata.asTypeOf(new MStatus)
       reg_mstatus.mie := new_mstatus.mie
       reg_mstatus.mpie := new_mstatus.mpie
       //unused bits in mstatus m-mode only specified by spec
@@ -443,14 +559,14 @@ class CSRRegFile extends Module{
       reg_mstatus.xs := 0.U
       reg_mstatus.sd := 0.U
     }
-    
+
     //MTVEC IS FIXED IN THIS IMPLEMENTATION
 
     //MDELEG DOES NOT EXIST IN M-MODE IMPLEMENTATION
-    
+
     //MIDELEG DOES NOT EXIST IN M-MODE IMPLEMENTATION
 
-    
+
     //MIP
     /* mtip read only, cleared on timercmp write
      * meip read only, set by external interrupt controller
@@ -484,7 +600,7 @@ class CSRRegFile extends Module{
 
     }
     //MCOUNTEREB IS FIXED IN THIS IMPLEMENTATION BECAUSE NO S | U MODE
-    
+
     //MCOUNTINHIBIT
     /* stops counting cycles and retired instructions if need be
      *
@@ -499,10 +615,10 @@ class CSRRegFile extends Module{
         writeCounter(MCSRs.minstret, reg_instret, wdata)
       }
     }
-    
+
     //MSCRATCH
     when (decoded_addr(MCSRs.mscratch)) { reg_mscratch := wdata }
-    
+
     //MEPC
     /* hardcoded to be 32 bit aligned because no compressed isa last 2 bits 0
      */
@@ -511,7 +627,7 @@ class CSRRegFile extends Module{
     /* Only write to on interrupt for hardware. software can write whenever
      * masks msb and 5 lsb from wdata
      */
-    when (decoded_addr(MCSRs.mcause))   { 
+    when (decoded_addr(MCSRs.mcause))   {
       reg_mcause.interrupt := (wdata & ((BigInt(1) << (32-1)) + 31).U) & "h80000000".U /* only implement 5 LSBs and MSB */
       reg_mcause.exceptioncode := (wdata & ((BigInt(1) << (32-1)) + 31).U) & "h7fffffff".U /* only implement 5 LSBs and MSB */
 
