@@ -2,10 +2,11 @@
 
 package dinocpu.test
 
+import dinocpu.Simulate.{build, elfToHex}
 import dinocpu._
-import dinocpu.simulate.{build, elfToHex}
+import firrtl.AnnotationSeq
+import firrtl.options.TargetDirAnnotation
 import org.scalatest.{FlatSpec, Matchers}
-import treadle.TreadleTester
 import treadle.executable.TreadleException
 
 
@@ -15,17 +16,14 @@ class CPUTesterDriver(cpuType: String,
                       branchPredictor: String,
                       binary: String,
                       extraName: String = "",
+                      annotationSeq: AnnotationSeq,
                       forceDebug: Boolean = false) {
 
-  val optionsManager = new SimulatorOptionsManager()
+  val outputDir: String = annotationSeq.collectFirst {case TargetDirAnnotation(outdir) => outdir }
+    .getOrElse("simulator_run_dir")
 
-  if (optionsManager.targetDirName == ".") {
-    // TODO: Revert this either by waiting for the chisel guys to fix the CWD bug, or moving the testing system over to
-    // FIRRTLMain instead of Driver
-    //optionsManager.setTargetDirName(s"test_run_dir/$cpuType/$binary$extraName")
-  }
-
-  val hexName = s"${optionsManager.targetDirName}/${binary}.hex"
+  println(s"output directory: ${outputDir}")
+  val hexName = s"${outputDir}/${binary}.hex"
 
   val conf = new CPUConfig()
   conf.cpuType = cpuType
@@ -54,12 +52,9 @@ class CPUTesterDriver(cpuType: String,
   if (forceDebug) conf.debug = true
 
   // This compiles the chisel to firrtl
-  val compiledFirrtl = build(optionsManager, conf)
+  val simulator = build(annotationSeq, conf)
 
   val endPC = elfToHex(path, hexName)
-
-  // Instantiate the simulator
-  val simulator = TreadleTester(compiledFirrtl, optionsManager)
 
   def reset(): Unit = {
     simulator.reset(5)
@@ -150,7 +145,7 @@ case class CPUTestCase(
 object CPUTesterDriver {
   def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = ""): Boolean = {
     val cpustr = if (branchPredictor != "") { cpuType+"-bp" } else { cpuType }
-    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, testCase.extraName)
+    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, testCase.extraName, AnnotationSeq(Seq()))
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))

@@ -3,8 +3,7 @@ package dinocpu
 import dinocpu._
 import dinocpu.test._
 
-import treadle.TreadleOptionsManager
-import treadle.repl.HasReplConfig
+import firrtl.AnnotationSeq
 
 /** Wrapper object to run the treadle REPL for debugging CPU designs
   * Use main function to call
@@ -37,17 +36,12 @@ object replrunner {
       }
 
     //setup test
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, AnnotationSeq(Seq()), true)
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
 
-    //create a copy of the options from the testerdriver, with the replconfig option
-    val options = new TreadleOptionsManager with HasReplConfig
-    options.treadleOptions = driver.optionsManager.treadleOptions.copy()
-    options.firrtlOptions = driver.optionsManager.firrtlOptions.copy()
-
     //copy the configured simulator in the REPL
-    val repl = treadle.TreadleRepl(options.toAnnotationSeq)
+    val repl = treadle.TreadleRepl(AnnotationSeq(Seq()))
     repl.currentTreadleTesterOpt = Some(driver.simulator)
 
     repl.run()

@@ -1,11 +1,13 @@
 // Main entry point for simulation
 package dinocpu
 
-import firrtl.{ExecutionOptionsManager, HasFirrtlOptions}
+import firrtl.{AnnotationSeq, ExecutionOptionsManager, HasFirrtlOptions}
 import treadle.{HasTreadleOptions, TreadleOptionsManager, TreadleTester}
 import java.io.{File, PrintWriter, RandomAccessFile}
 
-import chisel3.{ChiselExecutionFailure,ChiselExecutionSuccess,HasChiselExecutionOptions}
+import chisel3.{ChiselExecutionFailure, ChiselExecutionSuccess, HasChiselExecutionOptions}
+import firrtl.options.TargetDirAnnotation
+import firrtl.stage.FirrtlCircuitAnnotation
 import net.fornwall.jelf.ElfFile
 
 import scala.collection.SortedMap
@@ -20,10 +22,10 @@ import scala.util.control.NonFatal
  *  sbt> runMain dinocpu.simulate [options] <riscv binary> <CPU type>
  * }}}
  */
-object simulate {
+object Simulate {
   val helptext = "usage: simulate <riscv binary> <CPU type>"
 
-  def elfToHex(filename: String, outfile: String) = {
+  def elfToHex(filename: String, outfile: String): Long = {
     val elf = ElfFile.fromFile(new java.io.File(filename))
     val sections = Seq(".text", ".data") // These are the sections we want to pull out
     // address to put the data -> offset into the binary, size of section
@@ -73,37 +75,22 @@ object simulate {
     else 0x400L
   }
 
-  def build(optionsManager: SimulatorOptionsManager, conf: CPUConfig): String = {
-    optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(compilerName = "low")
-    val annos = firrtl.Driver.getAnnotations(optionsManager)
-    optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(annotations = annos.toList)
-
-    chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
-    case ChiselExecutionSuccess(Some(_), _, Some(firrtlExecutionResult)) =>
-      firrtlExecutionResult match {
-      case firrtl.FirrtlExecutionSuccess(_, compiledFirrtl) =>
-        compiledFirrtl
-      case firrtl.FirrtlExecutionFailure(message) =>
-        throw new Exception(s"FirrtlBackend: Compile failed. Message: $message")
-      }
-      case _ =>
-        throw new Exception("Problem with compilation")
-    }
+  def build(annotationSeq: AnnotationSeq, conf: CPUConfig): TreadleTester = {
+    val circuit = chisel3.Driver.toFirrtl(chisel3.Driver.elaborate(() => new Top(conf)))
+    TreadleTester(annotationSeq :+ FirrtlCircuitAnnotation(circuit))
   }
 
   def main(args: Array[String]): Unit = {
     require(args.length >= 2, "Error: Expected at least two argument\n" + helptext)
 
-    val optionsManager = new SimulatorOptionsManager
-
-    if (optionsManager.parser.parse(args)) {
-      optionsManager.setTargetDirName("simulator_run_dir")
-    } else {
-      None
-    }
+    val outputDir = "simulator_run_dir"
+    new File(outputDir).mkdirs
+    val annotationSeq = AnnotationSeq(Seq(
+      TargetDirAnnotation(outputDir)
+    ))
 
     // Get the name for the hex file
-    val hexName = optionsManager.targetDirName + "/executable.hex"
+    val hexName = outputDir + "/executable.hex"
 
     // Create the CPU config. This sets the type of CPU and the binary to load
     val conf = new CPUConfig()
@@ -128,21 +115,18 @@ object simulate {
     conf.memFile = hexName
 
     // This compiles the chisel to firrtl
-    val compiledFirrtl = build(optionsManager, conf)
+    val simulator = build(annotationSeq, conf)
 
     // Convert the binary to a hex file that can be loaded by treadle
     // (Do this after compiling the firrtl so the directory is created)
     val endPC = elfToHex(args(0), hexName)
-
-    // Instantiate the simulator
-    val simulator = TreadleTester(compiledFirrtl, optionsManager)
 
     // Make sure the system is in the reset state (5 cycles)
     simulator.reset(5)
 
     // This is the actual simulation
     var cycles = 0
-    val maxCycles = if (optionsManager.simulatorOptions.maxCycles > 0) optionsManager.simulatorOptions.maxCycles else 2000000
+    val maxCycles = 2000000
     // Simulate until the pc is the "endPC" or until max cycles has been reached
     println("Running...")
     while (simulator.peek("cpu.pc") != endPC && cycles < maxCycles) {
@@ -163,33 +147,5 @@ object simulate {
       println("VERIFICATION FAILED")
     }
   }
-}
-
-case class SimulatorOptions(
-              maxCycles           : Int              = 0
-  )
-  extends firrtl.ComposableOptions {
-}
-
-trait HasSimulatorOptions {
-  self: ExecutionOptionsManager =>
-
-  val simulatorOptions = SimulatorOptions()
-
-  parser.note("simulator-options")
-
-  parser.opt[Int]("max-cycles")
-    .abbr("mx")
-    .valueName("<long-value>")
-    .foreach {x =>
-      simulatorOptions.copy(maxCycles = x)
-    }
-    .text("Max number of cycles to simulate. Default is 0, to continue simulating")
-}
-
-class SimulatorOptionsManager extends TreadleOptionsManager with HasSimulatorSuite
-
-trait HasSimulatorSuite extends TreadleOptionsManager with HasChiselExecutionOptions with HasFirrtlOptions with HasTreadleOptions with HasSimulatorOptions {
-  self : ExecutionOptionsManager =>
 }
 
