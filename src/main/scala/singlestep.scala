@@ -3,6 +3,7 @@
 package dinocpu
 
 import dinocpu.test._
+import firrtl.AnnotationSeq
 
 
 object singlestep {
@@ -30,7 +31,7 @@ object singlestep {
       ""
     }
 
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, AnnotationSeq(Seq()),true)
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
     println("How many cycles to you want to run? \"Q\" to quit.")
