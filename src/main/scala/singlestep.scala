@@ -8,11 +8,59 @@ import dinocpu.test._
 object singlestep {
   val helptext = "usage: singlestep <test name> <CPU type>"
 
-  val commands = """
-    | ?       : print this help
-    | q       : quit
-    | number  : move forward this many cycles""".stripMargin
-    //| p <str> : evaluate the <str> as a print statement in scala""".stripMargin
+  val commands = """Help for the single stepper:
+    | ?               : print this help
+    | print reg <num> : print the value in register
+    | print regs      : print values in all registers
+    | print pc        : print the address in the pc
+    | print inst      : print the disassembly for the current instruction
+    | q               : quit
+    | step [num]      : move forward this many cycles, default 1
+    |""".stripMargin
+
+  def doPrint(tokens: Array[String], driver: CPUTesterDriver): Boolean = {
+    tokens(1) match {
+      case "reg" => {
+        if (tokens.length == 3) {
+          try {
+            driver.printReg(tokens(2).toInt)
+            true
+          } catch {
+            case e: NumberFormatException => false
+          }
+        } else {
+          false
+        }
+      }
+      case "regs" => {
+        driver.printRegs()
+        true
+      }
+      case "pc" => {
+        driver.printPC()
+        true
+      }
+      case "inst" => {
+        driver.printInst()
+        true
+      }
+      case _ => false
+    }
+  }
+
+  def doStep(tokens: Array[String], driver: CPUTesterDriver): Boolean = {
+    val cycles = try {
+      if (tokens.length == 2) tokens(1).toInt else 1
+    } catch {
+      case e: NumberFormatException => 0
+    }
+    if (cycles > 0) {
+      driver.step(cycles)
+      true
+    } else {
+      false
+    }
+  }
 
   def main(args: Array[String]): Unit = {
     require(args.length >= 2, "Error: Expected at least two argument\n" + helptext)
@@ -30,20 +78,25 @@ object singlestep {
       ""
     }
 
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName)
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
-    println("How many cycles to you want to run? \"Q\" to quit.")
+    println(commands)
     var done = false
     while (!done) {
-      readLine("Cycles > ") match {
-        case "?" => println(commands)
-        case "q" | "Q" => done = true
-        case command => try {
-            driver.step(command.toInt)
-          } catch {
-            case e: NumberFormatException => println("Must give a number or ?")
+      val tokens = scala.io.StdIn.readLine("Single stepper > ").split(" ")
+      if (tokens.length > 0) {
+        tokens(0) match {
+          case "?" => println(commands)
+          case "q" | "Q" => done = true
+          case "step" => if (!doStep(tokens, driver)) println(commands)
+          case "print" => {
+            if (tokens.length > 1) {
+              if (!doPrint(tokens, driver)) println(commands)
+            }
           }
+          case _ => println(commands)
+        }
       }
     }
     if (driver.checkRegs(test.checkRegs) && driver.checkMemory(test.checkMem)) {
