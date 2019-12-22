@@ -52,12 +52,12 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   immGen.io.instruction := instruction
   val imm = immGen.io.sextImm
-  
+
   //ALU
-  csr.io.inst := instruction 
+  csr.io.inst := instruction
   csr.io.immid := imm
   csr.io.read_data := registers.io.readdata1
-  csr.io.retire_inst := true.B //mem is synchronous in this deisgn. no flushing as far as i'm aware
+  csr.io.retire_inst := true.B //mem is synchronous in this design. no flushing as far as i'm aware
   csr.io.illegal_inst := !control.io.validinst || csr.io.read_illegal || csr.io.write_illegal || csr.io.system_illegal //illegal inst exception?
   csr.io.pc :=  pc
 
@@ -67,11 +67,12 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
   branchCtrl.io.inputy := registers.io.readdata2
 
   val alu_inputx = Wire(UInt())
-  alu_inputx := DontCare
-  switch(control.io.alusrc1) {
-    is(0.U) { alu_inputx := registers.io.readdata1 }
-    is(1.U) { alu_inputx := 0.U }
-    is(2.U) { alu_inputx := pc }
+  when (control.io.alusrc1 === 2.U) {
+    alu_inputx := pc
+  } .elsewhen (control.io.alusrc1 === 1.U) {
+    alu_inputx := 0.U
+  } .otherwise {
+    alu_inputx := registers.io.readdata1
   }
   val alu_inputy = Mux(control.io.immediate, imm, registers.io.readdata2)
   alu.io.inputx := alu_inputx

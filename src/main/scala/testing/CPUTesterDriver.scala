@@ -75,6 +75,32 @@ class CPUTesterDriver(cpuType: String,
     }
   }
 
+  def printReg(num: Int): Unit = {
+    val v = simulator.peek(s"cpu.registers.regs_$num")
+    println(s"reg${num}: ${v}")
+  }
+
+  def printRegs(): Unit = {
+    // todo: Make this prettier
+    for (reg <- 0 to 31) {
+      printReg(reg)
+    }
+  }
+
+  def printPC(): Unit = {
+    val v = simulator.peek("cpu.pc")
+    println(s"PC: ${v}")
+  }
+
+  def printInst(): Unit = {
+    val v = simulator.peek("cpu.io_imem_instruction")
+    val pc = simulator.peek("cpu.pc")
+    val inst = Disassembler.disassemble(v.longValue())
+    println(s"${pc.toString().padTo(8, ' ')}: ${inst.padTo(20, ' ')} (0x${v.toInt.toHexString})")
+  }
+
+
+
   /**
     *
     * @param vals holds "addresses" to values. Where address is the nth *word*

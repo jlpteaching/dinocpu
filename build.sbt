@@ -28,38 +28,23 @@ name := "dinocpu"
 version := "0.5"
 organization := "edu.ucdavis.cs"
 
-scalaVersion := "2.12.6"
-crossScalaVersions := Seq("2.12.6", "2.11.12")
+scalaVersion := "2.12.10"
 
-// Use Chisel 3.2 snapshots
-// Note: When Chisel 3.2 is released we can remove this.
-// If you experience strange issues  it may be that the chisel dependencies are out of sync with one another
-// you can use the ./build_install_deps script to build a known-good set of dependencies and use the "local-repo"
-// resolver below instead of the snapshot one (remove Resolver.sonatypeRepo("snapshots"))
+crossScalaVersions := Seq("2.12.10", "2.11.12")
+
 resolvers ++= Seq(
-  Resolver.sonatypeRepo("releases"),
-  Resolver.sonatypeRepo("snapshots")
+  Resolver.sonatypeRepo("snapshots"),
+  Resolver.sonatypeRepo("releases")
 )
-
-// Note: This will only work inside the sigularity container built with the chisel.def file.
-// You may want to include Resolver.sonatypeRepo("snapshots") if you haven't built
-// the dependencies locally. You can also check out all of the dependencies locally
-// and compile then use `publishLocal` to use the versions you've compiled.
-// If you use `sbt -ivy /opt/ivy2` when you `publishLocal`, then it will build the
-// repository in /opt/ivy2/local for use as below.
-resolvers += Resolver.file("local-repo", file("/opt/ivy2/local"))(Resolver.ivyStylePatterns)
-
-// For the elf loader
-resolvers += "Spring Plugins Repository" at "http://repo.spring.io/plugins-release/"
 
 // Provide a managed dependency on X if -DXVersion="" is supplied on the command line.
 val defaultVersions = Map(
-  "chisel3" -> "3.2-SNAPSHOT",
-  "chisel-iotesters" -> "1.3-SNAPSHOT"
+  "chisel3" -> "3.2.+",
+  "chisel-iotesters" -> "1.3.+"
   )
 
-libraryDependencies ++= (Seq("chisel3","chisel-iotesters").map {
-  dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep)) })
+libraryDependencies ++= Seq("chisel3","chisel-iotesters").map {
+  dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep)) }
 
 scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
 
