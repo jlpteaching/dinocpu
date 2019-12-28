@@ -13,7 +13,7 @@ import dinocpu.components._
  * For more information, see section 4.6 of Patterson and Hennessy
  * This follows figure 4.49
  */
-class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
+class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Bundles defining the pipeline registers and control structures
 
   // Everything in the register between IF and ID stages
