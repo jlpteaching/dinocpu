@@ -106,7 +106,7 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val pcPlusFour = Module(new Adder())
   val branchAdd  = Module(new Adder())
   val forwarding = Module(new ForwardingUnit())  //pipelined only
-  val hazard     = Module(new HazardUnit())      //pipelined only
+  val hazard     = Module(new HazardUnitMemStall())      //pipelined only
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
   // The four pipeline registers
@@ -136,8 +136,6 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   /////////////////////////////////////////////////////////////////////////////
   // FETCH STAGE
   /////////////////////////////////////////////////////////////////////////////
-
-
   // Note: This comes from the memory stage!
   // Only update the pc if the pcwrite flag is enabled
   if (conf.debug) { printf(p"PC: $pc\n") }
@@ -149,17 +147,20 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Send the PC to the instruction memory port to get the instruction
   io.imem.address := pc
 
-  // Send a valid instruction request to instruction memory only if IFID isn't
-  // being bubbled;
-  io.imem.valid := !hazard.io.ifid_bubble
+  // Send a valid instruction request to instruction memory only if if_id isn't
+  // being bubbled or disabled
+  io.imem.valid := !hazard.io.ifid_bubble && !hazard.io.ifid_disable
+
+  // Send imem state to the hazard unit
+  hazard.io.imem_ready := io.imem.ready
 
   // Get the PC + 4
   pcPlusFour.io.inputx := pc
   pcPlusFour.io.inputy := 4.U
 
-  // Data supplied to if_id register is bubbled when the hazard detector
-  // indicates a IFID bubble
-  if_id.io.valid := !hazard.io.ifid_bubble
+  // Write to if_id only if it isn't being bubbled or disabled, and there
+  // is valid data coming from imem
+  if_id.io.valid := io.imem.valid && io.imem.good
 
   // Connect outputs of IF stage into the stage register's in port
   if_id.io.in.instruction := io.imem.instruction
@@ -191,8 +192,8 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Send the instruction to the immediate generator
   immGen.io.instruction := if_id.io.data.instruction
 
-  // Data supplied to id_ex register is always valid every cycle
-  id_ex.io.valid := true.B
+  // Enable id_ex whenever the id_ex register isn't being explicitly disabled
+  id_ex.io.valid := ! hazard.io.idex_disable
   // Don't need to flush the data in this register
   id_ex.io.flush := false.B
   // FIll the id_ex register
@@ -207,8 +208,8 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   id_ex.io.in.pc         := if_id.io.data.pc
   id_ex.io.in.pcplusfour := if_id.io.data.pcplusfour
 
-  // Data supplied to id_ex_ctrl register is always valid every cycle
-  id_ex_ctrl.io.valid := true.B
+  // Enable id_ex_ctrl whenever the id_ex register isn't being explicitly disabled
+  id_ex_ctrl.io.valid := ! hazard.io.idex_disable
   // Set the execution control signals
   id_ex_ctrl.io.in.ex_ctrl.add       := control.io.add
   id_ex_ctrl.io.in.ex_ctrl.immediate := control.io.immediate
@@ -294,8 +295,8 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   branchAdd.io.inputx := id_ex.io.data.pc
   branchAdd.io.inputy := id_ex.io.data.imm
 
-  // Data supplied to ex_mem register is always valid every cycle
-  ex_mem.io.valid := true.B
+  // Enable ex_mem whenever it is not being explicitly disabled
+  ex_mem.io.valid := ! hazard.io.exmem_disable
   // Don't need to flush the data in this register
   ex_mem.io.flush := false.B
   // Set the EX/MEM register values
@@ -304,8 +305,8 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   ex_mem.io.in.writereg   := id_ex.io.data.writereg
   ex_mem.io.in.pcplusfour := id_ex.io.data.pcplusfour
 
-  // Data supplied to ex_mem_ctrl register is always valid every cycle
-  ex_mem_ctrl.io.valid       := true.B
+  // Enable ex_mem_ctrl whenever it is not being explicitly disabled
+  ex_mem_ctrl.io.valid := ! hazard.io.exmem_disable
   ex_mem_ctrl.io.in.mem_ctrl := id_ex_ctrl.io.data.mem_ctrl
   ex_mem_ctrl.io.in.wb_ctrl  := id_ex_ctrl.io.data.wb_ctrl
 
@@ -346,13 +347,16 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Send input signals to the hazard detection unit
   hazard.io.exmem_taken := ex_mem_ctrl.io.data.mem_ctrl.taken
+  hazard.io.dmem_ready := io.dmem.ready
 
   // Send input signals to the forwarding unit
   forwarding.io.exmemrd := ex_mem.io.data.writereg
   forwarding.io.exmemrw := ex_mem_ctrl.io.data.wb_ctrl.regwrite
 
-  // Data supplied to mem_wb register is always valid every cycle
-  mem_wb.io.valid := true.B
+  // Data supplied to mem_wb register is valid whenever a non-memory instruction
+  // was executed, or a memory instruction was executed and data memory is giving
+  // valid data
+  mem_wb.io.valid := (! io.dmem.memread && ! io.dmem.memwrite) || io.dmem.good
   // No need to flush the data of this register
   mem_wb.io.flush := false.B
   // Wire the MEM/WB register
@@ -373,7 +377,7 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // WB STAGE
   /////////////////////////////////////////////////////////////////////////////
 
-  // Set the writeback data.mem_ctrlux (line 78 single-cycle/cpu.scala)
+  // Set the writeback mux (line 78 single-cycle/cpu.scala)
   write_data := MuxCase(mem_wb.io.data.aluresult, Array(
                        (mem_wb_ctrl.io.data.wb_ctrl.toreg === 0.U) -> mem_wb.io.data.aluresult,
                        (mem_wb_ctrl.io.data.wb_ctrl.toreg === 1.U) -> mem_wb.io.data.readdata,
