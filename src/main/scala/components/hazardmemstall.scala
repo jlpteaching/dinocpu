@@ -36,8 +36,8 @@ class HazardUnitMemStall extends Module {
     val idex_memread  = Input(Bool())
     val idex_rd       = Input(UInt(5.W))
     val exmem_taken   = Input(Bool())
-    val imem_good     = Input(Bool())
-    val dmem_good     = Input(Bool())
+    val imem_ready    = Input(Bool())
+    val dmem_ready    = Input(Bool())
 
     val pcwrite       = Output(UInt(2.W))
     val imem_disable  = Output(Bool())
@@ -51,15 +51,15 @@ class HazardUnitMemStall extends Module {
   })
 
   // default
-  io.pcwrite      := 0.U
-  io.imem_disable  = false.B
-  io.ifid_bubble   = false.B
-  io.ifid_disable  = false.B
-  io.ifid_flush    = false.B
-  io.idex_bubble   = false.B
-  io.idex_disable  = false.B
-  io.exmem_bubble  = false.B
-  io.exmem_disable = false.B
+  io.pcwrite       := 0.U
+  io.imem_disable  := false.B
+  io.ifid_bubble   := false.B
+  io.ifid_disable  := false.B
+  io.ifid_flush    := false.B
+  io.idex_bubble   := false.B
+  io.idex_disable  := false.B
+  io.exmem_bubble  := false.B
+  io.exmem_disable := false.B
 
   // Load to use hazard.
   when (io.idex_memread &&
@@ -70,7 +70,7 @@ class HazardUnitMemStall extends Module {
   }
 
   // branch flush
-  when (io.exmem_taken && io.imem_good && io.dmem_good) {
+  when (io.exmem_taken && io.imem_ready && io.dmem_ready) {
     io.pcwrite := 1.U // use the PC from mem stage
     io.ifid_flush   := true.B
     io.idex_bubble  := true.B
@@ -80,8 +80,8 @@ class HazardUnitMemStall extends Module {
   // imem stall:
   // Freeze the PC to preserve the current PC for the entire stall period,
   // so that on un-stall the next PC points to the next instruction
-  when (! io.imem_good) {
-    io.pcwrite := 2.U // Freeze the PC so whenever possible the CPU re-executes the same instruction
+  when (! io.imem_ready) {
+    io.pcwrite := 2.U
   }
 
   // dmem stall
@@ -90,7 +90,7 @@ class HazardUnitMemStall extends Module {
   // Disable writes for IF/ID
   // Disable writes for ID/EX
   // Disable writes for EX/MEM
-  when (! io.dmem_good) {
+  when (! io.dmem_ready) {
     io.pcwrite := 2.U
     io.imem_disable  := true.B
     io.ifid_disable  := true.B
