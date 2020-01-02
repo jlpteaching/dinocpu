@@ -56,7 +56,7 @@ libraryDependencies += "junit" % "junit" % "4.12" % Test
 
 // https://mvnrepository.com/artifact/net.fornwall.jelf/jelf
 // For understanding elfs and directly running binary files
-libraryDependencies += "net.fornwall.jelf" % "jelf" % "0.2"
+libraryDependencies += "net.fornwall.jelf" % "jelf" % "0.4.1"
 
 // This sets it up so all tests that end in "Tester" will be run when you run sbt test
 // and all tests that end in "Grader" will run when you run stb Grader / test
