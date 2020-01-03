@@ -125,8 +125,6 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   // registers, we create an anonymous Bundle
   val mem_wb_ctrl = Module(new StageReg(new MEMWBControl))
 
-  if (conf.debug) { printf("Cycle=%d ", cycleCount) }
-
   // For tracking branch predictor stats
   val bpCorrect   = RegInit(0.U(32.W))
   val bpIncorrect = RegInit(0.U(32.W))
@@ -158,8 +156,6 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
                 (hazard.io.pcwrite === 2.U) -> pc,
                 (hazard.io.pcwrite === 3.U) -> id_next_pc))
 
-  if (conf.debug) { printf(p"PC: $pc\n") }
-
   // Send the PC to the instruction memory port to get the instruction
   io.imem.address := pc
 
@@ -180,8 +176,6 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Flush IF/ID when required
   if_id.io.flush  := hazard.io.ifid_flush
-
-  if (conf.debug) { printf(p"IF/ID: $if_id\n") }
 
   /////////////////////////////////////////////////////////////////////////////
   // ID STAGE
@@ -259,9 +253,6 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Flush the id_ex control block with 0 when bubbling
   id_ex_ctrl.io.flush := hazard.io.idex_bubble
-
-  if (conf.debug) { printf("DASM(%x)\n", if_id.io.data.instruction) }
-  if (conf.debug) { printf(p"ID/EX: $id_ex\n") }
 
   /////////////////////////////////////////////////////////////////////////////
   // EX STAGE
@@ -380,8 +371,6 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   // Flush EXMEM's control signals if there is a bubble
   ex_mem_ctrl.io.flush := hazard.io.exmem_bubble
 
-  if (conf.debug) { printf(p"EX/MEM: $ex_mem\n") }
-
   /////////////////////////////////////////////////////////////////////////////
   // MEM STAGE
   /////////////////////////////////////////////////////////////////////////////
@@ -426,8 +415,6 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   // Stall pipeline if neither instruction nor data.mem_ctrl.mory are ready
   val memStall = ~(io.imem.good && io.dmem.good)
 
-  if (conf.debug) { printf(p"MEM/WB: $mem_wb\n") }
-
   /////////////////////////////////////////////////////////////////////////////
   // WB STAGE
   /////////////////////////////////////////////////////////////////////////////
@@ -446,6 +433,4 @@ class PipelinedCPUBP(implicit val conf: CPUConfig) extends BaseCPU {
   // Set the input signals for the forwarding unit
   forwarding.io.memwbrd := mem_wb.io.data.writereg
   forwarding.io.memwbrw := mem_wb_ctrl.io.data.wb_ctrl.regwrite
-
-  if (conf.debug) { printf("---------------------------------------------\n") }
 }
