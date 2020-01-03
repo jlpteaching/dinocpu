@@ -356,7 +356,8 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Data supplied to mem_wb register is valid whenever a non-memory instruction
   // was executed, or a memory instruction was executed and data memory is giving
   // valid data
-  mem_wb.io.valid := (! io.dmem.memread && ! io.dmem.memwrite) || io.dmem.good
+  val writeToMemWB = io.dmem.ready || io.dmem.good
+  mem_wb.io.valid := writeToMemWB
   // No need to flush the data of this register
   mem_wb.io.flush := false.B
   // Wire the MEM/WB register
@@ -365,11 +366,19 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   mem_wb.io.in.pcplusfour := ex_mem.io.data.pcplusfour
   mem_wb.io.in.readdata   := io.dmem.readdata
 
-  // Data supplied to mem_wb_ctrl register is always valid every cycle
-  mem_wb_ctrl.io.valid       := true.B
+  // Data supplied to mem_wb_ctrl register is valid if mem_wb is enabled as well
+  mem_wb_ctrl.io.valid       := writeToMemWB
   // No need to flush the data of this register
   mem_wb_ctrl.io.flush       := false.B
   mem_wb_ctrl.io.in.wb_ctrl  := ex_mem_ctrl.io.data.wb_ctrl
+
+  when (io.dmem.good && io.dmem.ready) {
+    // During the dmem stall period the control signals which controls the writeback muxes
+    // remains in MEM/WB. Continuing one cycle from here out of dmem stall would end up losing
+    // them, so we need to feed it back into MEM/WB to lengthen it for one more cycle
+    mem_wb_ctrl.io.in.wb_ctrl := mem_wb_ctrl.io.data.wb_ctrl
+    mem_wb.io.in.writereg := mem_wb.io.data.writereg
+  }
 
   if (conf.debug) { printf(p"MEM/WB: $mem_wb\n") }
 
