@@ -3,6 +3,7 @@
 package dinocpu.test
 
 import dinocpu._
+import dinocpu.pipelined._
 import dinocpu.simulate.{build, elfToHex}
 import org.scalatest.{FlatSpec, Matchers}
 import treadle.TreadleTester
@@ -88,14 +89,69 @@ class CPUTesterDriver(cpuType: String,
     println(s"PC: ${v}")
   }
 
-  def printInst(): Unit = {
-    val v = simulator.peek("cpu.io_imem_instruction")
-    val pc = simulator.peek("cpu.pc")
+  def printInst(addr: Int = -1): Unit = {
+    val pc = if (addr < 0) simulator.peek("cpu.pc").toInt else addr
+    val v = simulator.peekMemory("mem.memory", pc/4)
+    // Note: the memory is a 32-bit memory
     val inst = Disassembler.disassemble(v.longValue())
-    println(s"${pc.toString().padTo(8, ' ')}: ${inst.padTo(20, ' ')} (0x${v.toInt.toHexString})")
+    val hex = v.toInt.toHexString.reverse.padTo(8, '0').reverse
+    println(s"${pc.toString().padTo(8, ' ')}: ${inst.padTo(20, ' ')} (0x${hex})")
   }
 
+  def dumpAllModules(): Unit = {
+    val modules = conf.cpuType match {
+      case "single-cycle" => SingleCycleCPUInfo.getModules()
+      case "pipelined" => PipelinedCPUInfo.getModules()
+      case other => {
+        println(s"Cannot dump info for CPU type ${other}")
+        List()
+      }
+    }
+    for (name <- modules) {
+      for ((symbol, name) <- getIO(name)) {
+        val v = simulator.peek(symbol)
+        println(s"${name.padTo(30, ' ')} ${v} (0x${v.toInt.toHexString})")
+      }
+    }
+  }
 
+  def listModules(): Unit = {
+    val modules = conf.cpuType match {
+      case "single-cycle" => SingleCycleCPUInfo.getModules()
+      case "pipelined" => PipelinedCPUInfo.getModules()
+      case other => {
+        println(s"Cannot dump info for CPU type ${other}")
+        List()
+      }
+    }
+    println("Available modules to dump I/O")
+    println("-----------------------------")
+    for (name <- modules) {
+      println(s"${name}")
+    }
+  }
+
+  def dumpModule(module: String): Unit = {
+    val modules: List[String] = conf.cpuType match {
+      case "single-cycle" => SingleCycleCPUInfo.getModules()
+      case "pipelined" => PipelinedCPUInfo.getModules()
+      case other => {
+        println(s"Cannot dump info for CPU type ${other}")
+        List()
+      }
+    }
+    for ((symbol, name) <- getIO(module)) {
+      val v = simulator.peek(symbol)
+      println(s"${name.padTo(30, ' ')} ${v} (0x${v.toInt.toHexString})")
+    }
+  }
+
+  def getIO(module: String): Map[String,String] = {
+    val syms = simulator.engine.validNames.filter(name => name startsWith s"cpu.${module}.io_")
+    syms map {
+      sym => sym -> s"${module}.io.${sym.substring(sym.indexOf('_') + 1)}"
+    } toMap
+  }
 
   /**
     *
@@ -147,6 +203,7 @@ class CPUTesterDriver(cpuType: String,
       simulator.step(1)
       cycle += 1
     }
+    println(s"Current cycle: ${cycle}")
   }
 
   def run(cycles: Int): Unit = {
