@@ -37,7 +37,7 @@ object replrunner {
       }
 
     //setup test
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true)
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName)
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
 
