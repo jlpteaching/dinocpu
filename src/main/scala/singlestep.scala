@@ -9,13 +9,31 @@ object singlestep {
   val helptext = "usage: singlestep <test name> <CPU type>"
 
   val commands = """Help for the single stepper:
-    | ?               : print this help
-    | print reg <num> : print the value in register
-    | print regs      : print values in all registers
-    | print pc        : print the address in the pc
-    | print inst      : print the disassembly for the current instruction
-    | q               : quit
+    | Note: Registers print the value *stored* in that register. The wires print
+    | the *current* value on the wire for that cycle.
+    |
+    | Printing registers
+    | ------------------
+    | print reg <num>  : print the value in register
+    | print regs       : print values in all registers
+    | print pc         : print the address in the pc
+    | print inst [addr]: print the disassembly for the instruction at addr.
+    |                    If no addr provided then use the current pc.
+    |
+    | Printing module I/O (wires)
+    | ---------------------------
+    | dump all        : Show all modules and the values of their I/O
+    | dump list       : List the valid modules to dump
+    | dump [module]   : Show values of the I/O on a specific module
+    |
+    | Controlling the simulator
+    | -------------------------
     | step [num]      : move forward this many cycles, default 1
+    |
+    | Other commands
+    | --------------
+    | ?               : print this help
+    | q               : quit
     |""".stripMargin
 
   def doPrint(tokens: Array[String], driver: CPUTesterDriver): Boolean = {
@@ -41,10 +59,38 @@ object singlestep {
         true
       }
       case "inst" => {
-        driver.printInst()
-        true
+        if (tokens.length == 2) {
+          driver.printInst()
+          true
+        } else if (tokens.length == 3) {
+          try {
+            driver.printInst(tokens(2).toInt)
+            true
+          } catch {
+            case e: NumberFormatException => false
+          }
+        } else {
+          false
+        }
       }
       case _ => false
+    }
+  }
+
+  def doDump(tokens: Array[String], driver: CPUTesterDriver): Boolean = {
+    tokens(1) match {
+      case "all" => {
+        driver.dumpAllModules()
+        true
+      }
+      case "list" => {
+        driver.listModules()
+        true
+      }
+      case _ => {
+        driver.dumpModule(tokens(1))
+        true
+      }
     }
   }
 
@@ -100,7 +146,7 @@ object singlestep {
     println(commands)
     var done = false
     while (!done) {
-      val tokens = scala.io.StdIn.readLine("Single stepper > ").split(" ")
+      val tokens = scala.io.StdIn.readLine("Single stepper> ").split(" ")
       if (tokens.length > 0) {
         tokens(0) match {
           case "?" => println(commands)
@@ -109,6 +155,11 @@ object singlestep {
           case "print" => {
             if (tokens.length > 1) {
               if (!doPrint(tokens, driver)) println(commands)
+            }
+          }
+          case "dump" => {
+            if (tokens.length > 1) {
+              if (!doDump(tokens, driver)) println(commands)
             }
           }
           case _ => println(commands)

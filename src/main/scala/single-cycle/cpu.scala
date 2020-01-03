@@ -119,28 +119,24 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
     next_pc := pcPlusFour.io.result
   }
 
-  // Debug / pipeline viewer
-  val structures = List(
-    (control, "control"),
-    (registers, "registers"),
-    (csr, "csr"),
-    (aluControl, "aluControl"),
-    (alu, "alu"),
-    (immGen, "immGen"),
-    (branchCtrl, "branchCtrl"),
-    (pcPlusFour, "pcPlusFour"),
-    (branchAdd, "branchAdd")
-  )
-
-  if (conf.debug) {
-    printf("DASM(%x)\n", instruction)
-    printf(p"CYCLE=$cycleCount\n")
-    printf(p"pc: $pc\n")
-    for (structure <- structures) {
-      printf(p"${structure._2}: ${structure._1.io}\n")
-    }
-    printf("\n")
-  }
-
   pc := next_pc
+}
+
+/*
+ * Object to make it easier to print information about the CPU
+ */
+object SingleCycleCPUInfo {
+  def getModules(): List[String] = {
+    List(
+      "control",
+      "registers",
+      "csr",
+      "aluControl",
+      "alu",
+      "immGen",
+      "branchCtrl",
+      "pcPlusFour",
+      "branchAdd"
+    )
+  }
 }
