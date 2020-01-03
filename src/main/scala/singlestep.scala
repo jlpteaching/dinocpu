@@ -138,7 +138,7 @@ object singlestep {
         "combnational-port"
       }
 
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true, memoryType,
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, memoryType,
       memoryPortType)
 
     driver.initRegs(test.initRegs)
