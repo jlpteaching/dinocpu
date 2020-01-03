@@ -390,3 +390,34 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   if (conf.debug) { printf("---------------------------------------------\n") }
 }
+
+/*
+ * Object to make it easier to print information about the CPU
+ */
+object PipelinedCPUInfo {
+  def getModules(): List[String] = {
+    List(
+      "control",
+      "branchCtrl",
+      "registers",
+      "aluControl",
+      "alu",
+      "immGen",
+      "pcPlusFour",
+      "branchAdd",
+      "forwarding",
+      "hazard",
+    )
+  }
+  def getPipelineRegs(): List[String] = {
+    List(
+      "if_id",
+      "id_ex",
+      "id_ex_ctrl",
+      "ex_mem",
+      "ex_mem_ctrl",
+      "mem_wb",
+      "mem_wb_ctrl"
+    )
+  }
+}
