@@ -16,7 +16,6 @@ class CPUTesterDriver(cpuType: String,
                       branchPredictor: String,
                       binary: String,
                       extraName: String = "",
-                      forceDebug: Boolean = false,
                       memType: String,
                       memPorts: String) {
 
@@ -35,7 +34,6 @@ class CPUTesterDriver(cpuType: String,
   conf.memFile     = hexName
   conf.memType     = memType
   conf.memPortType = memPorts
-  conf.debug = false // always run with debug print statements
 
   if (!branchPredictor.isEmpty) {
     conf.branchPredictor = branchPredictor
@@ -48,15 +46,6 @@ class CPUTesterDriver(cpuType: String,
   } else {
     s"src/test/resources/risc-v/${binary}"
   }
-
-  if (path.endsWith(".riscv")) {
-    // This is a long test, suppress the debugging output
-    println("WARNING: Suppressing debug output for long test.")
-    println("Modify CPUTesterDriver or use singlestep for debugging ouput.")
-    conf.debug = false
-  }
-
-  if (forceDebug) conf.debug = true
 
   // This compiles the chisel to firrtl
   val compiledFirrtl = build(optionsManager, conf)

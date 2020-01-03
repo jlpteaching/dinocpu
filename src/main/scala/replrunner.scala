@@ -39,8 +39,9 @@ object replrunner {
       }
 
     //setup test
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, true,
-      "combinational", "combinational-port")
+
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName,
+                          "combinational", "combinational-port")
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
 

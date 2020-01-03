@@ -33,9 +33,6 @@ class CPUConfig
   /** The backing memory type */
   var memType = "combinational"
 
-  /** For debugging output */
-  var debug = false
-
   /**
    * Returns the CPU that we will be elaborating
    *
