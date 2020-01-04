@@ -5,6 +5,7 @@ package dinocpu.test
 import dinocpu._
 import dinocpu.pipelined._
 import dinocpu.simulate.{build, elfToHex}
+import firrtl.stage.FirrtlSourceAnnotation
 import org.scalatest.{FlatSpec, Matchers}
 import treadle.TreadleTester
 import treadle.executable.TreadleException
@@ -49,7 +50,8 @@ class CPUTesterDriver(cpuType: String,
   val endPC = elfToHex(path, hexName)
 
   // Instantiate the simulator
-  val simulator = TreadleTester(compiledFirrtl, optionsManager)
+  val sourceAnnotation = FirrtlSourceAnnotation(compiledFirrtl)
+  val simulator = TreadleTester(sourceAnnotation +: optionsManager.toAnnotationSeq)
 
   def reset(): Unit = {
     simulator.reset(5)
