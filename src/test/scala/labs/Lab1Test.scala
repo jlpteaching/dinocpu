@@ -96,9 +96,30 @@ class SingleCycleAddTesterLab1 extends CPUFlatSpec {
 class SingleCycleRTypeTesterLab1 extends CPUFlatSpec {
   behavior of "Single Cycle CPU"
   for (test <- InstTests.rtype) {
-    it should s"run R-type instruction ${test.binary}${test.extraName}" in {
-      CPUTesterDriver(test, "single-cycle") should be(true)
+    if (test.binary !== "add0") {
+      it should s"run R-type instruction ${test.binary}${test.extraName}" in {
+        CPUTesterDriver(test, "single-cycle") should be(true)
+      }
     }
+  }
+}
+
+
+/**
+  * This is a trivial example of how to run this Specification
+  * From within sbt use:
+  * {{{
+  * Lab1 / testOnly dinocpu.SingleCycleAdd0TesterLab1
+  * }}}
+  * From a terminal shell use:
+  * {{{
+  * sbt 'Lab1 / testOnly dinocpu.SingleCycleAdd0TesterLab1'
+  * }}}
+  */
+class SingleCycleAdd0TesterLab1 extends CPUFlatSpec {
+  val test = InstTests.nameMap("add0")
+  "Single Cycle CPU" should s"run add test ${test.binary}${test.extraName}" in {
+    CPUTesterDriver(test, "single-cycle") should be(true)
   }
 }
 
