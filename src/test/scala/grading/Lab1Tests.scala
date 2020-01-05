@@ -68,7 +68,7 @@ class Lab1Grader extends JUnitSuite {
   }
 
   @Test
-  @GradedTest(name="All R types", max_score=20)
+  @GradedTest(name="All R types", max_score=15)
   def verifyRType() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -78,8 +78,31 @@ class Lab1Grader extends JUnitSuite {
 
       var success = true
       for (test <- InstTests.rtype) {
-        success = CPUTesterDriver(test, "single-cycle") && success
+        if (test.binary !== "add0") {
+          success = CPUTesterDriver(test, "single-cycle") && success
+        }
       }
+
+      // Dump the output of the driver above onto the system out so that the
+      // gradescope function will catch it.
+      System.out.print(stream)
+      if (!success) fail("Test failed!")
+    }
+  }
+
+  @Test
+  @GradedTest(name="Add instruction add0", max_score=5)
+  def verifyAdd0() {
+    // Capture all of the console output from the test
+    val stream = new java.io.ByteArrayOutputStream()
+    Console.withOut(stream) {
+
+      implicit val conf = new CPUConfig()
+
+      var success = true
+      val test = InstTests.nameMap("add0")
+
+      success = CPUTesterDriver(test, "single-cycle")
 
       // Dump the output of the driver above onto the system out so that the
       // gradescope function will catch it.
