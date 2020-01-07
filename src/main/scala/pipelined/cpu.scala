@@ -383,6 +383,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 object PipelinedCPUInfo {
   def getModules(): List[String] = {
     List(
+      "imem",
+      "dmem",
       "control",
       "branchCtrl",
       "registers",

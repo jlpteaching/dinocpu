@@ -138,10 +138,26 @@ class CPUTesterDriver(cpuType: String,
   }
 
   def getIO(module: String): Map[String,String] = {
-    val syms = simulator.engine.validNames.filter(name => name startsWith s"cpu.${module}.io_")
-    syms map {
-      sym => sym -> s"${module}.io.${sym.substring(sym.indexOf('_') + 1)}"
-    } toMap
+    module match {
+      case "dmem" => {
+        val syms = simulator.engine.validNames.filter(name => name startsWith s"cpu.io_dmem_")
+        syms map {
+          sym => sym -> sym.substring(sym.indexOf('_') + 1).replace('_', '.')
+        } toMap
+      }
+      case "imem" => {
+        val syms = simulator.engine.validNames.filter(name => name startsWith s"cpu.io_imem_")
+        syms map {
+          sym => sym -> sym.substring(sym.indexOf('_') + 1).replace('_', '.')
+        } toMap
+      }
+      case other => {
+        val syms = simulator.engine.validNames.filter(name => name startsWith s"cpu.${other}.io_")
+        syms map {
+          sym => sym -> s"${other}.io.${sym.substring(sym.indexOf('_') + 1)}"
+        } toMap
+      }
+    }
   }
 
   /**
