@@ -87,13 +87,11 @@ class HazardUnitMemStall extends Module {
   // dmem stall
   // Freeze the PC to preserve the current PC for imem
   // Disable any outbound instruction memory requests
-  // Disable writes for IF/ID
   // Disable writes for ID/EX
   // Disable writes for EX/MEM
   when (! io.dmem_ready) {
     io.pcwrite := 2.U
     io.imem_disable  := true.B
-    io.ifid_disable  := true.B
     io.idex_disable  := true.B
     io.exmem_disable := true.B
   }

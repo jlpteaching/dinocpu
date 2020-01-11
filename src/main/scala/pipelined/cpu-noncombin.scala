@@ -145,8 +145,8 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   io.imem.address := pc
 
   // Send a valid instruction request to instruction memory only if if_id isn't
-  // being bubbled or disabled
-  io.imem.valid := !hazard.io.ifid_bubble && !hazard.io.ifid_disable
+  // being bubbled and imem is ready
+  io.imem.valid := !hazard.io.ifid_bubble && io.imem.ready
 
   // Send imem state to the hazard unit
   hazard.io.imem_ready := io.imem.ready
@@ -155,9 +155,8 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   pcPlusFour.io.inputx := pc
   pcPlusFour.io.inputy := 4.U
 
-  // Write to if_id only if it isn't being bubbled or disabled, and there
-  // is valid data coming from imem
-  if_id.io.valid := io.imem.valid && io.imem.good
+  // Write to if_id only if it isn't being bubbled or stalled, and imem is giving a good instruction
+  if_id.io.valid := !hazard.io.ifid_bubble && !hazard.io.ifid_disable && io.imem.good
 
   // Connect outputs of IF stage into the stage register's in port
   if_id.io.in.instruction := io.imem.instruction
