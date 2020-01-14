@@ -128,6 +128,8 @@ class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
 object SingleCycleCPUInfo {
   def getModules(): List[String] = {
     List(
+      "dmem",
+      "imem",
       "control",
       "registers",
       "csr",
