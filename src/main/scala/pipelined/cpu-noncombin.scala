@@ -23,6 +23,12 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
     val pcplusfour  = UInt(32.W)
   }
 
+  // The program counters that need to be saved during imem stalls
+  class IFIDPCBundle extends Bundle {
+    val pc          = UInt(32.W)
+    val pcplusfour  = UInt(32.W)
+  }
+
   // Control signals used in EX stage
   class EXControl extends Bundle {
     val add       = Bool()
@@ -110,7 +116,7 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
   // The four pipeline registers
-  val if_id       = Module(new StageReg(new IFIDBundle))
+  val if_id      = Module(new StageReg(new IFIDBundle))
 
   val id_ex       = Module(new StageReg(new IDEXBundle))
   val id_ex_ctrl  = Module(new StageReg(new IDEXControl))
@@ -134,6 +140,7 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   /////////////////////////////////////////////////////////////////////////////
   // FETCH STAGE
   /////////////////////////////////////////////////////////////////////////////
+
   // Note: This comes from the memory stage!
   // Only update the pc if the pcwrite flag is enabled
   pc := MuxCase(0.U, Array(
@@ -144,9 +151,11 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Send the PC to the instruction memory port to get the instruction
   io.imem.address := pc
 
-  // Send a valid instruction request to instruction memory only if if_id isn't
-  // being bubbled and imem is ready
-  io.imem.valid := !hazard.io.ifid_bubble && io.imem.ready
+  // Send a valid instruction request to instruction memory if:
+  // - if_id isn't being bubbled
+  // - imem is ready
+  // - ifid isn't being flushed
+  io.imem.valid := !hazard.io.ifid_flush && !hazard.io.ifid_bubble && io.imem.ready
 
   // Send imem state to the hazard unit
   hazard.io.imem_ready := io.imem.ready
@@ -155,13 +164,30 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   pcPlusFour.io.inputx := pc
   pcPlusFour.io.inputy := 4.U
 
+  // The intermediate PC buffer
+  // When sending a memory request to imem, the CPU must wait at least one cycle for the request
+  // to finish; however during this cycle it is possible for the PC to update to the next PC.
+  // So, when imem finishes, the PC and PC+4 values being supplied to IFID are that of the
+  // next instruction and not the current one. This will end up breaking jump instructions that
+  // link the current PC to a register
+
+  // This buffer is used to store the PC and PC+4's current value at the time of sending a valid
+  // instruction request to imem.
+  val if_id_pc    = Module(new StageReg(new IFIDPCBundle))
+  if_id_pc.io.flush := hazard.io.ifid_flush
+  // Write to if_id_pc only if if_id itself isn't being bubbled or stalled, and if
+  // imem is being given an instruction request
+  if_id_pc.io.valid := !hazard.io.ifid_bubble && !hazard.io.ifid_disable && io.imem.valid
+  if_id_pc.io.in.pc         := pc
+  if_id_pc.io.in.pcplusfour := pcPlusFour.io.result
+
   // Write to if_id only if it isn't being bubbled or stalled, and imem is giving a good instruction
   if_id.io.valid := !hazard.io.ifid_bubble && !hazard.io.ifid_disable && io.imem.good
 
   // Connect outputs of IF stage into the stage register's in port
   if_id.io.in.instruction := io.imem.instruction
-  if_id.io.in.pc          := pc
-  if_id.io.in.pcplusfour  := pcPlusFour.io.result
+  if_id.io.in.pc          := if_id_pc.io.data.pc
+  if_id.io.in.pcplusfour  := if_id_pc.io.data.pcplusfour
 
   if_id.io.flush  := hazard.io.ifid_flush
 
@@ -333,6 +359,7 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Send next_pc back to the fetch stage
   next_pc := ex_mem.io.data.nextpc
+
 
   // Send input signals to the hazard detection unit
   hazard.io.exmem_taken := ex_mem_ctrl.io.data.mem_ctrl.taken

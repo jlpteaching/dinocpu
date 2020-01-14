@@ -80,8 +80,11 @@ class HazardUnitMemStall extends Module {
   // imem stall:
   // Freeze the PC to preserve the current PC for the entire stall period,
   // so that on un-stall the next PC points to the next instruction
+  // Disable exmem so that re-execution of the same instruction doesn't have any
+  // residual effect (jal)
   when (! io.imem_ready) {
-    io.pcwrite := 2.U
+    io.pcwrite       := 2.U
+    io.exmem_disable := true.B
   }
 
   // dmem stall
