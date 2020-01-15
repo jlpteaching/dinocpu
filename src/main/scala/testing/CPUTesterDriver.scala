@@ -17,9 +17,8 @@ class CPUTesterDriver(cpuType: String,
                       branchPredictor: String,
                       binary: String,
                       memType: String,
-                      memPorts: String) {
-                      extraName: String = "") {
-
+                      memPorts: String,
+                      extraName: String) {
   val optionsManager = new SimulatorOptionsManager()
 
   if (optionsManager.targetDirName == ".") {
@@ -245,8 +244,8 @@ object CPUTesterDriver {
   def apply(testCase: CPUTestCase, cpuType: String, branchPredictor: String = "",
             memType: String = "combinational", memPortType: String = "combinational-port"): Boolean = {
     val cpustr = if (branchPredictor != "") { cpuType+"-bp" } else { cpuType }
-    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, testCase.extraName, memType,
-      memPortType)
+    val driver = new CPUTesterDriver(cpustr, branchPredictor, testCase.binary, memType,
+      memPortType, testCase.extraName)
     driver.initRegs(testCase.initRegs)
     driver.initMemory(testCase.initMem)
     driver.run(testCase.cycles(cpuType))
