@@ -277,7 +277,6 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
                            (forwarding.io.forwardA === 1.U) -> ex_mem.io.data.aluresult,
                            (forwarding.io.forwardA === 2.U) -> write_data))
 
-
   val alu_inputx = Wire(UInt(32.W))
   // Insert the ALU inpux mux here (line 59 of single-cycle/cpu.scala)
   alu_inputx := MuxCase(0.U, Array(
@@ -360,10 +359,12 @@ class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Send next_pc back to the fetch stage
   next_pc := ex_mem.io.data.nextpc
 
-
   // Send input signals to the hazard detection unit
-  hazard.io.exmem_taken := ex_mem_ctrl.io.data.mem_ctrl.taken
-  hazard.io.dmem_ready := io.dmem.ready
+  hazard.io.exmem_taken   := ex_mem_ctrl.io.data.mem_ctrl.taken
+  hazard.io.exmem_memread := ex_mem_ctrl.io.data.mem_ctrl.memread
+  hazard.io.exmem_rd      := ex_mem.io.data.writereg
+  hazard.io.dmem_ready    := io.dmem.ready
+  hazard.io.dmem_good     := io.dmem.good
 
   // Send input signals to the forwarding unit
   forwarding.io.exmemrd := ex_mem.io.data.writereg

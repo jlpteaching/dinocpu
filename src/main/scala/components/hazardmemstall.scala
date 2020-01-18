@@ -11,6 +11,7 @@ import chisel3._
  * Input:  rs2, the first source register number
  * Input:  idex_memread, true if the instruction in the ID/EX register is going to read from memory
  * Input:  idex_rd, the register number of the destination register for the instruction in the ID/EX register
+ * Input:  exmem_rd, the register number of the destination register for the instruction in the EX/MEM register
  * Input:  exmem_taken, if true, then we are using the nextpc in the EX/MEM register, *not* pc+4.
  * Input:  imem_good, high if instruction memory is idle and ready.
  * Input:  dmem_good, high if data memory is idle and ready.
@@ -35,12 +36,14 @@ class HazardUnitMemStall extends Module {
     val rs2           = Input(UInt(5.W))
     val idex_memread  = Input(Bool())
     val idex_rd       = Input(UInt(5.W))
+    val exmem_memread = Input(Bool())
+    val exmem_rd      = Input(UInt(5.W))
     val exmem_taken   = Input(Bool())
     val imem_ready    = Input(Bool())
     val dmem_ready    = Input(Bool())
+    val dmem_good     = Input(Bool())
 
     val pcwrite       = Output(UInt(2.W))
-    val imem_disable  = Output(Bool())
     val ifid_bubble   = Output(Bool())
     val ifid_disable  = Output(Bool())
     val ifid_flush    = Output(Bool())
@@ -52,7 +55,6 @@ class HazardUnitMemStall extends Module {
 
   // default
   io.pcwrite       := 0.U
-  io.imem_disable  := false.B
   io.ifid_bubble   := false.B
   io.ifid_disable  := false.B
   io.ifid_flush    := false.B
@@ -61,9 +63,11 @@ class HazardUnitMemStall extends Module {
   io.exmem_bubble  := false.B
   io.exmem_disable := false.B
 
-  // Load to use hazard.
-  when (io.idex_memread &&
-        (io.idex_rd === io.rs1 || io.idex_rd === io.rs2)) {
+  // Load to use hazard:
+  // Bubble ifid and idex when a load is in ex, or if it is in ex and the data memory
+  // hasn't responded with valid data yet (the read data must be present on dmem.io.readdata before we proceed)
+  when ((io.idex_memread && (io.idex_rd === io.rs1 || io.idex_rd === io.rs2)) ||
+        (io.exmem_memread || ! io.dmem_ready && (io.exmem_rd === io.rs1 || io.exmem_rd === io.rs2))) {
     io.pcwrite     := 2.U
     io.ifid_bubble := true.B
     io.idex_bubble := true.B
@@ -84,18 +88,16 @@ class HazardUnitMemStall extends Module {
   // residual effect (jal)
   when (! io.imem_ready) {
     io.pcwrite       := 2.U
-    io.exmem_disable := true.B
+    io.exmem_bubble := true.B
   }
 
   // dmem stall
   // Freeze the PC to preserve the current PC for imem
-  // Disable any outbound instruction memory requests
   // Disable writes for ID/EX
   // Disable writes for EX/MEM
   when (! io.dmem_ready) {
     io.pcwrite := 2.U
-    io.imem_disable  := true.B
-    io.idex_disable  := true.B
-    io.exmem_disable := true.B
+    io.idex_bubble  := true.B
+    io.exmem_bubble := true.B
   }
 }
