@@ -73,14 +73,6 @@ class HazardUnitMemStall extends Module {
     io.idex_bubble := true.B
   }
 
-  // branch flush
-  when (io.exmem_taken && io.imem_ready && io.dmem_ready) {
-    io.pcwrite := 1.U // use the PC from mem stage
-    io.ifid_flush   := true.B
-    io.idex_bubble  := true.B
-    io.exmem_bubble := true.B
-  }
-
   // imem stall:
   // Freeze the PC to preserve the current PC for the entire stall period,
   // so that on un-stall the next PC points to the next instruction
@@ -97,6 +89,14 @@ class HazardUnitMemStall extends Module {
   // Disable writes for EX/MEM
   when (! io.dmem_ready) {
     io.pcwrite := 2.U
+    io.idex_bubble  := true.B
+    io.exmem_bubble := true.B
+  }
+
+  // branch flush
+  when (io.exmem_taken) {
+    io.pcwrite := 1.U // use the PC from mem stage
+    io.ifid_flush   := true.B
     io.idex_bubble  := true.B
     io.exmem_bubble := true.B
   }
