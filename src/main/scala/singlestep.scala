@@ -26,6 +26,11 @@ object singlestep {
     | dump list       : List the valid modules to dump
     | dump [module]   : Show values of the I/O on a specific module
     |
+    | Printing pipeline registers (pipelined CPU only)
+    | ------------------------------------------------
+    | print pipereg <name> : Print the values in the pipeline register with name <name>
+    | print piperegs       : Print the values in all of the pipeline registers
+    |
     | Controlling the simulator
     | -------------------------
     | step [num]      : move forward this many cycles, default 1
@@ -52,6 +57,14 @@ object singlestep {
       }
       case "regs" => {
         driver.printRegs()
+        true
+      }
+      case "pipereg" => {
+        driver.printPipeReg(tokens(2))
+        true
+      }
+      case "piperegs" => {
+        driver.printAllPipeRegs()
         true
       }
       case "pc" => {

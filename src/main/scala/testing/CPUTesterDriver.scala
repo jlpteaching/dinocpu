@@ -123,16 +123,24 @@ class CPUTesterDriver(cpuType: String,
   }
 
   def dumpModule(module: String): Unit = {
-    val modules: List[String] = conf.cpuType match {
-      case "single-cycle" => SingleCycleCPUInfo.getModules()
-      case "pipelined" => PipelinedCPUInfo.getModules()
-      case other => {
-        println(s"Cannot dump info for CPU type ${other}")
-        List()
-      }
-    }
     for ((symbol, name) <- getIO(module)) {
       val v = simulator.peek(symbol)
+      println(s"${name.padTo(30, ' ')} ${v} (0x${v.toInt.toHexString})")
+    }
+  }
+
+  def printAllPipeRegs(): Unit = {
+    for (reg <- PipelinedCPUInfo.getPipelineRegs()) {
+      printPipeReg(reg)
+    }
+  }
+
+  def printPipeReg(module: String): Unit = {
+    val syms = simulator.engine.validNames.filter(
+      name => (name startsWith s"cpu.${module}.reg_") && !(name endsWith "/in"))
+    for (sym <- syms) {
+      val name = s"${module}.${sym.split('.').last.drop(4)}"
+      val v = simulator.peek(sym)
       println(s"${name.padTo(30, ' ')} ${v} (0x${v.toInt.toHexString})")
     }
   }
