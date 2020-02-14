@@ -349,13 +349,3 @@ simulator_run_dir
 # For containers
 *.sif
 .treadle_repl_history
-
-.bloop/
-.metals/
-project/metals.sbt
-src/main/scala/GPATH
-src/main/scala/GRTAGS
-src/main/scala/GTAGS
-src/test/GPATH
-src/test/GRTAGS
-src/test/GTAGS
