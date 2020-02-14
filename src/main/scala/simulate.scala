@@ -75,8 +75,6 @@ object simulate {
 
   def build(optionsManager: SimulatorOptionsManager, conf: CPUConfig): String = {
     optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(compilerName = "low")
-    val annos = firrtl.Driver.getAnnotations(optionsManager)
-    optionsManager.firrtlOptions = optionsManager.firrtlOptions.copy(annotations = annos.toList)
 
     chisel3.Driver.execute(optionsManager, () => new Top(conf)) match {
     case ChiselExecutionSuccess(Some(_), _, Some(firrtlExecutionResult)) =>
