@@ -261,8 +261,7 @@ object singlestep {
         tokens(0) match {
           case "?" => println(commands)
           case "q" | "Q" => done = true
-          case "s" | "step" => if (!doStep(tokens, driver)) println(commands) 
-                          else doDisplay(displayList, driver)
+          case "s" | "step" if doStep(tokens, driver) => doDisplay(displayList, driver)
           case "p" | "print" => {
             if (tokens.length > 1) {
               if (!doPrint(tokens, driver)) println(commands)
