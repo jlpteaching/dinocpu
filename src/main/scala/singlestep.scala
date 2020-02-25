@@ -8,6 +8,8 @@ import org.jline.terminal.TerminalBuilder
 import org.jline.builtins.Completers.TreeCompleter
 import org.jline.builtins.Completers.TreeCompleter.node
 import scala.util.control.Breaks._
+import scala.collection.mutable
+
 
 object singlestep {
   val helptext = "usage: singlestep <test name> <CPU type>"
@@ -39,11 +41,44 @@ object singlestep {
     | -------------------------
     | step [num]      : move forward this many cycles, default 1
     |
+    | Display command (display value after step)
+    | ---------------------------------------
+    | display reg <num>
+    | display regs
+    | display pc
+    | display inst
+    | display pipereg <name>
+    | display piperegs
+    | display modules
+    | display module [module]
+    |
+    | Stop Displaying command
+    | -----------------------
+    | undisplay <num>  : remove the ith display line
+    |
     | Other commands
     | --------------
     | ?               : print this help
     | q               : quit
+    |
+    | Command Alias
+    | -------------
+    | p: print
+    | d: display
+    | s: step
+    |
     |""".stripMargin
+
+  val DisplayAcceptedCommands = Array[String](
+    "pc",
+    "reg",
+    "regs",
+    "inst",
+    "pipereg",
+    "piperegs",
+    "module",
+    "modules"
+  )
 
   def doPrint(tokens: Array[String], driver: CPUTesterDriver): Boolean = {
     tokens(1) match {
@@ -125,6 +160,44 @@ object singlestep {
     }
   }
 
+  def doDisplay(displayList: Seq[Array[String]], driver: CPUTesterDriver) {
+    var count = 0
+    for (command <- displayList) {
+      count += 1
+      print(count + ": ")
+      command(1) match {
+        case "reg" | "regs" | "pipereg" | "piperegs" | "pc" | "inst" => doPrint(command, driver)
+        case "modules" => doDump(Array("dump", "all"), driver)
+        case "module" => doDump(command.slice(1, command.length), driver)
+      }
+    }
+  }
+
+  def displayCommandOkay(tokens: Seq[String]): Boolean = {
+    if (tokens.length > 1 && DisplayAcceptedCommands.contains(tokens(1))) {
+      tokens(1) match {
+        case "pc" => return tokens.length == 2
+        case "regs" | "piperegs" | "modules" => return tokens.length == 2
+        case "module" | "pipereg" => return tokens.length == 3
+        case "inst" => {
+          if (tokens.length == 3) {
+            try {
+              val i = tokens(2).toInt
+            } catch {
+              case e: Exception => return false
+            }
+          } else if(tokens.length > 3) {
+            return false
+          }
+          return true
+        }
+        case _ => return false
+      }
+    }
+
+    return false
+  }
+
   def main(args: Array[String]): Unit = {
     require(args.length >= 2, "Error: Expected at least two argument\n" + helptext)
 
@@ -168,6 +241,7 @@ object singlestep {
         node("?"),
         node("q")))
       .build
+    var displayList: mutable.ListBuffer[Array[String]] = mutable.ListBuffer()
 
     while (!done) {
       var line: String =
@@ -187,8 +261,9 @@ object singlestep {
         tokens(0) match {
           case "?" => println(commands)
           case "q" | "Q" => done = true
-          case "step" => if (!doStep(tokens, driver)) println(commands)
-          case "print" => {
+          case "s" | "step" => if (!doStep(tokens, driver)) println(commands) 
+                          else doDisplay(displayList, driver)
+          case "p" | "print" => {
             if (tokens.length > 1) {
               if (!doPrint(tokens, driver)) println(commands)
             }
@@ -199,6 +274,16 @@ object singlestep {
             }
           }
           case "" => ""
+          case "d" | "display" if displayCommandOkay(tokens) => displayList += tokens
+          case "undisplay" if tokens.length == 2 => {
+            try {
+              val index = tokens(1).toInt
+              displayList.remove(index - 1)
+            } catch {
+              case e: java.lang.NumberFormatException => println(tokens(1) + " is not an integer")
+              case e: java.lang.IndexOutOfBoundsException => println(tokens(1) + " is not in display")
+            }
+          }
           case _ => println(commands)
         }
       }
