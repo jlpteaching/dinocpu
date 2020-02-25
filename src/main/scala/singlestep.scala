@@ -241,7 +241,7 @@ object singlestep {
         node("?"),
         node("q")))
       .build
-      
+
     var displayList: mutable.ListBuffer[Array[String]] = mutable.ListBuffer()
 
     while (!done) {
@@ -283,7 +283,7 @@ object singlestep {
               case e: java.lang.IndexOutOfBoundsException => println(tokens(1) + " is not in display")
             }
           }
-          case "" => ""
+          case "" =>
           case _ => println(commands)
         }
       }
