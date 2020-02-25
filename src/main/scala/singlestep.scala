@@ -283,6 +283,7 @@ object singlestep {
               case e: java.lang.IndexOutOfBoundsException => println(tokens(1) + " is not in display")
             }
           }
+          case "" =>
           case _ => println(commands)
         }
       }
