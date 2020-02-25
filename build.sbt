@@ -58,6 +58,9 @@ libraryDependencies += "junit" % "junit" % "4.12" % Test
 // For understanding elfs and directly running binary files
 libraryDependencies += "net.fornwall.jelf" % "jelf" % "0.4.1"
 
+// For visualization, figure out how to move this somewhere else
+libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.1.1"
+
 // This sets it up so all tests that end in "Tester" will be run when you run sbt test
 // and all tests that end in "Grader" will run when you run stb Grader / test
 lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
@@ -92,7 +95,7 @@ lazy val root = (project in file("."))
     libraryDependencies += scalatest % Lab4,
     testOptions in TestAll := Seq(Tests.Filter(allFilter)),
     // CHANGE THE LINE BELOW FOR EACH LAB!!!! Use the matching filter
-    testOptions in Test := Seq(Tests.Filter(allFilter)),
+    testOptions in Test := Seq(Tests.Filter(lab3Filter)),
     testOptions in Grader := Seq(Tests.Filter(graderFilter)),
     testOptions in Lab1 := Seq(Tests.Filter(lab1Filter)),
     testOptions in Lab2 := Seq(Tests.Filter(lab2Filter)),
