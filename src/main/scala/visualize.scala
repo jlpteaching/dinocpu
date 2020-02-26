@@ -555,6 +555,23 @@ class UI(model: CircuitModel) extends MainFrame {
   preferredSize = new Dimension(800, 640)
   contents = mainPane
 
+  menuBar = new MenuBar {
+    contents += new Menu("About") {
+      contents += new BoxPanel(Orientation.Horizontal) {
+        contents += Swing.HStrut(10)
+        contents += new BoxPanel(Orientation.Vertical) {
+          contents += Swing.VStrut(10)
+          contents += new Label("Author: Kaelan Mikowicz")
+          contents += Swing.VStrut(10)
+          contents += new Label("Email: kaelan.miko@gmail.com")
+          contents += Swing.VStrut(10)
+        }
+        contents += Swing.HStrut(10)
+      }
+      
+    }
+  }
+
   listenTo(stepButton)
 
   def setStepButtonAction(action: Action) {
