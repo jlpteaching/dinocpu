@@ -8,7 +8,7 @@ From: openjdk:8u212
     dpkg -i sbt-1.3.4.deb && \
     rm sbt-1.3.4.deb && \
     apt-get update && \
-    apt-get install sbt
+    apt-get install -y sbt libxext6 libfontconfig1 libxrender1 libxtst6
 
 %runscript
     sbt -mem 2048
