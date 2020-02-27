@@ -60,6 +60,9 @@ libraryDependencies += "junit" % "junit" % "4.12" % Test
 // For understanding elfs and directly running binary files
 libraryDependencies += "net.fornwall.jelf" % "jelf" % "0.4.1"
 
+// For visualization, figure out how to move this somewhere else
+libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.1.1"
+
 // This sets it up so all tests that end in "Tester" will be run when you run sbt test
 // and all tests that end in "Grader" will run when you run stb Grader / test
 lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
