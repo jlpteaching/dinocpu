@@ -156,14 +156,14 @@ object Disassembler {
     *
     */
   def parseAuipc(instr:Instruction):String={
-    "lui x" + instr.rd + " " + instr.uImm
+    "auipc x" + instr.rd + " " + instr.uImm
   }
 
   /** Decodes Lui instruction
     *
     */
   def parseLui(instr:Instruction):String={
-    "auipc x" + instr.rd + " " + instr.uImm
+    "lui x" + instr.rd + " " + instr.uImm
   }
 
   /** Disassembles any of the RV32I instructions
@@ -181,8 +181,8 @@ object Disassembler {
       case BRANCH_OPCODE => parseBranch(instr)
       case JAR_OPCODE => parseJal(instr)
       case JALR_OPCODE => parseJalr(instr)
-      case AUIPC_OPCODE => parseBranch(instr)
-      case LUI_OPCODE => parseBranch(instr)
+      case AUIPC_OPCODE => parseAuipc(instr)
+      case LUI_OPCODE => parseLui(instr)
       case _ => "Unknown"
     }
   }
