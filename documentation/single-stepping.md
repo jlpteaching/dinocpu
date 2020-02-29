@@ -48,11 +48,11 @@ This command prompt will take a variety of different inputs:
 
  Display command (display value after step)
  ---------------------------------------
- display reg <num>
+ display reg [num]
  display regs
  display pc
  display inst
- display pipereg <name>
+ display pipereg [name]
  display piperegs
  display modules
  display module [module]

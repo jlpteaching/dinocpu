@@ -43,11 +43,11 @@ object singlestep {
     |
     | Display command (display value after step)
     | ---------------------------------------
-    | display reg <num>
+    | display reg [num]
     | display regs
     | display pc
     | display inst
-    | display pipereg <name>
+    | display pipereg [name]
     | display piperegs
     | display modules
     | display module [module]
@@ -178,7 +178,7 @@ object singlestep {
       tokens(1) match {
         case "pc" => return tokens.length == 2
         case "regs" | "piperegs" | "modules" => return tokens.length == 2
-        case "module" | "pipereg" => return tokens.length == 3
+        case "module" | "pipereg" | "reg" => return tokens.length == 3
         case "inst" => {
           if (tokens.length == 3) {
             try {
