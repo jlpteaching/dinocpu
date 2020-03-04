@@ -39,6 +39,30 @@ This command prompt will take a variety of different inputs:
  dump list       : List the valid modules to dump
  dump [module]   : Show values of the I/O on a specific module
 
+
+ Printing pipeline registers (pipelined CPU only)
+ ------------------------------------------------
+ print pipereg <name> : Print the values in the pipeline register with name <name>
+ print piperegs       : Print the values in all of the pipeline registers
+
+
+ Display command (display value after step)
+ ---------------------------------------
+ display reg [num]
+ display regs
+ display pc
+ display inst
+ display pipereg [name]
+ display piperegs
+ display modules
+ display module [module]
+
+
+ Stop Displaying command
+ -----------------------
+ undisplay <num>  : remove the ith display line
+
+
  Controlling the simulator
  -------------------------
  step [num]      : move forward this many cycles, default 1
