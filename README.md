@@ -65,7 +65,7 @@ To compile your Chisel design into Verilog, you can run the `elaborate` main fun
 As an example:
 
 ```
-sbt:dinocpu> runMain elaborate single-cycle
+sbt:dinocpu> runMain dinocpu.elaborate single-cycle
 ```
 The generated verilog will be available in the root folder as `Top.v` along with some meta-data. You may also get some generated verilog for auxillary devices like memory as `Top.<device_name>.v`
 
