@@ -55,6 +55,8 @@ abstract class BaseIMemPort extends Module {
   // ports internally assigning values to the, means that these DontCares
   // should be completely 'overwritten' when the CPU is elaborated
   io.bus      <> DontCare
+
+  io.pipeline.good := io.bus.response.valid
 }
 
 /**

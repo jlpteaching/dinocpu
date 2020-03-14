@@ -6,8 +6,7 @@ package dinocpu
 import java.io.File
 import dinocpu.components._
 import dinocpu.memory._
-import dinocpu.pipelined.PipelinedCPU
-import dinocpu.pipelined.PipelinedCPUBP
+import dinocpu.pipelined._
 
 /**
  * This class configures all of the dinocpus. It takes parameters for the type of CPU model
@@ -45,6 +44,7 @@ class CPUConfig
       case "single-cycle" => new SingleCycleCPU
       case "pipelined" => new PipelinedCPU
       case "pipelined-bp" => new PipelinedCPUBP
+      case "pipelined-non-combin" => new PipelinedNonCombinCPU
       case _ => throw new IllegalArgumentException("Must specify known CPU model")
     }
   }

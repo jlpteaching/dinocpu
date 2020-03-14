@@ -17,12 +17,26 @@ class OutstandingReq extends Bundle {
 
 /**
  * The instruction memory port. Since both the combinational and noncombinational instruction ports just issue
- * read requests in the same way both ports have the same implementation
+ * read requests in the same way both ports share the same implementation
  *
  * The I/O for this module is defined in [[IMemPortIO]].
  */
 class INonCombinMemPort extends ICombinMemPort {
-  io.pipeline.good := io.bus.response.valid
+  // Non-combinational memory can technically always accept requests since they are delayed through a pipe.
+  // But we want to be able to signal that the memory is holding a request, so a register is used to store
+  // whether a request passed through this memory port
+  val imemBusy  = RegInit (false.B)
+
+  when (io.pipeline.valid) {
+    imemBusy := true.B
+  } .elsewhen (io.bus.response.valid) {
+    imemBusy := false.B
+  }
+
+  // Memory is ready when the backing memory responds with valid data, or the busy register is false.
+  // If io.bus.response.valid is true, then imemBusy must be false as the when statements above updates
+  // imemBusy on the next cycle.
+  io.pipeline.ready := (! imemBusy || io.bus.response.valid)
 }
 
 /**
@@ -31,6 +45,11 @@ class INonCombinMemPort extends ICombinMemPort {
  * The I/O for this module is defined in [[DMemPortIO]].
  */
 class DNonCombinMemPort extends BaseDMemPort {
+  // Non-combinational memory can technically always accept requests since they are delayed through a pipe.
+  // But we want to be able to signal that the memory is holding a request, so a register is used to store
+  // whether a request passed through this memory port
+  // In this case outstandingReq is adequate for this purpose, as outstandingReq.valid is true when this port is
+  // withholding either a read or write request
 
   // A register to hold intermediate data (e.g., write data, mask mode) while the request
   // is outstanding to memory.
@@ -46,7 +65,12 @@ class DNonCombinMemPort extends BaseDMemPort {
   // Ready if either we don't have an outstanding request or the outstanding request is a read and
   // it has been satisfied this cycle. Note: we cannot send a read until one cycle after the write has
   // been sent.
-  val ready = !outstandingReq.valid || (io.bus.response.valid && (outstandingReq.valid && outstandingReq.bits.operation === MemoryOperation.Read))
+  val wasRequestARead = outstandingReq.valid && outstandingReq.bits.operation === MemoryOperation.Read
+
+  val ready = !outstandingReq.valid || (io.bus.response.valid && wasRequestARead)
+
+  io.pipeline.ready := ready
+
   when (io.pipeline.valid && (io.pipeline.memread || io.pipeline.memwrite) && ready) {
     // Check if we aren't issuing both a read and write at the same time
     assert (! (io.pipeline.memread && io.pipeline.memwrite))

@@ -214,7 +214,23 @@ object singlestep {
       ""
     }
 
-    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName)
+    val memoryType =
+      if (params.length == 4) {
+        params(2)
+      } else {
+        "combinational"
+      }
+
+    val memoryPortType =
+      if (params.length == 4) {
+        params(3)
+      } else {
+        "combnational-port"
+      }
+
+    val driver = new CPUTesterDriver(cpuType, predictor, test.binary, test.extraName, memoryType,
+      memoryPortType)
+
     driver.initRegs(test.initRegs)
     driver.initMemory(test.initMem)
     println(commands)

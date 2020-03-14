@@ -26,7 +26,8 @@ class NonCombinMemoryTestHarness(size: Int, memFile: String, latency: Int) exten
     val imem_valid        = Input(Bool())
     val imem_instruction  = Output(UInt(32.W)) 
     val imem_good         = Output(Bool())
-    
+    val imem_ready        = Output(Bool())
+
     val dmem_address      = Input(UInt(32.W))
     val dmem_valid        = Input(Bool())
     val dmem_writedata    = Input(UInt(32.W))
@@ -36,6 +37,7 @@ class NonCombinMemoryTestHarness(size: Int, memFile: String, latency: Int) exten
     val dmem_sext         = Input(Bool()) 
     val dmem_readdata     = Output(UInt(32.W)) 
     val dmem_good         = Output(Bool())
+    val dmem_ready        = Output(Bool())
   })
   io := DontCare
 
@@ -50,6 +52,7 @@ class NonCombinMemoryTestHarness(size: Int, memFile: String, latency: Int) exten
   imem.io.pipeline.valid       := io.imem_valid
   io.imem_instruction := imem.io.pipeline.instruction
   io.imem_good        := imem.io.pipeline.good
+  io.imem_ready       := imem.io.pipeline.ready
   dmem.io.pipeline.address     := io.dmem_address
   dmem.io.pipeline.valid       := io.dmem_valid
   dmem.io.pipeline.writedata   := io.dmem_writedata
@@ -59,12 +62,15 @@ class NonCombinMemoryTestHarness(size: Int, memFile: String, latency: Int) exten
   dmem.io.pipeline.sext        := io.dmem_sext
   io.dmem_readdata    := dmem.io.pipeline.readdata
   io.dmem_good        := dmem.io.pipeline.good
+  io.dmem_ready       := dmem.io.pipeline.ready
 
   memory.wireMemory (imem, dmem)
 }
 
 // Test instruction port reading a zeroed memory file
 class AsyncMemoryUnitTester$IMemZero(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+  // Expect high for ready and low for good (no data outputted)
+  expect(m.io.imem_ready, 1)
   expect(m.io.imem_good, 0)
 
   // Expect 0's on the instruction port
@@ -75,18 +81,22 @@ class AsyncMemoryUnitTester$IMemZero(m: NonCombinMemoryTestHarness, size: Int, l
     step(1)
     poke(m.io.imem_valid, 0)
     if (latency > 1) {
-      expect(m.io.imem_good, 0)
+      // Expect low for ready, request was sent
+      expect(m.io.imem_ready, 0)
       step(latency - 1)
     }
 
+    // Expect high for good and high for ready
+    expect(m.io.imem_good,  1)
+    expect(m.io.imem_ready, 1)
     expect(m.io.imem_instruction, 0)
-    expect(m.io.imem_good, 1)
   }
 }
 
 // Test instruction port reading an ascending memory file
 class AsyncMemoryUnitTester$IMemRead(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
-  // Expect ascending bytes on instruction port
+  // Expect high for ready and low for good (no data outputted)
+  expect(m.io.imem_ready, 1)
   expect(m.io.imem_good, 0)
 
   for (i <- 0 until size/4) {
@@ -97,18 +107,24 @@ class AsyncMemoryUnitTester$IMemRead(m: NonCombinMemoryTestHarness, size: Int, l
     poke(m.io.imem_valid, 0)
 
     if (latency > 1) {
-      expect(m.io.imem_good, 0)
+      expect(m.io.imem_ready, 0)
       step(latency - 1)
     }
 
     expect(m.io.imem_instruction, i)
-    expect(m.io.imem_good, 1)
+    expect(m.io.imem_good,  1)
+    expect(m.io.imem_ready, 1)
   }
 }
 // Test data port writes and instruction port reads
 class AsyncMemoryUnitTester$IMemWrite(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+  expect(m.io.dmem_ready, 1)
   expect(m.io.dmem_good, 0)
-  // write ascending data to memory 
+
+  expect(m.io.imem_ready, 1)
+  expect(m.io.imem_good, 0)
+
+  // write ascending data to memory
   for (i <- 0 until size/8) {
     poke(m.io.dmem_address, i*4)
     poke(m.io.dmem_valid, 1)
@@ -121,12 +137,14 @@ class AsyncMemoryUnitTester$IMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
     poke(m.io.dmem_valid, 0)
     
     if (latency > 1) {
-      expect(m.io.dmem_good, 0)
+      expect(m.io.dmem_ready, 0)
       step(latency - 1)
     }
     // We wait 1 extra cycle for the data memory to send the write back
     step(1)
 
+    // Memory should be ready
+    expect(m.io.dmem_ready, 1)
     // Memory shouldn't be outputting high on good
     expect(m.io.dmem_good, 0)
   }
@@ -142,7 +160,7 @@ class AsyncMemoryUnitTester$IMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
     step(1)
     poke(m.io.imem_valid, 0)
     if (latency > 1) {
-      expect(m.io.imem_good, 0)
+      expect(m.io.imem_ready, 0)
       step(latency - 1)
     }
    
@@ -151,12 +169,14 @@ class AsyncMemoryUnitTester$IMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
     } else {
       expect(m.io.imem_instruction, i)
     }
-    expect(m.io.imem_good, 1)
+    expect(m.io.imem_ready, 1)
+    expect(m.io.imem_good,  1)
   }
 }
 
 // Test data port reading a zeroed memory file
 class AsyncMemoryUnitTester$DMemZero(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+  expect(m.io.dmem_ready, 1)
   expect(m.io.dmem_good, 0)
 
   // Expect 0's on the data port
@@ -170,18 +190,21 @@ class AsyncMemoryUnitTester$DMemZero(m: NonCombinMemoryTestHarness, size: Int, l
     step(1)
     poke(m.io.dmem_valid, 0)
     if (latency > 1) {
-      expect(m.io.dmem_good, 0)
+      expect(m.io.dmem_ready, 0)
       step(latency - 1)
     }  
 
     expect(m.io.dmem_readdata, 0)
-    expect(m.io.dmem_good, 1)
+    expect(m.io.dmem_good,  1)
+    expect(m.io.dmem_ready, 1)
   }
 }
 
 // Test data port reading an ascending memory file
 class AsyncMemoryUnitTester$DMemRead(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+  expect(m.io.dmem_ready, 1)
   expect(m.io.dmem_good, 0)
+
 
   // Expect ascending bytes on data port
   for (i <- 0 until size/4) {
@@ -194,19 +217,22 @@ class AsyncMemoryUnitTester$DMemRead(m: NonCombinMemoryTestHarness, size: Int, l
     step(1)
     poke(m.io.dmem_valid, 0)
     if (latency > 1) {
-      expect(m.io.dmem_good, 0)
+      expect(m.io.dmem_ready, 0)
       step(latency - 1)
     }
     
     expect(m.io.dmem_readdata, i)
-    expect(m.io.dmem_good, 1)
+    expect(m.io.dmem_ready, 1)
+    expect(m.io.dmem_good,  1)
   }
 }
 
 // Test data port writes and data port reads
 class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, latency: Int) extends PeekPokeTester(m) {
+  expect(m.io.dmem_ready, 1)
   expect(m.io.dmem_good, 0)
-  // write ascending data to memory 
+
+  // write ascending data to memory
   for (i <- 0 until size/8) {
     poke(m.io.dmem_address, i*4)
     poke(m.io.dmem_valid, 1)
@@ -218,13 +244,15 @@ class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
     step(1)
     poke(m.io.dmem_valid, 0)
     if (latency > 1) {
-      expect(m.io.dmem_good, 0)
+      expect(m.io.dmem_ready, 0)
       step(latency - 1)
     }
     // We wait 1 extra cycle for the data memory to send the write back
     step(1)
 
+    // Memory should not be outputting high on good
     expect(m.io.dmem_good, 0)
+    expect(m.io.dmem_ready, 1)
   }
 
   poke (m.io.dmem_memwrite, 0)
@@ -241,7 +269,7 @@ class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
     step(1)
     poke(m.io.dmem_valid, 0)
     if (latency > 1) {
-      expect(m.io.dmem_good, 0)
+      expect(m.io.dmem_ready, 0)
       step(latency - 1)
     }
   
@@ -250,7 +278,8 @@ class AsyncMemoryUnitTester$DMemWrite(m: NonCombinMemoryTestHarness, size: Int, 
     } else {
       expect(m.io.dmem_readdata, i)
     }
-    expect(m.io.dmem_good, 1)
+    expect(m.io.dmem_ready, 1)
+    expect(m.io.dmem_good,  1)
   }
 }
 
