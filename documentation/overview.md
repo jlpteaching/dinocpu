@@ -12,7 +12,7 @@ We started using it in the Winter 2019 offering of 154B and we forsee making sig
 
 ## Working with the DINO CPU code
 
-You can find all of the details on how to work with the DINO CPU in the [README file](https://github.com/jlpteaching/dinocpu/README.md) and the [documentation](https://github.com/jlpteaching/dinocpu/tree/master/documentation) in the [DINO CPU repository](https://github.com/jlpteaching/dinocpu/).
+You can find all of the details on how to work with the DINO CPU in the [README file](https://github.com/jlpteaching/dinocpu/blob/master/README.md) and the [documentation](https://github.com/jlpteaching/dinocpu/tree/master/documentation) in the [DINO CPU repository](https://github.com/jlpteaching/dinocpu/).
 
 You must first download the template code before you can start working on the DINO CPU.
 The template code is on GitHub, so you can simply clone the repository:
