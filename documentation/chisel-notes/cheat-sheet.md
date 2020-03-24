@@ -63,7 +63,7 @@ This creates a wire `x` which will have the `true_value` on it if `selector` is 
 ## When-elsewhen-otherwise
 
 ```
-val x = Wire(UInt(3.U))
+val x = Wire(UInt(3.W))
 
 when(value === 0.U) {
   x := "b001".U
