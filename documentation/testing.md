@@ -159,7 +159,7 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
 
  # Adding your CPU Test Cases
  ## 1. Editing the given CPU Test Cases:
- Editing the already given CPU Test Cases with new values for initializing amd checking registers is very simple. Consider the test case for `add2.risv`. If we edit the test case to the following:
+ Editing the already given CPU Test Cases with new values for initializing amd checking registers is very simple. Consider the test case for `add2.riscv`. If we edit the test case to the following:
    ```
  CPUTestCase(  "add2",
                 Map("single-cycle" -> 1, "pipelined" -> 5),
