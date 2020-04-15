@@ -103,10 +103,10 @@ sbt:dinocpu> testOnly dinocpu.test.SingleCycleCPUTester -- -z add1
 
 ## CPU Test Case
 
-The `InstTests` object in`src/test/scala/cpu-tests/InstTests.scala`contains lists of different instruction test cases for use with different CPU models.Each list is a different set of instruction types and corresponds to a RISC-V program in `src/test/resources/risc-v`.
+The `InstTests` object in`src/main/scala/testing/InstTests.scala` contains lists of different instruction test cases for use with different CPU models. Each list is a different set of instruction types and corresponds to a RISC-V program in `src/test/resources/risc-v`.
 
 Each test case looks like:
- - binary to run in src/test/resources/risc-v
+ - binary to run in `src/test/resources/risc-v`
  - number of cycles to run for each CPU type
  - initial values for registers
  - final values to check for registers
@@ -159,7 +159,7 @@ In the CPUTestCase below, we run the binary `add2`, which is compiled from `add2
 
  # Adding your CPU Test Cases
  ## 1. Editing the given CPU Test Cases:
- Editing the already given CPU Test Cases with new values for initializing amd checking registers is very simple. Consider the test case for `add2.risv`. If we edit the test case to the following:
+ Editing the already given CPU Test Cases with new values for initializing amd checking registers is very simple. Consider the test case for `add2.riscv`. If we edit the test case to the following:
    ```
  CPUTestCase(  "add2",
                 Map("single-cycle" -> 1, "pipelined" -> 5),
