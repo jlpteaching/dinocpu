@@ -195,6 +195,11 @@ object InstTests {
                 Map(5 -> twoscomp(-1)),
 								Map(0 -> 0, 5 -> twoscomp(-1), 6 -> 0),
 								Map(), Map())
+		CPUTestCase("addi-funct7",
+				Map("single-cycle" -> 1, "pipelined" -> 1),
+				Map(28 -> 1099),
+								Map(0 -> 0, 5 -> 2123),
+								Map(), Map())
   )
 
 	val itypeMultiCycle = List[CPUTestCase](
