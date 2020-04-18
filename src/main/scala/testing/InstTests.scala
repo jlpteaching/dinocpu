@@ -194,7 +194,7 @@ object InstTests {
                 Map("single-cycle" -> 1, "pipelined" -> 5),
                 Map(5 -> twoscomp(-1)),
 								Map(0 -> 0, 5 -> twoscomp(-1), 6 -> 0),
-								Map(), Map())
+								Map(), Map()),
 		CPUTestCase("addi-funct7",
 				Map("single-cycle" -> 1, "pipelined" -> 1),
 				Map(28 -> 1099),
