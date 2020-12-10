@@ -1,13 +1,13 @@
 ---
 Authors: Jason Lowe-Power, Filipe Eduardo Borges
-Editor: Justin Perona
+Editor: Justin Perona, Julian Angeles
 Title: DINO CPU Assignment 1
 ---
 
 # DINO CPU Assignment 1
 
-Originally from ECS 154B Lab 1, Winter 2019
-
+Originally from ECS 154B Lab 1, Winter 2019.
+Modified for ECS 154B Lab 1, Spring 2020.
 
 # Table of Contents
 
@@ -44,7 +44,7 @@ Through this course, we will be building this CPU from the ground up.
 You will be provided with some template code which contains a set of interfaces between CPU components and some pre-written components.
 You will combine these components together into a working processor!
 
-You can check out the tag `lab1-wq19` to get the template code for this lab.
+You can check out the tag `lab1-sq20` to get the template code for this lab.
 
 ## Goals
 
@@ -70,7 +70,7 @@ Details on how to set up your development environment using Chisel and Singulari
 
 Singularity is installed on the CSIF machines.
 So, if you are using one of the CSIF machines either locally or remotely, things should *just work*.
-However, if you run into any problems, post on Piazza or come to office hours.
+However, if you run into any problems, post on Campuswire or come to office hours.
 
 The images are relatively large files.
 As of the beginning of the quarter, the image is 380 MB.
@@ -91,7 +91,16 @@ du -sh ~/.singularity/cache
 ```
 
 You can also download the images to `/tmp`, if you do not have space in your user directory.
-Let us know if you would like more details on this method via Piazza.
+One way to do this is to create a symlink from `.singularity/cache` to a directory in `/tmp`.
+As an example
+
+```
+mkdir /tmp/jlp
+mkdir /tmp/jlp/singularitycache
+ln -s ~/.singularity/cache /tmp/jlp/singularitycache
+```
+
+Let us know if you would like more details on this method via Campuswire.
 
 # Part I: Implement the ALU Control
 
@@ -105,18 +114,18 @@ It generates the `result` of the operation on the two inputs.
 
 The following table details the `operation` input and which values produce which results.
 
-|      |     |
-|------|-----|
-| 0000 | and |
-| 0001 | or  |
-| 0010 | add |
-| 0011 | sub |
-| 0100 | slt |
+|      |      |
+|------|------|
+| 0000 | and  |
+| 0001 | or   |
+| 0010 | add  |
+| 0011 | sub  |
+| 0100 | sra  |
 | 0101 | sltu |
-| 0110 | sll |
-| 0111 | srl |
-| 1000 | sra |
-| 1001 | xor |
+| 0110 | xor  |
+| 0111 | srl  |
+| 1000 | slt  |
+| 1001 | sll  |
 
 You must take the RISC-V ISA specification and implement the proper control to choose the right ALU operation.
 You can find the specification in the following places:
@@ -125,29 +134,30 @@ You can find the specification in the following places:
 - on page 16 in the RISC-V reader
 - [on the RISC-V website](https://riscv.org/specifications/)
 
-|31--25 |24--20|19--15|14--12|11--7|6--0     |  |
-|-------|------|------|------|-----|---------|--|
-|funct7 | rs2  | rs1  |funct3| rd  | opcode  |R-type|
-|-------|------|------|------|-----|---------|--|
-|0000000| rs2  | rs1  | 000  | rd  | 0110011 | ADD |
-|0100000| rs2  | rs1  | 000  | rd  | 0110011 | SUB |
-|0000000| rs2  | rs1  | 001  | rd  | 0110011 | SLL |
-|0000000| rs2  | rs1  | 010  | rd  | 0110011 | SLT |
-|0000000| rs2  | rs1  | 011  | rd  | 0110011 | SLTU |
-|0000000| rs2  | rs1  | 100  | rd  | 0110011 | XOR |
-|0000000| rs2  | rs1  | 101  | rd  | 0110011 | SRL |
-|0100000| rs2  | rs1  | 101  | rd  | 0110011 | SRA |
-|0000000| rs2  | rs1  | 110  | rd  | 0110011 | OR |
-|0000000| rs2  | rs1  | 111  | rd  | 0110011 | AND |
+| 31--25  | 24--20 | 19--15 | 14--12 | 11--7 | 6--0      |        |
+|---------|--------|--------|--------|-------|-----------|--------|
+| funct7  | rs2    | rs1    | funct3 | rd    | opcode    | R-type |
+| ------- | ------ | ------ | ------ | ----- | --------- | -----  |
+| 0000000 | rs2    | rs1    | 000    | rd    | 0110011   | ADD    |
+| 0100000 | rs2    | rs1    | 000    | rd    | 0110011   | SUB    |
+| 0000000 | rs2    | rs1    | 001    | rd    | 0110011   | SLL    |
+| 0000000 | rs2    | rs1    | 010    | rd    | 0110011   | SLT    |
+| 0000000 | rs2    | rs1    | 011    | rd    | 0110011   | SLTU   |
+| 0000000 | rs2    | rs1    | 100    | rd    | 0110011   | XOR    |
+| 0000000 | rs2    | rs1    | 101    | rd    | 0110011   | SRL    |
+| 0100000 | rs2    | rs1    | 101    | rd    | 0110011   | SRA    |
+| 0000000 | rs2    | rs1    | 110    | rd    | 0110011   | OR     |
+| 0000000 | rs2    | rs1    | 111    | rd    | 0110011   | AND    |
 
 This table is from the RISC-V User-level ISA Specification v2.2, page 104.
 You can find the same information in Chapter 2 of the Specification, Chapter 2 of the RISC-V reader, or in the front of the Computer Organization and Design book.
 
 The ALU control takes four inputs:
-- `add` and `immediate`, which come from the control unit (you will implement this in the next lab)
+- `aluop` and `itype`, which come from the control unit (you will implement this in the next lab)
 - `funct7` and `funct3`, which come from the instruction
 
-You can ignore the `add` and `immediate` for now, assume both are always `false`.
+You can ignore the `aluop` and `itype` for now.
+Assume both are always `0`.
 
 Given these inputs, you must generate the correct output on the operation wire.
 The template code from `src/main/scala/components/alucontrol.scala` is shown below.
@@ -168,23 +178,23 @@ You will fill in where it says *Your code goes here*.
  */
 class ALUControl extends Module {
   val io = IO(new Bundle {
-    val add       = Input(Bool())
-    val immediate = Input(Bool())
+    val aluop     = Input(UInt(2.W))
+    val itype     = Input(Bool())
     val funct7    = Input(UInt(7.W))
     val funct3    = Input(UInt(3.W))
 
     val operation = Output(UInt(4.W))
   })
 
-  io.operation := 15.U // invalid operation
+  io.operation := "b1111".U // invalid operation
 
   // Your code goes here
 }
 ```
 
-**HINT:** Use Chisel's `switch` / `is`,  `when` / `elsewhen` / `otherwise`, or `MuxCase` syntax.
-See [the Chisel getting started guide](../chisel-notes/getting-started.md) for examples.
-You may also find the [Chisel cheat sheet](https://chisel.eecs.berkeley.edu/2.2.0/chisel-cheatsheet.pdf) helpful.
+**HINT:** Use Chisel's  `when` / `elsewhen` / `otherwise`, or `MuxCase` syntax.
+See [the Chisel getting started guide](../documentation/chisel-notes/getting-started.md) for examples.
+You may also find the [Chisel cheat sheet](https://www.chisel-lang.org/doc/chisel-cheatsheet3.pdf) helpful.
 
 ### Testing your ALU control unit
 
@@ -203,39 +213,70 @@ If you try this before you implement your ALU control unit, you'll see something
 
 ```
 sbt:dinocpu> test
-[info] Compiling 8 Scala sources to /home/jlp/Code/chisel/darchr-dinocpu/target/scala-2.11/classes ...
-[warn] there were 52 feature warnings; re-run with -feature for details
-[warn] one warning found
-[info] Done compiling.
-[info] [0.001] Elaborating design...
-[info] [0.001] Elaborating design...
-[info] [0.070] Done elaborating.
-[info] [0.193] Done elaborating.
-Total FIRRTL Compile Time: 241.8 ms
-Total FIRRTL Compile Time: 5.5 ms
+[info] [0.002] Elaborating design...
+[info] [0.002] Elaborating design...
+[info] [0.002] Elaborating design...
+[info] [0.002] Elaborating design...
+[info] [0.002] Elaborating design...
+[info] [0.156] Done elaborating.
+WARNING: No file will be loaded for data memory
+WARNING: No file will be loaded for data memory
+WARNING: No file will be loaded for data memory
+CPU Type: single-cycle
+Branch predictor: always-not-taken
+Memory file: test_run_dir/single-cycle/or/or.hex
+Memory type: combinational
+Memory port type: combinational-port
+Memory latency (ignored if combinational): 0
+CPU Type: single-cycle
+Branch predictor: always-not-taken
+Memory file: test_run_dir/single-cycle/add2/add2.hex
+Memory type: combinational
+Memory port type: combinational-port
+Memory latency (ignored if combinational): 0
+CPU Type: single-cycle
+Branch predictor: always-not-taken
+Memory file: test_run_dir/single-cycle/add0/add0.hex
+Memory type: combinational
+Memory port type: combinational-port
+Memory latency (ignored if combinational): 0
+CPU Type: single-cycle
+Branch predictor: always-not-taken
+Memory file: test_run_dir/single-cycle/addfwd/addfwd.hex
+Memory type: combinational
+Memory port type: combinational-port
+Memory latency (ignored if combinational): 0
+[info] [0.947] Done elaborating.
+[info] [0.947] Done elaborating.
+[info] [0.947] Done elaborating.
+[info] [0.950] Done elaborating.
+Total FIRRTL Compile Time: 878.1 ms
+Total FIRRTL Compile Time: 46.0 ms
 End of dependency graph
 Circuit state created
-[info] [0.001] SEED 1546475696368
-[info] [0.006] EXPECT AT 1 add wrong  io_operation got 15 expected 2 FAIL
-[info] [0.006] EXPECT AT 2 sub wrong  io_operation got 15 expected 3 FAIL
-[info] [0.006] EXPECT AT 3 sll wrong  io_operation got 15 expected 6 FAIL
-[info] [0.006] EXPECT AT 4 slt wrong  io_operation got 15 expected 4 FAIL
+[info] [0.002] SEED 1585495922699
+[info] [0.014] EXPECT AT 1 load/store wrong  io_operation got 15 expected 2 FAIL
+[info] [0.015] EXPECT AT 2 load/store wrong  io_operation got 15 expected 2 FAIL
+[info] [0.016] EXPECT AT 3 load/store wrong  io_operation got 15 expected 2 FAIL
+[info] [0.018] EXPECT AT 4 add wrong  io_operation got 15 expected 2 FAIL
 ...
 ```
 
 This output continues for a while and somewhere in it you'll see that all of the tests failed.
 
 ```
-[info] Run completed in 2 seconds, 969 milliseconds.
-[info] Total number of tests run: 8
-[info] Suites: completed 2, aborted 0
-[info] Tests: succeeded 0, failed 8, canceled 0, ignored 0, pending 0
-[info] *** 8 TESTS FAILED ***
-[error] Failed: Total 8, Failed 8, Errors 0, Passed 0
+[info] Run completed in 20 seconds, 71 milliseconds.
+[info] Total number of tests run: 23
+[info] Suites: completed 5, aborted 0
+[info] Tests: succeeded 5, failed 18, canceled 0, ignored 0, pending 0
+[info] *** 18 TESTS FAILED ***
+[error] Failed: Total 23, Failed 18, Errors 0, Passed 5
 [error] Failed tests:
-[error]         dinocpu.ALUControlTesterLab1
-[error]         dinocpu.SingleCycleCPUTesterLab1
-[error] (Test / test) sbt.TestsFailedException: Tests unsuccessful
+[error] 	dinocpu.SingleCycleRTypeTesterLab1
+[error] 	dinocpu.SingleCycleAddTesterLab1
+[error] 	dinocpu.ALUControlTesterLab1
+[error] 	dinocpu.SingleCycleMultiCycleTesterLab1
+[error] (test) sbt.TestsFailedException: Tests unsuccessful
 ```
 
 Some of the failures will look scary.
@@ -263,11 +304,8 @@ The goal of this part of the assignment is to allow you to design your hardware 
 
 To get an idea of how you are going to implement this, it's a good idea to first draw your design on a piece of paper.
 It's such a good idea that we're going to make it mandatory, and you'll need to turn it in as part of your assignment.
-We've provided you with a [blank circuit diagram](./lab1-written.pdf).
+We've provided you with a [blank circuit diagram](./assignment-1-worksheet.pdf).
 Draw all of the wires and label which bits are on each wire.
-
-The second page of the diagram is a feedback form.
-An explanation about that is in the [Feedback section](#part-vi-feedback).
 
 We will be grading this diagram and looking for the following things:
 - The correct wires.
@@ -285,15 +323,11 @@ The book will not contain the *exact* answers to the labs, though it will be ver
 The above diagram shows the required hardware to implement a very small subset of the RISC-V instructions (a few R-type, lw, sw, and beq).
 For this assignment, you only need to add the hardware to implement the R-type instructions.
 
-**Hint**: You may not need to use all of the modules provided.
+**Hint**: **You may not need to use all of the modules provided.**
 You only need to implement the *R-type* instructions, not all RISC-V instructions, on this lab assignment.
 
 **Hint 2**: The control unit as provided is *completely empty* and has `false` or 0 on every output.
 *You do not need to use the control unit for this assignment!*
-
-When you're done, your solution should look like the figure below.
-
-![R-Type only datapath](./r-type.svg)
 
 # Part III: Implement the ADD instruction
 
@@ -303,7 +337,7 @@ Now you're ready to implement your first instruction!
 For this part of the assignment, you will modify the `src/main/scala/single-cycle/cpu.scala` file.
 You are beginning to implement the DINO CPU!
 
-In the `src/main/scala/single-cycle/cpu.scala` file, you will find all of the components that are shown on the [blank circuit diagram](./lab1-written.pdf).
+In the `src/main/scala/single-cycle/cpu.scala` file, you will find all of the components that are shown on the [blank circuit diagram](./assignment-1-worksheet.pdf).
 The components are all instantiated Chisel `Module`s.
 
 Notice that in the template code all of the IO for each module is set to `DontCare`.
@@ -323,9 +357,10 @@ This creates a wire from the PC to the instruction memory.
 You should fill in the other wires (and instruction subsets) that are required to implement the `add` RISC-V instruction.
 We will be talking in detail about RISC-V instructions and how to design a RISC-V processor during the second week's lectures, as shown on the [schedule](https://github.com/jlpteaching/ECS154B/blob/master/syllabus/schedule.csv).
 
-**Important**: You will not need to modify anything below the `// debug / pipeline viewer` line.
+**Important**: You will not need to modify anything below the `Object to make it easier to print information about the CPU` line.
 This code should be kept the same for everyone.
-You may add more debug code, as you are working on the assignment.
+
+You may add debug code, as you are working on the assignment.
 However, when you turn in your assignment, please comment out or remove your debug code before submitting.
 
 ## Testing your ADD instruction
@@ -363,27 +398,23 @@ When you get the correct answer, you should see the following output.
 ```
 sbt:dinocpu> testOnly dinocpu.SingleCycleAddTesterLab1
 [info] [0.001] Elaborating design...
-[info] [0.164] Done elaborating.
-Total FIRRTL Compile Time: 608.3 ms
-Total FIRRTL Compile Time: 282.1 ms
-file loaded in 0.571095804 seconds, 539 symbols, 470 statements
-DASM(500333)
-CYCLE=1
-pc: 4
-control: Bundle(opcode -> 51, branch -> 0, memread -> 0, toreg -> 0, add -> 0, memwrite -> 0, regwrite -> 1, immediate -> 0, alusrc1 -> 0, jump -> 0)
-registers: Bundle(readreg1 -> 0, readreg2 -> 5, writereg -> 6, writedata -> 1234, wen -> 1, readdata1 -> 0, readdata2 -> 1234)
-aluControl: Bundle(add -> 0, immediate -> 0, funct7 -> 0, funct3 -> 0, operation -> 2)
-alu: Bundle(operation -> 2, inputx -> 0, inputy -> 1234, result -> 1234)
-immGen: Bundle(instruction -> 5243699, sextImm -> 0)
-branchCtrl: Bundle(branch -> 0, funct3 -> 0, inputx -> 0, inputy -> 1234, taken -> 0)
-pcPlusFour: Bundle(inputx -> 0, inputy -> 4, result -> 4)
-branchAdd: Bundle(inputx -> 0, inputy -> 0, result -> 0)
+[info] [0.420] Done elaborating.
+Total FIRRTL Compile Time: 1268.4 ms
+file loaded in 0.177122564 seconds, 548 symbols, 531 statements
+[info] SingleCycleAddTesterLab1:
+[info] Single Cycle CPU
+[info] - should run add test add1
+[info] ScalaTest
+[info] Run completed in 3 seconds, 897 milliseconds.
+[info] Total number of tests run: 1
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 1, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[info] Passed: Total 1, Failed 0, Errors 0, Passed 1
+[success] Total time: 6 s, completed Jan 8, 2020 1:26:31 AM
 ```
 
 The test only runs for a single cycle, since you're just executing one instruction.
-This shows that at the end of the cycle, the cycle count is 1 (`CYCLE=1`) and the PC is now 4 (`pc: 4`).
-This also shows the I/O for every module in the CPU.
-You are only concerned with a subset of the modules right now (i.e., `registers`, `aluControl`, and `alu`).
 
 Note that the test initializes `t0` to 1234.
 You can see this on line 70 in `src/test/scala/labs/Lab1Test.scala`.
@@ -395,7 +426,74 @@ This creates a `CPUTestCase` that:
 - doesn't initialize any memory addresses
 - doesn't check any memory addresses
 
-More information about `CPUTestCase` can be found in the code (`src/test/scala/cpu-tests/CPUTesterDriver.scala`, line 94), and in the [DINO CPU documentation](https://github.com/jlpteaching/dinocpu/blob/master/documentation/testing.md).
+More information about `CPUTestCase` can be found in the code (`src/test/scala/cpu-tests/CPUTesterDriver.scala`, line 94), and in the [DINO CPU documentation](../documentation/testing.md).
+
+You can also use the [single stepper](../documentation/single-stepping.md) to step through the execution one cycle at a time and print information as you go.
+Details on how to use the single stepper can be found in the [documentation](../documentation/single-stepping.md).
+An example on how to use it is shown below.
+
+First, you can start the single stepper program:
+
+```
+runMain dinocpu.singlestep add1 single-cycle
+```
+
+This will compile the `single-cycle` CPU design (which is what you're currently working on) and run the application/test `add1` on that CPU design.
+
+After you start the program, you'll see a command prompt:
+
+```
+Single stepper>
+```
+
+Here, you can print registers, dump I/O for modules, and step the processor through multiple cycles.
+
+For instance, if you have the correct design, you should see the following:
+
+```
+Single stepper> dump registers
+registers.io.readdata1         0 (0x0)
+registers.io.readdata2         1234 (0x4d2)
+registers.io.readreg1          0 (0x0)
+registers.io.writereg          6 (0x6)
+registers.io.readreg2          5 (0x5)
+registers.io.writedata         1234 (0x4d2)
+registers.io.wen               1 (0x1)
+```
+
+This is saying that you're reading registers 1 and 5, the value in register 1 is 0, the value in register 5 is 1234, you're writing register 6, the value you're writing is 1234, and you're asserting `wen`.
+
+Similarly, the ALU wires should look like the follwing:
+
+```
+Single stepper> dump alu
+alu.io.inputx                  0 (0x0)
+alu.io.result                  1234 (0x4d2)
+alu.io.inputy                  1234 (0x4d2)
+alu.io.operation               2 (0x2)
+```
+
+Finally, you can also dump the value of specific registers.
+`t0` is register 5 (see page 19 of the RISC-V reader) and `t1` is register 6.
+So, let's print these two register at cycle 0, step one cycle, then print them at cycle 1.
+
+```
+Single stepper> print reg 5
+reg5: 1234
+Single stepper> print reg 6
+reg6: 0
+Single stepper> step 1
+Single stepper> print reg 5
+reg5: 1234
+Single stepper> print reg 6
+reg6: 1234
+```
+
+On cycle 1, register 6 is written with 1234, as it should be!
+
+More details on how to use the single stepper can be found in the [documentation](../documentation/single-stepping.md).
+You can also write `?` on the command prompt to see the help.
+
 
 # Part IV: Implementing the rest of the R-type instructions
 
@@ -438,7 +536,7 @@ Below is an example of a test that failed:
 This ran an **rtype** application which used the binary **add1**.
 You can view the RISC-V assembly for this application in `src/test/resources/risc-v/add1.riscv`.
 The list of applications that this suite will run can be found in the `InstTests.scala` file (`src/test/scala/cpu-tests/InstTests.scala`).
-If you want more details on the syntax and how to extend this to other RISC-V binaries, ask on Piazza and we will be happy to expand this section.
+If you want more details on the syntax and how to extend this to other RISC-V binaries, ask on Campuswire and we will be happy to expand this section.
 
 If you want to run only a single application from this suite of tests, you can add a parameter to the `test` sbt task.
 You can pass the option `-z` which will execute any tests that match the text given to the parameter.
@@ -448,6 +546,8 @@ For instance, to only run the subtract test, you would use the following:
 ```
 sbt> testOnly dinocpu.SingleCycleRTypeTesterLab1 -- -z sub
 ```
+
+Remember, you can also use the `singlestep` application to inspect wires and registers or use Chisel's debug printing.
 
 # Part V: Moving on to multiple cycles
 
@@ -486,7 +586,6 @@ To run just one test, you can use the `-z` trick from above.
 dinocpu:sbt> testOnly dinocpu.SingleCycleMultiCycleTesterLab1 -- -z addfwd
 ```
 
-
 # Grading
 
 Grading will be done automatically on Gradescope.
@@ -494,12 +593,12 @@ See [the Submission section](#Submission) for more information on how to submit 
 
 |                    |     |
 |--------------------|-----|
-| ALU control        | 25% |
-| Diagram            | 25% |
-| Add                | 10% |
-| Other instructions | 20% |
+| ALU control        | 30% |
+| Diagram            | 30% |
+| Add 0 Case         |  5% |
+| Other Add Cases    | 10% |
+| Other instructions | 15% |
 | Multiple cycles    | 10% |
-| Feedback           | 10% |
 
 # Submission
 
@@ -508,7 +607,7 @@ Failure to adhere to the instructions will result in a loss of points.
 
 ## Code portion
 
-You will upload the three files that you changed to Gradescope on the [Lab 1]() assignment.
+You will upload the two files that you changed to Gradescope on the [Lab 1]() assignment.
 
 - `src/main/scala/components/alucontrol.scala`
 - `src/main/scala/single-cycle/cpu.scala`
@@ -534,8 +633,8 @@ GitHub now allows everybody to create unlimited private repositories for up to t
 
 # Hints
 
-- Start early! There is a steep learning curve for Chisel, so start early and ask questions on Piazza and in discussion.
-- If you need help, come to office hours for the TAs, or post your questions on Piazza.
+- Start early! There is a steep learning curve for Chisel, so start early and ask questions on Campuswire and in discussion.
+- If you need help, come to office hours for the TAs, or post your questions on Campuswire.
 - See [common errors](../documentation/common-errors.md) for some common errors and their solutions.
 
 ## Printf debugging
@@ -547,4 +646,4 @@ This is the best style of debugging for this assignment.
   - Use `printf(p"This is my text with a $var\n")` to print Chisel variables. Notice the "p" before the quote!
   - You can also put any Scala statement in the print statement (e.g., `printf(p"Output: ${io.output})`).
   - Use `println` to print during compilation in the Chisel code or during test execution in the test code. This is mostly like Java's `println`.
-  - If you want to use Scala variables in the print statement, prepend the statement with an 's'. For example, `println(s"This is my cool variable: $variable")` or `println("Some math: 5 + 5 = ${5+5}")`.
+  - If you want to use Scala variables in the print statement, prepend the statement with an 's'. For example, `println(s"This is my cool variable: $variable")` or `println(s"Some math: 5 + 5 = ${5+5}")`.

@@ -22,42 +22,52 @@ class ALU extends Module {
     val result    = Output(UInt(32.W))
   })
 
-  // Default to 0 output
-  io.result := 0.U
-
-  switch (io.operation) {
-    is ("b0000".U) {
-      io.result := io.inputx & io.inputy
-    }
-    is ("b0001".U) {
-      io.result := io.inputx | io.inputy
-    }
-    is ("b0010".U) {
-      io.result := io.inputx + io.inputy
-    }
-    is ("b0011".U) {
-      io.result := io.inputx - io.inputy
-    }
-    is ("b0100".U) {
-      io.result := (io.inputx.asSInt < io.inputy.asSInt).asUInt // signed
-    }
-    is ("b0101".U) {
-      io.result := (io.inputx < io.inputy)
-    }
-    is ("b0110".U) {
-      io.result := io.inputx << io.inputy(4,0)
-    }
-    is ("b0111".U) {
-      io.result := io.inputx >> io.inputy(4,0)
-    }
-    is ("b1000".U) {
-      io.result := (io.inputx.asSInt >> io.inputy(4,0)).asUInt // arithmetic (signed)
-    }
-    is ("b1001".U) {
-      io.result := io.inputx ^ io.inputy
-    }
-    is ("b1010".U) {
-      io.result := ~(io.inputx | io.inputy)
-    }
+  when (io.operation === "b0000".U) { // and
+    io.result := io.inputx & io.inputy
+  }
+  .elsewhen (io.operation === "b0001".U) { // or
+    io.result := io.inputx | io.inputy
+  }
+  .elsewhen (io.operation === "b0010".U) { // add
+    io.result := io.inputx + io.inputy
+  }
+  .elsewhen (io.operation === "b0011".U) { // sub
+    io.result := io.inputx - io.inputy
+  }
+  .elsewhen (io.operation === "b0100".U) { // sra
+    io.result := (io.inputx.asSInt >> io.inputy(4,0)).asUInt // arithmetic (signed)
+  }
+  .elsewhen (io.operation === "b0101".U) { // stlu
+    io.result := (io.inputx < io.inputy)
+  }
+  .elsewhen (io.operation === "b0110".U) { // xor
+    io.result := io.inputx ^ io.inputy
+  }
+  .elsewhen (io.operation === "b0111".U) { // srl
+    io.result := io.inputx >> io.inputy(4,0)
+  }
+  .elsewhen (io.operation === "b1000".U) { // slt
+    io.result := (io.inputx.asSInt < io.inputy.asSInt).asUInt // signed
+  }
+  .elsewhen (io.operation === "b1001".U) { // sll
+    io.result := io.inputx << io.inputy(4,0)
+  }
+  .elsewhen (io.operation === "b1010".U) { // nor
+    io.result := ~(io.inputx | io.inputy)
+  }
+  .elsewhen (io.operation === "b1011".U) { // sge (set greater than or equal)
+    io.result := (io.inputx.asSInt >= io.inputy.asSInt).asUInt
+  }
+  .elsewhen (io.operation === "b1100".U) { // sgeu (set greater than or equal unsigned)
+    io.result := (io.inputx >= io.inputy)
+  }
+  .elsewhen (io.operation === "b1101".U) { // seq (set equal)
+    io.result := io.inputx === io.inputy
+  }
+  .elsewhen (io.operation === "b1110".U) { // sne (set not equal)
+    io.result := io.inputx =/= io.inputy
+  }
+  .otherwise {
+    io.result := 0.U // should be invalid
   }
 }

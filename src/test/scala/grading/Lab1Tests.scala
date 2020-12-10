@@ -18,7 +18,7 @@ import org.junit.runner.RunWith
 class Lab1Grader extends JUnitSuite {
 
   @Test
-  @GradedTest(name="ALUControlUnit", max_score=25)
+  @GradedTest(name="ALUControlUnit", max_score=30)
   def verifyALUControl() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()

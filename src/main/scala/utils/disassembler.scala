@@ -34,6 +34,7 @@ class Instruction(instruction: Long){
   * }}}
   */
 object Disassembler {
+
   // opcode constants
   val R_TYPE_OPCODE = Integer.parseInt("0110011",2)
   val I_TYPE_OPCODE = Integer.parseInt("0010011",2)
@@ -64,6 +65,7 @@ object Disassembler {
       }
       case 6 => "or"
       case 7 => "and"
+      case _ => "Bad R-type"
     }
     instName + " x" + instr.rd + ", x" + instr.rs1 + ", x" + instr.rs2
   }
@@ -85,6 +87,7 @@ object Disassembler {
         case 0 => "srli" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
         case 8 => "srai" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
       }
+      case _ => "Bad I-type"
     }
   }
 
@@ -97,6 +100,7 @@ object Disassembler {
       case 0 => "sb"
       case 1 => "sh"
       case 2 => "sw"
+      case _ => "Bad store"
     }
     instName + " x" + instr.rs2 + ", " + offset +"(x" + instr.rs1 +")"
   }
@@ -111,6 +115,7 @@ object Disassembler {
       case 2 => "lw"
       case 4 => "lbu"
       case 5 => "lhu"
+      case _ => "Bad load"
     }
     instName + " x" + instr.rd + ", " + instr.iImm +"(x" + instr.rs1 +")"
   }
@@ -121,7 +126,7 @@ object Disassembler {
   def parseBranch(instr:Instruction):String={
     var offset = (instr.slice(7,7) << 11) + (instr.slice(30,25) << 5) + (instr.slice(11,8) << 1)
     if(instr.sign==1)
-      offset = - offset
+      offset = - (4096 - offset)
     val instName = instr.funct3 match {
       case 0 => "beq"
       case 1 => "bne"
@@ -129,6 +134,7 @@ object Disassembler {
       case 5 => "bge"
       case 6 => "bltu"
       case 7 => "bgeu"
+      case _ => "Bad branch"
     }
     instName + " x" + instr.rs1 + ", x" + instr.rs2 + ", pc + " + offset
   }

@@ -30,9 +30,11 @@ class MemPortIO extends Bundle {
  *   Input:  valid, true when the address specified is valid
  *   Output: instruction, the requested instruction
  *   Output: good, true when memory is responding with a piece of data
+ *   Output: ready, true when the memory is ready to accept another request (used to un-stall the pipeline)
  */
 class IMemPortIO extends MemPortIO {
   val instruction = Output(UInt(32.W))
+  val ready       = Output(Bool())
 }
 
 /**

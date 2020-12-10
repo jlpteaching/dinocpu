@@ -13,7 +13,7 @@ import dinocpu.components._
  * For more information, see section 4.6 of Patterson and Hennessy
  * This follows figure 4.49
  */
-class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
+class PipelinedNonCombinCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Bundles defining the pipeline registers and control structures
 
   // Everything in the register between IF and ID stages
@@ -30,8 +30,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
     val resultselect = UInt(2.W)
     val alusrc       = Bool()
     val pcadd        = Bool()
-    val branch       = Bool() 
-    val jump         = Bool() 
+    val branch       = Bool()
+    val jump         = Bool()
     val pcfromalu    = Bool()
   }
 
@@ -106,8 +106,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val immGen     = Module(new ImmediateGenerator())
   val pcPlusFour = Module(new Adder())
   val branchAdd  = Module(new Adder())
-  val forwarding = Module(new ForwardingUnit())  //pipelined only
-  val hazard     = Module(new HazardUnit())      //pipelined only
+  val forwarding = Module(new ForwardingUnit())           //pipelined only
+  val hazard     = Module(new HazardUnitNonCombin())      //pipelined only
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
   // The four pipeline registers
@@ -128,10 +128,12 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // From memory back to fetch. Since we don't decide whether to take a branch or not until the memory stage.
   val next_pc      = Wire(UInt())
-  //val taken        = Wire(Bool())
 
   // For wb back to other stages
   val write_data = Wire(UInt())
+
+  // Checking if memory instruction in memory stage
+  val memInst = Wire(Bool())
 
   /////////////////////////////////////////////////////////////////////////////
   // FETCH STAGE
@@ -139,7 +141,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Note: This comes from the memory stage!
   // Only update the pc if pcstall is false
-  pc := Mux(hazard.io.pcstall, pc, 
+  pc := Mux(hazard.io.pcstall, pc,
            Mux(hazard.io.pcfromtaken, next_pc, pcPlusFour.io.result))
 
   // Send the PC to the instruction memory port to get the instruction
@@ -147,7 +149,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Send a valid instruction request to instruction memory only if IFID isn't
   // being bubbled;
-  io.imem.valid := !hazard.io.if_id_stall
+  io.imem.valid := hazard.io.imem_valid
 
   // Get the PC + 4
   pcPlusFour.io.inputx := pc
@@ -164,6 +166,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   if_id.io.flush  := hazard.io.if_id_flush
 
+  // Inform hazard unit if Instruction Memory got next instruction
+  hazard.io.imem_ready := io.imem.ready
+  hazard.io.imem_good  := io.imem.good
+
   /////////////////////////////////////////////////////////////////////////////
   // ID STAGE
   /////////////////////////////////////////////////////////////////////////////
@@ -172,8 +178,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val rs2 = if_id.io.data.instruction(24,20)
 
   // Send input from this stage to hazard detection unit
-  hazard.io.rs1 := rs1
-  hazard.io.rs2 := rs2
+  hazard.io.rs1       := rs1
+  hazard.io.rs2       := rs2
 
   // Send opcode to control
   control.io.opcode := if_id.io.data.instruction(6,0)
@@ -185,10 +191,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // Send the instruction to the immediate generator
   immGen.io.instruction := if_id.io.data.instruction
 
-  // Data supplied to id_ex register is always valid every cycle
-  id_ex.io.valid := true.B
   // Don't need to flush the data in this register
-  id_ex.io.flush := false.B
+  id_ex.io.flush := hazard.io.id_ex_flush
   // FIll the id_ex register
   id_ex.io.in.writereg   := if_id.io.data.instruction(11,7)
   id_ex.io.in.rs1        := rs1
@@ -201,8 +205,10 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   id_ex.io.in.pc         := if_id.io.data.pc
   id_ex.io.in.pcplusfour := if_id.io.data.pcplusfour
 
-  // Data supplied to id_ex_ctrl register is always valid every cycle
-  id_ex_ctrl.io.valid := true.B
+  // Hold values in stage when stalling
+  id_ex.io.valid      := !hazard.io.id_ex_stall
+  id_ex_ctrl.io.valid := !hazard.io.id_ex_stall
+
   // Set the execution control signals
   id_ex_ctrl.io.in.ex_ctrl.aluop        := control.io.aluop
   id_ex_ctrl.io.in.ex_ctrl.itype        := control.io.itype
@@ -221,12 +227,13 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   id_ex_ctrl.io.in.mem_ctrl.taken    := false.B
 
   // Set the writeback control signals
-  id_ex_ctrl.io.in.wb_ctrl.toreg     := control.io.toreg
   id_ex_ctrl.io.in.wb_ctrl.regwrite  := control.io.regwrite
+  id_ex_ctrl.io.in.wb_ctrl.toreg     := control.io.toreg
 
   // Flush the IDEX control signals whenever the hazard detector signals an IDEX
   // bubble
   id_ex_ctrl.io.flush := hazard.io.id_ex_flush
+  id_ex.io.flush := hazard.io.id_ex_flush
 
   /////////////////////////////////////////////////////////////////////////////
   // EX STAGE
@@ -253,6 +260,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
                            (forwarding.io.forwardA === 1.U) -> ex_mem.io.data.result,
                            (forwarding.io.forwardA === 2.U) -> write_data))
 
+
   val alu_inputx = Wire(UInt(32.W))
   // Insert the ALU inputx mux here (line 59 of single-cycle/cpu.scala)
   alu_inputx := Mux(id_ex_ctrl.io.data.ex_ctrl.pcadd, id_ex.io.data.pc, forward_inputx)
@@ -278,23 +286,22 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   branchAdd.io.inputx := id_ex.io.data.pc
   branchAdd.io.inputy := id_ex.io.data.imm
 
-  // Data supplied to ex_mem register is always valid every cycle
-  ex_mem.io.valid := true.B
-  // Don't need to flush the data in this register
-  ex_mem.io.flush := false.B
+  // Hold values in stage when stalling
+  ex_mem.io.valid      := !hazard.io.ex_mem_stall
+  ex_mem_ctrl.io.valid := !hazard.io.ex_mem_stall
+
   // Set the EX/MEM register values
   ex_mem.io.in.readdata2  := alu_inputy
   ex_mem.io.in.writereg   := id_ex.io.data.writereg
 
-  // Data supplied to ex_mem_ctrl register is always valid every cycle
-  ex_mem_ctrl.io.valid       := true.B
+  // Pass control signals
   ex_mem_ctrl.io.in.mem_ctrl := id_ex_ctrl.io.data.mem_ctrl
   ex_mem_ctrl.io.in.wb_ctrl  := id_ex_ctrl.io.data.wb_ctrl
 
   // Calculate whether which PC we should use and set the taken flag (line 92 in single-cycle/cpu.scala)
   ex_mem.io.in.nextpc := Mux(id_ex_ctrl.io.data.ex_ctrl.pcfromalu, alu.io.result, branchAdd.io.result)
 
-  // Determine which result to use 
+  // Determine which result to use
   ex_mem.io.in.result  := MuxCase(0.U, Array(
                            (id_ex_ctrl.io.data.ex_ctrl.resultselect === 0.U) -> alu.io.result,
                            (id_ex_ctrl.io.data.ex_ctrl.resultselect === 1.U) -> id_ex.io.data.imm,
@@ -303,12 +310,12 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   when (id_ex_ctrl.io.data.ex_ctrl.jump || (id_ex_ctrl.io.data.ex_ctrl.branch && alu.io.result(0))) {
     ex_mem_ctrl.io.in.mem_ctrl.taken  := true.B
   } .otherwise {
-    //ex_mem.io.in.nextpc := 0.U // No need to set the PC if not a branch
     ex_mem_ctrl.io.in.mem_ctrl.taken  := false.B
   }
 
   // Flush the EXMEM control signals if the hazard s a bubble
   ex_mem_ctrl.io.flush := hazard.io.ex_mem_flush
+  ex_mem.io.flush := hazard.io.ex_mem_flush
 
   /////////////////////////////////////////////////////////////////////////////
   // MEM STAGE
@@ -323,7 +330,8 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   io.dmem.sext      := ex_mem_ctrl.io.data.mem_ctrl.sext
 
   // Set dmem request as valid when a write or read is being requested
-  io.dmem.valid := (io.dmem.memread || io.dmem.memwrite)
+  memInst := (io.dmem.memread || io.dmem.memwrite)
+  io.dmem.valid := memInst
 
   // Send next_pc back to the fetch stage
   next_pc := ex_mem.io.data.nextpc
@@ -332,23 +340,27 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   hazard.io.exmem_taken := ex_mem_ctrl.io.data.mem_ctrl.taken
 
   // Send input signals to the forwarding unit
-  forwarding.io.exmemrd     := ex_mem.io.data.writereg
-  forwarding.io.exmemrw     := ex_mem_ctrl.io.data.wb_ctrl.regwrite
+  forwarding.io.exmemrd := ex_mem.io.data.writereg
+  forwarding.io.exmemrw := ex_mem_ctrl.io.data.wb_ctrl.regwrite
 
-  // Data supplied to mem_wb register is always valid every cycle
-  mem_wb.io.valid := true.B
-  // No need to flush the data of this register
-  mem_wb.io.flush := false.B
+  // Hold values in stage when stalling
+  mem_wb.io.valid      := !hazard.io.mem_wb_stall
+  mem_wb_ctrl.io.valid := !hazard.io.mem_wb_stall
+
+  // Check that Data Memory is not busy
+  hazard.io.dmem_good := !memInst || io.dmem.good
+
   // Wire the MEM/WB register
   mem_wb.io.in.writereg   := ex_mem.io.data.writereg
   mem_wb.io.in.result     := ex_mem.io.data.result
   mem_wb.io.in.readdata   := io.dmem.readdata
 
-  // Data supplied to mem_wb_ctrl register is always valid every cycle
-  mem_wb_ctrl.io.valid       := true.B
-  // No need to flush the data of this register
-  mem_wb_ctrl.io.flush       := false.B
+  // Wire the MEM/WB control signals
   mem_wb_ctrl.io.in.wb_ctrl  := ex_mem_ctrl.io.data.wb_ctrl
+
+  // No need to flush the data of this register
+  mem_wb.io.flush            := hazard.io.mem_wb_flush
+  mem_wb_ctrl.io.flush       := hazard.io.mem_wb_flush
 
   /////////////////////////////////////////////////////////////////////////////
   // WB STAGE
@@ -359,6 +371,7 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
                            (mem_wb_ctrl.io.data.wb_ctrl.toreg === 0.U) -> mem_wb.io.data.result,
                            (mem_wb_ctrl.io.data.wb_ctrl.toreg === 1.U) -> mem_wb.io.data.readdata))
 
+
   // Write the data to the register file
   registers.io.writedata := write_data
   registers.io.writereg  := mem_wb.io.data.writereg
@@ -366,13 +379,13 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
 
   // Set the input signals for the forwarding unit
   forwarding.io.memwbrd := mem_wb.io.data.writereg
-  forwarding.io.memwbrw := mem_wb_ctrl.io.data.wb_ctrl.regwrite  
+  forwarding.io.memwbrw := mem_wb_ctrl.io.data.wb_ctrl.regwrite
 }
 
 /*
  * Object to make it easier to print information about the CPU
  */
-object PipelinedCPUInfo {
+object PipelinedNonCombinCPUInfo {
   def getModules(): List[String] = {
     List(
       "imem",

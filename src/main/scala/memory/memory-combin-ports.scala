@@ -25,6 +25,9 @@ class ICombinMemPort extends BaseIMemPort {
     io.bus.request.valid := false.B
   }
 
+  // Combinational memory is always ready
+  io.pipeline.ready := true.B
+
   // When the memory is outputting a valid instruction
   io.pipeline.good := true.B
   io.pipeline.instruction := io.bus.response.bits.data

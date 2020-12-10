@@ -25,7 +25,7 @@ class Lab2Grader extends JUnitSuite {
   }
 
   @Test
-  @GradedTest(name="R-type instructions", max_score=9)
+  @GradedTest(name="R-type instructions", max_score=10)
   def verifyRtype() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -49,7 +49,7 @@ class Lab2Grader extends JUnitSuite {
   }
 
   @Test
-  @GradedTest(name="I-type instructions", max_score=9)
+  @GradedTest(name="I-type instructions", max_score=10)
   def verifyItype() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -137,7 +137,7 @@ class Lab2Grader extends JUnitSuite {
 
 
   @Test
-  @GradedTest(name="Load instructions", max_score=9)
+  @GradedTest(name="Load instructions", max_score=10)
   def verifyLoads() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -174,7 +174,7 @@ class Lab2Grader extends JUnitSuite {
   }
 
   @Test
-  @GradedTest(name="U-type instructions", max_score=9)
+  @GradedTest(name="U-type instructions", max_score=10)
   def verifyUtype() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -234,7 +234,7 @@ class Lab2Grader extends JUnitSuite {
 
 
   @Test
-  @GradedTest(name="store instructions", max_score=9)
+  @GradedTest(name="store instructions", max_score=10)
   def verifyStore() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -266,7 +266,7 @@ class Lab2Grader extends JUnitSuite {
   }
 
   @Test
-  @GradedTest(name="All mem instructions", max_score=9)
+  @GradedTest(name="All mem instructions", max_score=10)
   def verifyMemInsts() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -333,7 +333,7 @@ class Lab2Grader extends JUnitSuite {
   }
 
   @Test
-  @GradedTest(name="Branch instructions", max_score=9)
+  @GradedTest(name="Branch instructions", max_score=10)
   def verifyBranches() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -359,7 +359,7 @@ class Lab2Grader extends JUnitSuite {
 
 
   @Test
-  @GradedTest(name="Jump and link instruction", max_score=9)
+  @GradedTest(name="Jump and link instruction", max_score=10)
   def verifyJal() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -394,7 +394,7 @@ class Lab2Grader extends JUnitSuite {
 
 
   @Test
-  @GradedTest(name="Jump and link register instruction", max_score=9)
+  @GradedTest(name="Jump and link register instruction", max_score=10)
   def verifyJalr() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -435,7 +435,7 @@ class Lab2Grader extends JUnitSuite {
 
 
   @Test
-  @GradedTest(name="Full applications", max_score=9)
+  @GradedTest(name="Full applications", max_score=10)
   def verifyApps() {
     // Capture all of the console output from the test
     val stream = new java.io.ByteArrayOutputStream()
@@ -454,7 +454,7 @@ class Lab2Grader extends JUnitSuite {
                     Map(), Map()),
         CPUTestCase("multiplier",
                 Map("single-cycle" -> 1000, "five-cycle" -> 6, "pipelined" -> 6),
-              Map(5->23,6->20),
+              Map(5->23,6->20,8->0x1000),
                     Map(5->23*20),
                     Map(), Map()),
         CPUTestCase("divider",

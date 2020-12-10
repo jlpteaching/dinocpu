@@ -22,7 +22,20 @@ class OutstandingReq extends Bundle {
  * The I/O for this module is defined in [[IMemPortIO]].
  */
 class INonCombinMemPort extends ICombinMemPort {
+  // Non-combinational memory can technically always accept requests since they are delayed through a pipe.
+  // But we want to be able to signal that the memory is holding a request, so a register is used to store
+  // whether a request passed through this memory port
+  val imemBusy = RegInit(false.B)
+
   io.pipeline.good := io.bus.response.valid
+
+  when (io.pipeline.valid) {
+    imemBusy := true.B
+  } .elsewhen (io.bus.response.valid) {
+    imemBusy := false.B
+  }
+
+  io.pipeline.ready := !imemBusy 
 }
 
 /**
@@ -31,6 +44,8 @@ class INonCombinMemPort extends ICombinMemPort {
  * The I/O for this module is defined in [[DMemPortIO]].
  */
 class DNonCombinMemPort extends BaseDMemPort {
+
+  val dmem_busy = RegInit(false.B)
 
   // A register to hold intermediate data (e.g., write data, mask mode) while the request
   // is outstanding to memory.
@@ -47,7 +62,7 @@ class DNonCombinMemPort extends BaseDMemPort {
   // it has been satisfied this cycle. Note: we cannot send a read until one cycle after the write has
   // been sent.
   val ready = !outstandingReq.valid || (io.bus.response.valid && (outstandingReq.valid && outstandingReq.bits.operation === MemoryOperation.Read))
-  when (io.pipeline.valid && (io.pipeline.memread || io.pipeline.memwrite) && ready) {
+  when (!dmem_busy && io.pipeline.valid && (io.pipeline.memread || io.pipeline.memwrite) && ready) {
     // Check if we aren't issuing both a read and write at the same time
     assert (! (io.pipeline.memread && io.pipeline.memwrite))
 
@@ -64,6 +79,7 @@ class DNonCombinMemPort extends BaseDMemPort {
       outstandingReq.bits.operation := Read
     }
     sending := true.B
+    dmem_busy := true.B
 
     // Program memory to perform a read. Always read since we must read before write.
     io.bus.request.bits.address   := io.pipeline.address
@@ -74,11 +90,14 @@ class DNonCombinMemPort extends BaseDMemPort {
     // no request coming in so don't send a request out
     io.bus.request.valid := false.B
     sending := false.B
+    dmem_busy := false.B
   }
 
   // Response path
   when (io.bus.response.valid) {
     assert(outstandingReq.valid)
+
+    dmem_busy := false.B // No longer processing
     when (outstandingReq.bits.operation === MemoryOperation.Write) {
       val writedata = Wire (UInt (32.W))
 

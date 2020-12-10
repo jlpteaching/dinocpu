@@ -37,12 +37,12 @@ class ALURandomUnitTester(c: ALU) extends PeekPokeTester(c) {
   test("b0001".U, (x: BigInt, y: BigInt) => (x | y))
   test("b0010".U, (x: BigInt, y: BigInt) => (x + y))
   test("b0011".U, (x: BigInt, y: BigInt) => twoscomp(x - y))
-  test("b0100".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
+  test("b0100".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x1f)))
   test("b0101".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
-  test("b0110".U, (x: BigInt, y: BigInt) => (x << (y.toInt & 0x1f)))
+  test("b0110".U, (x: BigInt, y: BigInt) => (x ^ y))
   test("b0111".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x1f)))
-  test("b1000".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x1f)))
-  test("b1001".U, (x: BigInt, y: BigInt) => (x ^ y))
+  test("b1000".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
+  test("b1001".U, (x: BigInt, y: BigInt) => (x << (y.toInt & 0x1f)))
   test("b1010".U, (x: BigInt, y: BigInt) => twoscomp(~(x | y)))
 }
 
@@ -59,7 +59,7 @@ class ALUDirectedUnitTester(c: ALU) extends PeekPokeTester(c) {
   }
 
   // signed <
-  poke(alu.io.operation, "b0100".U)
+  poke(alu.io.operation, "b1000".U)
   poke(alu.io.inputx, twoscomp(-1))
   poke(alu.io.inputy, 1)
   step(1)
@@ -73,7 +73,7 @@ class ALUDirectedUnitTester(c: ALU) extends PeekPokeTester(c) {
   expect(alu.io.result, 0)
 
   // signed >>
-  poke(alu.io.operation, "b1000".U)
+  poke(alu.io.operation, "b0100".U)
   poke(alu.io.inputx, twoscomp(-1024))
   poke(alu.io.inputy, 5)
   step(1)

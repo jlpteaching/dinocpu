@@ -25,6 +25,10 @@ When you run the single step application, it will give you a command prompt.
 This command prompt will take a variety of different inputs:
 
 ```
+Help for the single stepper:
+ Note: Registers print the value *stored* in that register. The wires print
+ the *current* value on the wire for that cycle.
+
  Printing registers
  ------------------
  print reg <num>  : print the value in register
@@ -39,12 +43,14 @@ This command prompt will take a variety of different inputs:
  dump list       : List the valid modules to dump
  dump [module]   : Show values of the I/O on a specific module
 
-
  Printing pipeline registers (pipelined CPU only)
  ------------------------------------------------
  print pipereg <name> : Print the values in the pipeline register with name <name>
  print piperegs       : Print the values in all of the pipeline registers
 
+ Controlling the simulator
+ -------------------------
+ step [num]      : move forward this many cycles, default 1
 
  Display command (display value after step)
  ---------------------------------------
@@ -57,20 +63,20 @@ This command prompt will take a variety of different inputs:
  display modules
  display module [module]
 
-
  Stop Displaying command
  -----------------------
  undisplay <num>  : remove the ith display line
-
-
- Controlling the simulator
- -------------------------
- step [num]      : move forward this many cycles, default 1
 
  Other commands
  --------------
  ?               : print this help
  q               : quit
+
+ Command Alias
+ -------------
+ p: print
+ d: display
+ s: step
 ```
 
 When quitting, the end conditions of the test are checked and the single step application will tell you if the test passed or failed.
@@ -117,24 +123,19 @@ When you first run the test, you should see something along these lines:
 
 ```
 sbt:dinocpu> runMain dinocpu.singlestep addfwd single-cycle
-[info] Updating ...
-[info] Done updating.
-[info] Compiling 35 Scala sources to /home/jtoya/Git Repositories/UC Davis/Winter2019/TA/dinocpu/target/scala-2.12/classes ...
-[warn] there were 6 deprecation warnings (since 1.2)
-[warn] there was one deprecation warning (since since )
-[warn] there were 7 deprecation warnings in total; re-run with -deprecation for details
-[warn] there were 564 feature warnings; re-run with -feature for details
-[warn] four warnings found
-[info] Done compiling.
 [warn] Multiple main classes detected.  Run 'show discoveredMainClasses' to see the list
-[info] Packaging /home/jtoya/Git Repositories/UC Davis/Winter2019/TA/dinocpu/target/scala-2.12/dinocpu_2.12-0.5.jar ...
-[info] Done packaging.
 [info] Running dinocpu.singlestep addfwd single-cycle
 Running test addfwd on CPU design single-cycle
 [info] [0.001] Elaborating design...
-[info] [1.387] Done elaborating.
-Total FIRRTL Compile Time: 1827.6 ms
-file loaded in 0.273723526 seconds, 1019 symbols, 981 statements
+CPU Type: single-cycle
+Branch predictor: always-not-taken
+Memory file: test_run_dir/single-cycle/addfwd/addfwd.hex
+Memory type: combinational
+Memory port type: combinational-port
+Memory latency (ignored if combinational): 0
+[info] [1.080] Done elaborating.
+Total FIRRTL Compile Time: 788.1 ms
+file loaded in 0.156743561 seconds, 586 symbols, 563 statements
 Help for the single stepper:
  Note: Registers print the value *stored* in that register. The wires print
  the *current* value on the wire for that cycle.
@@ -153,16 +154,40 @@ Help for the single stepper:
  dump list       : List the valid modules to dump
  dump [module]   : Show values of the I/O on a specific module
 
+ Printing pipeline registers (pipelined CPU only)
+ ------------------------------------------------
+ print pipereg <name> : Print the values in the pipeline register with name <name>
+ print piperegs       : Print the values in all of the pipeline registers
+
  Controlling the simulator
  -------------------------
  step [num]      : move forward this many cycles, default 1
+
+ Display command (display value after step)
+ ---------------------------------------
+ display reg [num]
+ display regs
+ display pc
+ display inst
+ display pipereg [name]
+ display piperegs
+ display modules
+ display module [module]
+
+ Stop Displaying command
+ -----------------------
+ undisplay <num>  : remove the ith display line
 
  Other commands
  --------------
  ?               : print this help
  q               : quit
 
-Single stepper> 
+ Command Alias
+ -------------
+ p: print
+ d: display
+ s: step
 ```
 
 If ran correctly, you should notice an interface guide and be given a command prompt. Let's start running some of the commands and looking at our values.
@@ -250,12 +275,12 @@ registers.io.writereg          10 (0xa)
 registers.io.readreg2          5 (0x5)
 registers.io.writedata         2 (0x2)
 registers.io.wen               1 (0x1)
-Single stepper> dump pcPlusFour   
+Single stepper> dump pcPlusFour
 pcPlusFour.io.result           8 (0x8)
 pcPlusFour.io.inputx           4 (0x4)
 pcPlusFour.io.inputy           4 (0x4)
 ```
-Similar to above, the only changes we expect are the updated value from register 10 and the new result being 2. (As well as the PC incrementing by 4 again). To make things a bit more interesting, let's step by 9 cycles. 
+Similar to above, the only changes we expect are the updated value from register 10 and the new result being 2. (As well as the PC incrementing by 4 again). To make things a bit more interesting, let's step by 9 cycles.
 
 **Cycle 10**
 
@@ -308,6 +333,31 @@ Test passed!
 ```
 Of course you could keep stepping, but eventually the PC will stop incrementing, indicating the end of the test. (Which you still have to quit by typing q)
 
+# Display on repeat
+
+You might have observed from the previous example that following the same values over a period of many cycles can get fairly tedious. Support for automating this issue arises in the form of the `display` keyword. By using this interface, one may decide ahead of time on the values to be printed every cycle:
+
+```
+Single stepper> display pc
+Single stepper> display inst
+Single stepper> display reg 5
+Single stepper> display reg 10
+Single stepper> step 1
+Current cycle: 2
+1: PC: 8
+2: 8       : add x10, x10, x5     (0x00550533)
+3: reg5: 1
+4: reg10: 2
+Single stepper> step 1
+Current cycle: 3
+1: PC: 12
+2: 12      : add x10, x10, x5     (0x00550533)
+3: reg5: 1
+4: reg10: 3
+```
+
+If you decide you no longer require a particular stat, you can `undisplay` that specific value by it's associated line number.
+
 # The CPU implementations
 
 Right now, there are two public and one private implementation.
@@ -315,6 +365,14 @@ There may be more in the future.
 
 - `single-cycle`: The single cycle DINO CPU
 - `pipelined`: The fully pipelined DINO CPU with forwarding and hazard detection
+
+There are also two memory systems you can play with for pipelined systems, `combinational` and `non-combinational`. By replacing the CPU implementation with a latency value, you can swap between the two:
+
+```
+sbt:dinocpu> runMain dinocpu.singlestep <test> 1
+```
+
+The above will singlestep through some test on a non-combinational pipelined system with a latency of 1 cycle.
 
 # Adding a new test
 
@@ -325,3 +383,32 @@ See [CPU Test Case](testing.md#cpu-test-case).
 Disassembly is supported by asserting the debug flag to be true in `src/main/scala/configurations.scala`.
 You can find the disassembler in `src/main/scala/utils/disassembler.scala`.
 
+# Creating a trace
+
+To create a trace, you can drive the `stdin` of the single stepper by redirecting a file and then parsing the output.
+For instance, if you store the following into a file called `tmp`, you can get the first 4 cycles.
+
+```
+print regs
+print inst
+step
+print regs
+print inst
+step
+print regs
+print inst
+step
+print regs
+print inst
+step
+print regs
+print inst
+q
+```
+
+Then, you can execute the following code to capture the trace.
+This will redirect the file `tmp` to the `stdin` of the single stepper, drop the first help lines, remove all of the command lines (i.e., `Single stepper > `), and remove all registers that aren't 0.
+
+```
+singularity exec library://jlowepower/default/dinocpu sbt "runMain dinocpu.singlestep naturalsum single-cycle" < tmp | tail -n +39 | sed 's/Single stepper> //g' | grep -v ": 0" > output
+```

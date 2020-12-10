@@ -345,6 +345,7 @@ emulator/obj_dir
 
 # For the simulator
 simulator_run_dir
+*.hex
 
 # For containers
 *.sif

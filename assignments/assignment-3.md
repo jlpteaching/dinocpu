@@ -1,12 +1,13 @@
 ---
 Author: Jason Lowe-Power
-Editor: Justin Perona
+Editor: Justin Perona, Julian Angeles
 Title: DINO CPU Assignment 3
 ---
 
 # DINO CPU Assignment 3
 
-Originally from ECS 154B Lab 3, Winter 2019
+Originally from ECS 154B Lab 3, Winter 2019.
+Modified for ECS 154B Lab 1, Spring 2020.
 
 # Table of Contents
 
@@ -39,7 +40,7 @@ Originally from ECS 154B Lab 3, Winter 2019
 
 In the last assignment, you implemented a full single cycle RISC-V CPU.
 In this assignment, you will be extending this design to be a 5 stage pipeline instead of a single cycle.
-You will also be implementing full forwarding for ALU instructions, hazard detection, and an *always not taken* branch predictor.
+You will also be implementing full forwarding for ALU instructions and hazard detection.
 The simple in-order CPU design is based closely on the CPU model in Patterson and Hennessey's Computer Organization and Design.
 
 ## Updating the DINO CPU code
@@ -47,13 +48,14 @@ The simple in-order CPU design is based closely on the CPU model in Patterson an
 The DINO CPU code must be updated before you can run each lab.
 You should read up on [how to update your code](../documentation/updating-from-git.md) to get the assignment 3 template from GitHub.
 
-You can check out the tag `lab3-wq19` to get the template code for this lab.
+You can check out the master branch to get the template code for this lab.
+If you want to use your solution from lab1 as a starting point, you can merge your commits with the `origin` master by running `git pull` or `git fetch; git merge origin/master`.
 
 ## How this assignment is written
 
 The goal of this assignment is to implement a pipelined RISC-V CPU which can execute all of the RISC-V integer instructions.
 Like the previous assignment, you will be implementing this step by step starting with a simple pipeline in [Part 1](#part-i-re-implement-the-cpu-logic-and-add-pipeline-registers).
-After that, you will add to your design to implement forwarding, branch prediction, and hazard detection.
+After that, you will add to your design to implement forwarding and hazard detection.
 
 ## I/O constraint
 
@@ -73,11 +75,11 @@ You will get errors on Gradescope (and thus no credit) if you modify the I/O.
 # Pipelined CPU design
 
 Below is a diagram of the pipelined DINO CPU.
-This diagram includes all control wires unlike the diagram in [Assignment 2](../assignment-2.md) in addition to all of the MUXes needed.
+This diagram includes all control wires unlike the diagram in [Assignment 2](assignment-2.md) in addition to all of the MUXes needed.
 
 The pipelined design is based very closely on the single cycle design.
 You may notice there are a few minor changes (e.g., the location of the PC MUX).
-You can take your code from the [Assignment 2](../assignment-2.md) as a starting point, or you can use the code provided in `src/main/scala/single-cycle/cpu.scala`, which is my solution to Assignment 2.
+You can take your code from the [Assignment 2](assignment-2.md) as a starting point, or you can use the code provided in `src/main/scala/single-cycle/cpu.scala`, which is my solution to Assignment 2.
 
 ![Pipelined CPU](../documentation/pipelined.svg)
 
@@ -102,7 +104,7 @@ When you see something like the following output when running a test:
 
 This means that the test `bne-False` failed.
 
-For this assignment, we have included a way to single step through each one of the tests.
+For this assignment, it would be a good idea to single step through each one of the failed tests.
 You can find out more information on this in the [DINO CPU documentation](../documentation/single-stepping.md).
 
 You may also want to add your own `printf` statements to help you debug.
@@ -110,7 +112,7 @@ Details on how to do this were are in the [Chisel notes](../documentation/chisel
 
 # Part I: Re-implement the CPU logic and add pipeline registers
 
-In this part, you will be implementing a full pipelined processor with the exception of forwarding, branch prediction, and hazards.
+In this part, you will be implementing a full pipelined processor with the exception of forwarding and hazards.
 After you finish this part, you should be able to correctly execute any *single instruction* application.
 
 **This is the biggest part of this assignment, and is worth the most points.**
@@ -135,29 +137,51 @@ These blocks are the `EXControl`, `MControl`, and `WBControl`.
 We have given you the signals that are needed in the EX stage as an example of how to use these bundles.
 
 ```
-  // Control signals used in EX stage
   class EXControl extends Bundle {
-    val add       = Bool()
-    val immediate = Bool()
-    val alusrc1   = UInt(2.W)
-    val branch    = Bool()
-    val jump      = UInt(2.W)
+    val itype        = Bool()
+    val aluop        = UInt(2.W)
+    val resultselect = UInt(2.W)
+    val alusrc       = Bool()
+    val pcadd        = Bool()
+    val branch       = Bool()
+    val jump         = Bool()
+    val pcfromalu    = Bool()
   }
 ```
 
-You can include `Bundles` in other bundles.
-For instance, in the ID/EX register, you need to pass on the control signals for execute, memory, and writeback.
-You can simply instantiate the control bundles like so:
+You can also create registers for the controls, and in the template we have split these out into other `StageReg`s.
+We have given you the control registers.
+However, each control register simply holds a set of bundles.
+You have to set the correct signals in these bundles.
+
+Note that to access the control signals, you may need an "extra" indirection.
+See the example below:
 
 ```
-  // Everything in the register between ID and EX stages
-  class IDEXBundle extends Bundle {
+class EXControl extends Bundle {
+  val itype        = Bool()
+  val aluop        = UInt(2.W)
+  val resultselect = UInt(2.W)
+  val alusrc       = Bool()
+  val pcadd        = Bool()
+  val branch       = Bool()
+  val jump         = Bool()
+  val pcfromalu    = Bool()
+}
 
-    val excontrol = new EXControl
-    val mcontrol  = new MControl
-    val wbcontrol = new WBControl
-  }
+class IDEXControl extends Bundle {
+  val ex_ctrl  = new EXControl
+  val mem_ctrl = new MControl
+  val wb_ctrl  = new WBControl
+}
+
+val id_ex_ctrl  = Module(new StageReg(new IDEXControl))
+...
+
+id_ex_ctrl.io.in.ex_ctrl.aluop     := control.io.aluop
 ```
+
+Specifically in `id_ex_ctrl.io.in.ex_ctrl.aluop` you have to specify `ex_ctrl.aluop` since you are are getting a signal out of the `ex_ctrl` part of the `IDEXControl` bundle.
 
 This pipeline register/bundle isn't complete.
 It's missing *a lot* of important signals, which you'll need to add.
@@ -169,10 +193,27 @@ Throughout the given template code in `src/main/scala/pipelined/cpu.scala`, we h
 We have also already instantiated each of the pipeline registers for you as shown below.
 
 ```
-val if_id      = RegInit(0.U.asTypeOf(new IFIDBundle))
-val id_ex      = RegInit(0.U.asTypeOf(new IDEXBundle))
-val ex_mem     = RegInit(0.U.asTypeOf(new EXMEMBundle))
-val mem_wb     = RegInit(0.U.asTypeOf(new MEMWBBundle))
+val if_id       = Module(new StageReg(new IFIDBundle))
+
+val id_ex       = Module(new StageReg(new IDEXBundle))
+val id_ex_ctrl  = Module(new StageReg(new IDEXControl))
+
+val ex_mem      = Module(new StageReg(new EXMEMBundle))
+val ex_mem_ctrl = Module(new StageReg(new EXMEMControl))
+
+val mem_wb      = Module(new StageReg(new MEMWBBundle))
+val mem_wb_ctrl = Module(new StageReg(new MEMWBControl))
+```
+
+For the `StageReg`, you have to specify whether the inputs are valid via the `valid` signal.
+When this signal is high, this tells the register to write the values on the `in` lines to the register.
+Similarly, there is a `flush` signal that when high will set all of the register values to `0` flushing the register.
+In Part III, when implementing the hazard unit, you will have to wire these signals to the hazard detection unit.
+For Part I, all of the registers (including the control registers) should always be `valid` and not `flush` as shown below.
+
+```
+if_id.io.valid := true.B
+if_id.io.flush := false.B
 ```
 
 For Part I, you **do not** need to use the hazard detection unit or the forwarding unit.
@@ -230,7 +271,7 @@ Don't forget about [how to single-step through the pipelined CPU](../documentati
 
 There are five steps to implementing branches and flushing.
 
-1. Add a MUX for PC write
+1. Add MUXes for PC stall and PC from taken
 2. Add code to bubble for ID/EX and EX/MEM
 3. Add code to flush IF/ID
 4. Connect the taken signal to the hazard detection unit
@@ -279,13 +320,8 @@ Don't forget about [how to single-step through the pipelined CPU](../documentati
 ## Full application traces
 
 To make debugging easier, below are links to the full application traces from the solution to Lab 3.
-To generate these traces, you can use the following:
-
-```
-singularity exec library://jlowepower/default/dinocpu sbt -mem 2048 "Lab3 / testOnly dinocpu.ApplicationsTesterLab3 -- -z sum" | grep "DASM\|Cycle" | spike-dasm
-```
-
-If you don't have `spike-dasm`, you can skip the last step above.
+To check your design, you can use the singlestep program.
+If you run `print inst` at the prompt in the singlestep program it will print the current PC and the instruction at that PC (in the fetch stage).
 
 - [Fibonacci](https://gist.github.com/powerjg/258c7941516f9c66471cd98f9f179d06)
 - [Natural sum](https://gist.github.com/powerjg/974a97de1a54bd85002fc32efe3358c8)
@@ -303,7 +339,6 @@ See [the Submission section](#Submission) for more information on how to submit 
 | Part II  | 10%        |
 | Part III | 10%        |
 | Part IV  | 20%        |
-| Feedback | 10%        |
 
 # Submission
 
@@ -312,7 +347,7 @@ Failure to adhere to the instructions will result in a loss of points.
 
 ## Code portion
 
-You will upload the three files that you changed to Gradescope on the [Assignment 3]() assignment.
+You will upload the three files that you changed to Gradescope on the [Assignment 3.2]() assignment.
 
 - `src/main/scala/components/forwarding.scala`
 - `src/main/scala/components/hazard.scala`
@@ -341,10 +376,9 @@ GitHub now allows everybody to create unlimited private repositories for up to t
 
 - [ ] You have commented out or removed any extra debug statements.
 - [ ] You have uploaded three files: `cpu.scala`, `hazard.scala`, and `forwarding.scala`.
-- [ ] You have filled out the [feedback form](https://goo.gl/forms/Nf24HWcWSz19IPgE3).
 
 # Hints
 
-- Start early! There is a steep learning curve for Chisel, so start early and ask questions on Piazza and in discussion.
-- If you need help, come to office hours for the TAs, or post your questions on Piazza.
+- Start early! There is a steep learning curve for Chisel, so start early and ask questions on Campuswire and in discussion.
+- If you need help, come to office hours for the TAs, or post your questions on Campuswire.
 - See [common errors](../documentation/common-errors.md) for some common errors and their solutions.

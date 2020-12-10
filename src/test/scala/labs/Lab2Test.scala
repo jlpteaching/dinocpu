@@ -4,6 +4,8 @@
 
 package dinocpu
 
+import dinocpu._
+import chisel3._
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 import dinocpu.components._
 import dinocpu.test._
@@ -154,33 +156,6 @@ class SingleCycleLoadStoreTesterLab2 extends CPUFlatSpec {
   }
 }
 
-// Unit tests for the Branch control logic
-/**
-  * This is a trivial example of how to run this Specification
-  * From within sbt use:
-  * {{{
-  * testOnly dinocpu.BranchControlTesterLab2
-  * }}}
-  * From a terminal shell use:
-  * {{{
-  * sbt 'testOnly dinocpu.BranchControlTesterLab2'
-  * }}}
-  */
-
-class BranchControlTesterLab2 extends ChiselFlatSpec {
-  "BranchControl" should "correctly check when branching for each opcode" in {
-    Driver(() => new BranchControl) {
-      c => new BranchControlUnitTester(c)
-    } should be (true)
-  }
-  "BranchControl" should "should never branch" in {
-    Driver(() => new BranchControl) {
-      c => new BranchControlUnitTester(c, false)
-    } should be (true)
-  }
-
-}
-
 /**
   * This is a trivial example of how to run this Specification
   * From within sbt use:
@@ -293,6 +268,49 @@ class ControlTesterLab2 extends ChiselFlatSpec {
     } should be (true)
   }
 }
+
+class ALUControlUnitBTypeTester(c: ALUControl) extends PeekPokeTester(c) {
+  private val ctl = c
+
+  // Copied from Patterson and Waterman Figure 2.3
+  val tests = List(
+    // alu,   itype,    Funct7,       Func3,    Control Input
+    (  1.U, false.B,  "b0000000".U, "b000".U, "b1101".U, "beq"),
+    (  1.U, false.B,  "b0000000".U, "b001".U, "b1110".U, "bne"),
+    (  1.U, false.B,  "b0000000".U, "b100".U, "b1000".U, "blt"),
+    (  1.U, false.B,  "b0000000".U, "b101".U, "b1011".U, "bge"),
+    (  1.U, false.B,  "b0000000".U, "b110".U, "b0101".U, "bltu"),
+    (  1.U, false.B,  "b0000000".U, "b111".U, "b1100".U, "bgeu")
+  )
+
+  for (t <- tests) {
+    poke(ctl.io.aluop, t._1)
+    poke(ctl.io.itype, t._2)
+    poke(ctl.io.funct7, t._3)
+    poke(ctl.io.funct3, t._4)
+    step(1)
+    expect(ctl.io.operation, t._5, s"${t._6} wrong")
+  }
+}
+
+/**
+  * This is a trivial example of how to run this Specification
+  * From within sbt use:
+  * {{{
+  * Lab2 / testOnly dinocpu.ALUControlTesterLab2
+  * }}}
+  * From a terminal shell use:
+  * {{{
+  * sbt 'Lab2 / testOnly dinocpu.ALUControlTesterLab2'
+  * }}}
+  */
+class ALUControlTesterLab2 extends ChiselFlatSpec {
+  "ALUControl" should s"match expectations for each intruction type" in {
+    Driver(() => new ALUControl) {
+      c => new ALUControlUnitBTypeTester(c)
+    } should be (true)
+  }
+} 
 
 
 

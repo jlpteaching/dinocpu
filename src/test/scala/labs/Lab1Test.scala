@@ -15,22 +15,34 @@ class ALUControlUnitRTypeTester(c: ALUControl) extends PeekPokeTester(c) {
 
   // Copied from Patterson and Waterman Figure 2.3
   val tests = List(
-    // add,   imm,      Funct7,       Func3,    Control Input
-    ( false.B, false.B, "b0000000".U, "b000".U, "b0010".U, "add"),
-    ( false.B, false.B, "b0100000".U, "b000".U, "b0011".U, "sub"),
-    ( false.B, false.B, "b0000000".U, "b001".U, "b0110".U, "sll"),
-    ( false.B, false.B, "b0000000".U, "b010".U, "b0100".U, "slt"),
-    ( false.B, false.B, "b0000000".U, "b011".U, "b0101".U, "sltu"),
-    ( false.B, false.B, "b0000000".U, "b100".U, "b1001".U, "xor"),
-    ( false.B, false.B, "b0000000".U, "b101".U, "b0111".U, "srl"),
-    ( false.B, false.B, "b0100000".U, "b101".U, "b1000".U, "sra"),
-    ( false.B, false.B, "b0000000".U, "b110".U, "b0001".U, "or"),
-    ( false.B, false.B, "b0000000".U, "b111".U, "b0000".U, "and")
+    // alu,   itype,    Funct7,       Func3,    Control Input
+    (  0.U, false.B, "b0000000".U, "b000".U, "b0010".U, "load/store"),
+    (  0.U, false.B, "b1111111".U, "b111".U, "b0010".U, "load/store"),
+    (  0.U, false.B, "b0000000".U, "b000".U, "b0010".U, "load/store"),
+    (  2.U, false.B, "b0000000".U, "b000".U, "b0010".U, "add"),
+    (  2.U, false.B, "b0100000".U, "b000".U, "b0011".U, "sub"),
+    (  2.U, false.B, "b0000000".U, "b001".U, "b1001".U, "sll"),
+    (  2.U, false.B, "b0000000".U, "b010".U, "b1000".U, "slt"),
+    (  2.U, false.B, "b0000000".U, "b011".U, "b0101".U, "sltu"),
+    (  2.U, false.B, "b0000000".U, "b100".U, "b0110".U, "xor"),
+    (  2.U, false.B, "b0000000".U, "b101".U, "b0111".U, "srl"),
+    (  2.U, false.B, "b0100000".U, "b101".U, "b0100".U, "sra"),
+    (  2.U, false.B, "b0000000".U, "b110".U, "b0001".U, "or"),
+    (  2.U, false.B, "b0000000".U, "b111".U, "b0000".U, "and"),
+    (  2.U, true.B,  "b0000000".U, "b000".U, "b0010".U, "addi"),
+    (  2.U, true.B,  "b0000000".U, "b010".U, "b1000".U, "slti"),
+    (  2.U, true.B,  "b0000000".U, "b011".U, "b0101".U, "sltiu"),
+    (  2.U, true.B,  "b0000000".U, "b100".U, "b0110".U, "xori"),
+    (  2.U, true.B,  "b0000000".U, "b110".U, "b0001".U, "ori"),
+    (  2.U, true.B,  "b0000000".U, "b111".U, "b0000".U, "andi"),
+    (  2.U, true.B,  "b0000000".U, "b001".U, "b1001".U, "slli"),
+    (  2.U, true.B,  "b0000000".U, "b101".U, "b0111".U, "srli"),
+    (  2.U, true.B,  "b0100000".U, "b101".U, "b0100".U, "srai")
   )
 
   for (t <- tests) {
-    poke(ctl.io.add, t._1)
-    poke(ctl.io.immediate, t._2)
+    poke(ctl.io.aluop, t._1)
+    poke(ctl.io.itype, t._2)
     poke(ctl.io.funct7, t._3)
     poke(ctl.io.funct3, t._4)
     step(1)

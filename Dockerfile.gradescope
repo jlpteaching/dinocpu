@@ -15,32 +15,6 @@ RUN \
   apt-get update -y && \
   apt-get install sbt -y
 
-# Install verilator
-RUN \
-  git clone http://git.veripool.org/git/verilator && \
-  cd verilator && \
-  git checkout verilator_3_904 && \
-  autoconf && \
-  ./configure && \
-  make -j8 && make install && \
-  cd .. && rm -rf verilator
-
-# Install riscv-fesvr. This isn't required right now, but might be useful later
-RUN \
-  git clone https://github.com/codelec/riscv-fesvr && \
-  cd riscv-fesvr && \
-  git checkout f9754d8db7d8c1bd659f223017873fb6a25f1257 && \
-  mkdir build && cd build && \
-  ../configure --prefix=/usr && \
-  make install && \
-  cd ../../ && rm -rf riscv-fesvr
-
-# Get the dependencies
-WORKDIR /opt
-ADD get_and_build_deps.sh /opt
-
-RUN ./get_and_build_deps.sh
-
 # Change to the working directory where we are going to run everything
 # Copy all needed files into the workdir
 WORKDIR /dinocpu

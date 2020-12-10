@@ -8,6 +8,7 @@ import dinocpu.components._
 import dinocpu.memory._
 import dinocpu.pipelined.PipelinedCPU
 import dinocpu.pipelined.PipelinedCPUBP
+import dinocpu.pipelined.PipelinedNonCombinCPU
 
 /**
  * This class configures all of the dinocpus. It takes parameters for the type of CPU model
@@ -34,6 +35,15 @@ class CPUConfig
   /** The backing memory type */
   var memType = "combinational"
 
+  def printConfig(): Unit = {
+    println(s"CPU Type: ${cpuType}")
+    println(s"Branch predictor: ${branchPredictor}")
+    println(s"Memory file: ${memFile}")
+    println(s"Memory type: ${memType}")
+    println(s"Memory port type: ${memPortType}")
+    println(s"Memory latency (ignored if combinational): ${memLatency}")
+  }
+
   /**
    * Returns the CPU that we will be elaborating
    *
@@ -45,6 +55,7 @@ class CPUConfig
       case "single-cycle" => new SingleCycleCPU
       case "pipelined" => new PipelinedCPU
       case "pipelined-bp" => new PipelinedCPUBP
+      case "pipelined-non-combin" => new PipelinedNonCombinCPU
       case _ => throw new IllegalArgumentException("Must specify known CPU model")
     }
   }
