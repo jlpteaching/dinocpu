@@ -21,8 +21,8 @@ At the end, you will be able to run *real applications* compiled with GCC on you
 ## [Assignment 3: A pipelined CPU design](assignments/assignment-3.md)
 
 In this assignment, broken into two parts, you will be implementing a more realistic, pipelined-based core design.
-In the first part, you will split your single cycle design into five different pipeline stages and ensure that the R-type instructions' datapath is wired correctly.
-Then, in part two you will finish wiring the rest of the datapath and the control path.
+In the first part, you will split your single cycle design into five different pipeline stages and ensure that all instructions except control have a correctly wired datapath.
+Then, in part two you will finish wiring the rest of the datapath and the control path for the control instructions and implement the hazard detection and forwarding logic.
 
 ## [Assignment 4: Adding a branch predictor](assignments/assignment-4-bp.md)
 
