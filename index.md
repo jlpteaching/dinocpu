@@ -3,6 +3,8 @@
 
 # DINO CPU Assignments
 
+See the [GitHub Repository]({{ site.github.repository_url }}) for high-level details about the DINO CPU project and how to contribute.
+
 ## [Assignment 1: Getting started with Chisel](assignments/assignment-1.md)
 
 In this assignment, we will introduce you to the [Chisel](https://www.chisel-lang.org/) "hardware construction language" by asking you to implement a couple of simple circuits in Chisel.
