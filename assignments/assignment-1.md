@@ -11,6 +11,8 @@ Modified for ECS 154B Lab 1, Spring 2020.
 
 # Table of Contents
 
+## Table of Contents
+
 * [Introduction](#introduction)
   * [Goals](#goals)
   * [Tools](#tools)
@@ -31,8 +33,7 @@ Modified for ECS 154B Lab 1, Spring 2020.
 * [Hints](#hints)
   * [Printf debugging](#printf-debugging)
 
-
-# Introduction
+## Introduction
 
 ![Cute Dino](../dino-128.png)
 
@@ -44,13 +45,11 @@ Through this course, we will be building this CPU from the ground up.
 You will be provided with some template code which contains a set of interfaces between CPU components and some pre-written components.
 You will combine these components together into a working processor!
 
-You can check out the tag `lab1-sq20` to get the template code for this lab.
-
 ## Goals
 
-- Learn how to use Chisel
-- Learn how to run tests and debug Chisel
-- Start implementing a RISC-V CPU!
+* Learn how to use Chisel
+* Learn how to run tests and debug Chisel
+* Start implementing a RISC-V CPU!
 
 ## Tools
 
@@ -102,7 +101,7 @@ ln -s ~/.singularity/cache /tmp/jlp/singularitycache
 
 Let us know if you would like more details on this method via Campuswire.
 
-# Part I: Implement the ALU Control
+## Part I: Implement the ALU Control
 
 **The test for this part is `dinocpu.ALUControlTesterLab1`.**
 
@@ -130,9 +129,9 @@ The following table details the `operation` input and which values produce which
 You must take the RISC-V ISA specification and implement the proper control to choose the right ALU operation.
 You can find the specification in the following places:
 
-- the first page of the Computer Organization and Design book
-- on page 16 in the RISC-V reader
-- [on the RISC-V website](https://riscv.org/specifications/)
+* the first page of the Computer Organization and Design book
+* on page 16 in the RISC-V reader
+* [on the RISC-V website](https://riscv.org/specifications/)
 
 | 31--25  | 24--20 | 19--15 | 14--12 | 11--7 | 6--0      |        |
 |---------|--------|--------|--------|-------|-----------|--------|
@@ -153,8 +152,8 @@ This table is from the RISC-V User-level ISA Specification v2.2, page 104.
 You can find the same information in Chapter 2 of the Specification, Chapter 2 of the RISC-V reader, or in the front of the Computer Organization and Design book.
 
 The ALU control takes four inputs:
-- `aluop` and `itype`, which come from the control unit (you will implement this in the next lab)
-- `funct7` and `funct3`, which come from the instruction
+* `aluop` and `itype`, which come from the control unit (you will implement this in the next lab)
+* `funct7` and `funct3`, which come from the instruction
 
 You can ignore the `aluop` and `itype` for now.
 Assume both are always `0`.
@@ -163,7 +162,7 @@ Given these inputs, you must generate the correct output on the operation wire.
 The template code from `src/main/scala/components/alucontrol.scala` is shown below.
 You will fill in where it says *Your code goes here*.
 
-```
+```scala
 /**
  * The ALU control unit
  *
@@ -295,7 +294,7 @@ dinocpu:sbt> testOnly dinocpu.ALUControlTesterLab1
 
 Feel free to add your own tests in `src/tests/scala`, modify the current tests, and add `print` statements in the tests.
 
-# Part II: Draw a diagram for implementing R-type instructions
+## Part II: Draw a diagram for implementing R-type instructions
 
 For the rest of the assignments, you will implement all of RISC-V's R-type instructions.
 Since you have implemented the ALU control, there isn't much more to do except to connect the correct wires together.
@@ -308,9 +307,10 @@ We've provided you with a [blank circuit diagram](./assignment-1-worksheet.pdf).
 Draw all of the wires and label which bits are on each wire.
 
 We will be grading this diagram and looking for the following things:
-- The correct wires.
-- Every wire should contain its width in bits.
-- For wires that are a subset of all of the bits, label which bits are on the wire.
+
+* The correct wires.
+* Every wire should contain its width in bits.
+* For wires that are a subset of all of the bits, label which bits are on the wire.
 
 Figure 4.15 from Computer Organization and Design below is an example of what we are looking for.
 Notice how the instruction wire is broken into is sub-components.
@@ -329,7 +329,7 @@ You only need to implement the *R-type* instructions, not all RISC-V instruction
 **Hint 2**: The control unit as provided is *completely empty* and has `false` or 0 on every output.
 *You do not need to use the control unit for this assignment!*
 
-# Part III: Implement the ADD instruction
+## Part III: Implement the ADD instruction
 
 **The test for this part is `dinocpu.SingleCycleAddTesterLab1`.**
 
@@ -346,7 +346,7 @@ You will be removing the `:= DontCare` as you hook up the modules in this part o
 
 We have given you the one part of the answer:
 
-```
+```scala
 io.imem.address := pc
 ```
 
@@ -355,7 +355,7 @@ This creates a wire from the PC to the instruction memory.
 ![PC to inst mem](pc-to-imem.svg)
 
 You should fill in the other wires (and instruction subsets) that are required to implement the `add` RISC-V instruction.
-We will be talking in detail about RISC-V instructions and how to design a RISC-V processor during the second week's lectures, as shown on the [schedule](https://github.com/jlpteaching/ECS154B/blob/master/syllabus/schedule.csv).
+You can find more details in the [Single Cycle CPU Design Module](https://jlpteaching.github.io/ECS154B/modules/processor%20architecture/single-cycle/).
 
 **Important**: You will not need to modify anything below the `Object to make it easier to print information about the CPU` line.
 This code should be kept the same for everyone.
@@ -363,7 +363,7 @@ This code should be kept the same for everyone.
 You may add debug code, as you are working on the assignment.
 However, when you turn in your assignment, please comment out or remove your debug code before submitting.
 
-## Testing your ADD instruction
+### Testing your ADD instruction
 
 Testing the CPU is very similar to testing your control unit [above](#testing-your-alu-control-unit).
 To run the tests, you execute the `SingleCycleCPUTesterLab1` suite as follows.
@@ -419,12 +419,12 @@ The test only runs for a single cycle, since you're just executing one instructi
 Note that the test initializes `t0` to 1234.
 You can see this on line 70 in `src/test/scala/labs/Lab1Test.scala`.
 This creates a `CPUTestCase` that:
-- runs the `add1` program
-- uses the `single-cycle` CPU
-- initializes the `t0` register to 1234
-- checks that `zero` is 0, `t0` is 1234, and `t1` is 1234
-- doesn't initialize any memory addresses
-- doesn't check any memory addresses
+* runs the `add1` program
+* uses the `single*cycle` CPU
+* initializes the `t0` register to 1234
+* checks that `zero` is 0, `t0` is 1234, and `t1` is 1234
+* doesn't initialize any memory addresses
+* doesn't check any memory addresses
 
 More information about `CPUTestCase` can be found in the code (`src/test/scala/cpu-tests/CPUTesterDriver.scala`, line 94), and in the [DINO CPU documentation](../documentation/testing.md).
 
@@ -434,7 +434,7 @@ An example on how to use it is shown below.
 
 First, you can start the single stepper program:
 
-```
+```sbt
 runMain dinocpu.singlestep add1 single-cycle
 ```
 
@@ -463,7 +463,7 @@ registers.io.wen               1 (0x1)
 
 This is saying that you're reading registers 1 and 5, the value in register 1 is 0, the value in register 5 is 1234, you're writing register 6, the value you're writing is 1234, and you're asserting `wen`.
 
-Similarly, the ALU wires should look like the follwing:
+Similarly, the ALU wires should look like the following:
 
 ```
 Single stepper> dump alu
@@ -495,7 +495,7 @@ More details on how to use the single stepper can be found in the [documentation
 You can also write `?` on the command prompt to see the help.
 
 
-# Part IV: Implementing the rest of the R-type instructions
+## Part IV: Implementing the rest of the R-type instructions
 
 **The test for this part is `dinocpu.SingleCycleRTypeTesterLab1`.**
 
@@ -509,9 +509,9 @@ Now, test them to make sure that they do!
 You may need to update the wires in your CPU design to get all of the R-type instructions to work.
 There are a couple of tricky ones that may cause you to re-think your design.
 
-- `add0` tests to make sure you don't overwrite register 0 (it should always be 0 in RISC-V).
-- The `sub` and `sra` instructions will stress corner cases in your ALU control unit, but you already passed those tests so it should work!
-- The signed and unsigned versions of instructions are also tricky.
+* `add0` tests to make sure you don't overwrite register 0 (it should always be 0 in RISC-V).
+* The `sub` and `sra` instructions will stress corner cases in your ALU control unit, but you already passed those tests so it should work!
+* The signed and unsigned versions of instructions are also tricky.
 
 ## Testing the rest of the instructions
 
@@ -536,7 +536,7 @@ Below is an example of a test that failed:
 This ran an **rtype** application which used the binary **add1**.
 You can view the RISC-V assembly for this application in `src/test/resources/risc-v/add1.riscv`.
 The list of applications that this suite will run can be found in the `InstTests.scala` file (`src/test/scala/cpu-tests/InstTests.scala`).
-If you want more details on the syntax and how to extend this to other RISC-V binaries, ask on Campuswire and we will be happy to expand this section.
+If you want more details on the syntax and how to extend this to other RISC-V binaries, ask on Discord and we will be happy to expand this section.
 
 If you want to run only a single application from this suite of tests, you can add a parameter to the `test` sbt task.
 You can pass the option `-z` which will execute any tests that match the text given to the parameter.
@@ -549,7 +549,7 @@ sbt> testOnly dinocpu.SingleCycleRTypeTesterLab1 -- -z sub
 
 Remember, you can also use the `singlestep` application to inspect wires and registers or use Chisel's debug printing.
 
-# Part V: Moving on to multiple cycles
+## Part V: Moving on to multiple cycles
 
 **The test for this part is `dinocpu.SingleCycleMultiCycleTesterLab1`.**
 
@@ -578,7 +578,7 @@ _start: #checks if v is a power of 2
 _last:
 ```
 
-## Testing
+### Testing
 
 To run just one test, you can use the `-z` trick from above.
 
@@ -586,7 +586,7 @@ To run just one test, you can use the `-z` trick from above.
 dinocpu:sbt> testOnly dinocpu.SingleCycleMultiCycleTesterLab1 -- -z addfwd
 ```
 
-# Grading
+## Grading
 
 Grading will be done automatically on Gradescope.
 See [the Submission section](#Submission) for more information on how to submit to Gradescope.
@@ -600,17 +600,17 @@ See [the Submission section](#Submission) for more information on how to submit 
 | Other instructions | 15% |
 | Multiple cycles    | 10% |
 
-# Submission
+## Submission
 
 **Warning**: read the submission instructions carefully.
 Failure to adhere to the instructions will result in a loss of points.
 
-## Code portion
+### Code portion
 
 You will upload the two files that you changed to Gradescope on the [Lab 1]() assignment.
 
-- `src/main/scala/components/alucontrol.scala`
-- `src/main/scala/single-cycle/cpu.scala`
+* `src/main/scala/components/alucontrol.scala`
+* `src/main/scala/single-cycle/cpu.scala`
 
 Once uploaded, Gradescope will automatically download and run your code.
 This should take less than 5 minutes.
@@ -631,19 +631,19 @@ Any code found on GitHub that is not the base template you are given will be rep
 If you want to sidestep this problem entirely, don't create a public fork and instead create a private repository to store your work.
 GitHub now allows everybody to create unlimited private repositories for up to three collaborators, and you shouldn't have *any* collaborators for your code in this class.
 
-# Hints
+### Hints
 
-- Start early! There is a steep learning curve for Chisel, so start early and ask questions on Campuswire and in discussion.
-- If you need help, come to office hours for the TAs, or post your questions on Campuswire.
-- See [common errors](../documentation/common-errors.md) for some common errors and their solutions.
+* Start early! There is a steep learning curve for Chisel, so start early and ask questions on discord and in discussion.
+* If you need help, come to office hours for the TAs, or post your questions on discord.
+* See [common errors](../documentation/common-errors.md) for some common errors and their solutions.
 
 ## Printf debugging
 
 This is the best style of debugging for this assignment.
 
-- Use printf when you want to print *during the simulation*.
-  - Note: this will print *at the end of the cycle* so you'll see the values on the wires after the cycle has passed.
-  - Use `printf(p"This is my text with a $var\n")` to print Chisel variables. Notice the "p" before the quote!
-  - You can also put any Scala statement in the print statement (e.g., `printf(p"Output: ${io.output})`).
-  - Use `println` to print during compilation in the Chisel code or during test execution in the test code. This is mostly like Java's `println`.
-  - If you want to use Scala variables in the print statement, prepend the statement with an 's'. For example, `println(s"This is my cool variable: $variable")` or `println(s"Some math: 5 + 5 = ${5+5}")`.
+* Use printf when you want to print *during the simulation*.
+  * Note: this will print *at the end of the cycle* so you'll see the values on the wires after the cycle has passed.
+  * Use `printf(p"This is my text with a $var\n")` to print Chisel variables. Notice the "p" before the quote!
+  * You can also put any Scala statement in the print statement (e.g., `printf(p"Output: ${io.output})`).
+  * Use `println` to print during compilation in the Chisel code or during test execution in the test code. This is mostly like Java's `println`.
+  * If you want to use Scala variables in the print statement, prepend the statement with an 's'. For example, `println(s"This is my cool variable: $variable")` or `println(s"Some math: 5 + 5 = ${5+5}")`.
