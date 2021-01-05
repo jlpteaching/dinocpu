@@ -1,6 +1,6 @@
 ---
 Authors: Jason Lowe-Power, Filipe Eduardo Borges
-Editor: Justin Perona, Julian Angeles
+Editor: Justin Perona, Julian Angeles, Maryam Babaie
 Title: DINO CPU Assignment 1
 ---
 
@@ -205,7 +205,7 @@ Thus, there are Lab 1-specific tests in `src/test/scala/labs/Lab1Test.scala`.
 To run these tests, you simply need to execute the following at the sbt command prompt:
 
 ```
-dinocpu:sbt> test
+sbt:dinocpu> test
 ```
 
 If you try this before you implement your ALU control unit, you'll see something like the following:
@@ -289,7 +289,7 @@ In this part of the assignment, you only need to run the ALU control unit tests.
 To run just these tests, you can use the sbt command `testOnly`, as demonstrated below.
 
 ```
-dinocpu:sbt> testOnly dinocpu.ALUControlTesterLab1
+sbt:dinocpu> testOnly dinocpu.ALUControlTesterLab1
 ```
 
 Feel free to add your own tests in `src/tests/scala`, modify the current tests, and add `print` statements in the tests.
@@ -369,7 +369,7 @@ Testing the CPU is very similar to testing your control unit [above](#testing-yo
 To run the tests, you execute the `SingleCycleCPUTesterLab1` suite as follows.
 
 ```
-dinocpu:sbt> testOnly dinocpu.SingleCycleAddTesterLab1
+sbt:dinocpu> testOnly dinocpu.SingleCycleAddTesterLab1
 ```
 
 This runs a very simple RISC-V application that has a single instruction: `add`.
@@ -519,7 +519,7 @@ Testing the CPU is very similar to testing your control unit [above](#testing-yo
 To run the tests, you execute the `SingleCycleRTypeTesterLab1` suite as follows:
 
 ```
-dinocpu:sbt> testOnly dinocpu.SingleCycleRTypeTesterLab1
+sbt:dinocpu> testOnly dinocpu.SingleCycleRTypeTesterLab1
 ```
 
 This will load some binary applications from `src/test/resources/risc-v`.
@@ -544,7 +544,7 @@ You must use `--` between the parameters to the sbt task (e.g., the suite to run
 For instance, to only run the subtract test, you would use the following:
 
 ```
-sbt> testOnly dinocpu.SingleCycleRTypeTesterLab1 -- -z sub
+sbt:dinocpu> testOnly dinocpu.SingleCycleRTypeTesterLab1 -- -z sub
 ```
 
 Remember, you can also use the `singlestep` application to inspect wires and registers or use Chisel's debug printing.
@@ -583,7 +583,7 @@ _last:
 To run just one test, you can use the `-z` trick from above.
 
 ```
-dinocpu:sbt> testOnly dinocpu.SingleCycleMultiCycleTesterLab1 -- -z addfwd
+sbt:dinocpu> testOnly dinocpu.SingleCycleMultiCycleTesterLab1 -- -z addfwd
 ```
 
 ## Grading
