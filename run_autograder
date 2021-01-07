@@ -14,7 +14,7 @@ done
 cd /dinocpu
 
 # Run the test. This should generate the json file in /autograder/results
-sbt "Grader / testOnly dinocpu.Lab4Grader"
+sbt "Grader / testOnly dinocpu.test.grader.Lab4Grader"
 
 # Remove all of the colors from the json
 cd /autograder/results
