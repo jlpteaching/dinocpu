@@ -1,6 +1,6 @@
 ---
 Authors: Jason Lowe-Power, Filipe Eduardo Borges
-Editor: Justin Perona, Julian Angeles
+Editor: Justin Perona, Julian Angeles, Maryam Babaie
 Title: DINO CPU Assignment 2
 ---
 
@@ -606,7 +606,7 @@ In this part of the assignment, you only need to run the alu control unit tests.
 To run just these tests, you can use the sbt comand `testOnly`, as demonstrated below.
 
 ```
-dinocpu:sbt> testOnly dinocpu.ALUControlTesterLab2
+sbt:dinocpu> testOnly dinocpu.ALUControlTesterLab2
 ```
 
 ## Implementing branch instructions
