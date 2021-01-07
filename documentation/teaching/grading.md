@@ -24,7 +24,7 @@ Make sure that you have checked out the labX branch before building the docker f
 To test the grade image, run
 
 ```
-docker run --rm -w $PWD -v $PWD:$PWD -it jlpteaching/dinocpu-grading:labX bash
+docker run --rm -w $PWD -v $PWD:$PWD -it jlpteaching/dino-grading:labX bash
 ```
 
 In the dinocpu directory, check out the master branch (which has the correct solution).
