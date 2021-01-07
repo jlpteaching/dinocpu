@@ -9,4 +9,8 @@ import dinocpu.components._
   */
 abstract class BaseCPU extends Module {
   val io = IO(new CoreIO())
+
+  // Required so the compiler doesn't optimize things away when testing
+  // incomplete designs.
+  dontTouch(io)
 }

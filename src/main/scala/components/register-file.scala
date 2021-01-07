@@ -46,6 +46,10 @@ class RegisterFile(implicit val conf: CPUConfig) extends Module {
     val readdata2 = Output(UInt(32.W))
   })
 
+  // Required so the compiler doesn't optimize things away when testing
+  // incomplete designs.
+  dontTouch(io)
+
   val regs = Reg(Vec(32, UInt(32.W)))
 
   // When the write enable is high, write the data
