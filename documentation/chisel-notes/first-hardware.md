@@ -135,7 +135,7 @@ val adder1 = Module(new SimpleAdder())
 val adder2 = Module(new SimpleAdder())
 
 adder2.io.inputx := adder1.io.result
-adder2.io.inputx := 3.U
+adder2.io.inputy := 3.U
 
 io.success := Mux(adder2.io.result === 128.U, true.B, false.B)
 ```
