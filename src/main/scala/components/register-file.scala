@@ -66,7 +66,8 @@ class RegisterFile(implicit val conf: CPUConfig) extends Module {
     // For the five-cycle and pipelined CPU forward the data through the register file
     when (io.readreg1 === io.writereg && io.wen) {
       io.readdata1 := io.writedata
-    } .elsewhen (io.readreg2 === io.writereg && io.wen) {
+    }
+    when (io.readreg2 === io.writereg && io.wen) {
       io.readdata2 := io.writedata
     }
   }
