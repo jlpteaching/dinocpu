@@ -5,7 +5,7 @@ def scalacOptionsVersion(scalaVersion: String): Seq[String] = {
     //  https://github.com/scala/bug/issues/10047
     CrossVersion.partialVersion(scalaVersion) match {
       case Some((2, scalaMajor: Long)) if scalaMajor < 12 => Seq()
-      case _ => Seq("-Xsource:2.11")
+      case _ => Seq("-Xsource:2.13")
     }
   }
 }
@@ -19,7 +19,7 @@ def javacOptionsVersion(scalaVersion: String): Seq[String] = {
       case Some((2, scalaMajor: Long)) if scalaMajor < 12 =>
         Seq("-source", "1.7", "-target", "1.7")
       case _ =>
-        Seq("-source", "1.8", "-target", "1.8")
+        Seq("-source", "1.11", "-target", "1.11")
     }
   }
 }
@@ -28,7 +28,7 @@ name := "dinocpu"
 version := "0.5"
 organization := "edu.ucdavis.cs"
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.13.8"
 
 crossScalaVersions := Seq("2.12.10", "2.11.12")
 
@@ -38,12 +38,15 @@ resolvers ++= Seq(
 )
 
 // Provide a managed dependency on X if -DXVersion="" is supplied on the command line.
+// Shopping for libraries versions here: https://repo1.maven.org/maven2/edu/berkeley/cs/
 val defaultVersions = Map(
-  "chisel3" -> "3.2.+",
-  "chisel-iotesters" -> "1.3.+"
+  "chisel3" -> "3.5.+",
+  "chiseltest" -> "0.+",
+  "firrtl" -> "1.5.+",
+  "treadle" -> "1.5+"
   )
 
-libraryDependencies ++= Seq("chisel3","chisel-iotesters").map {
+libraryDependencies ++= Seq("chisel3","chiseltest", "firrtl", "treadle").map {
   dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep)) }
 
 libraryDependencies ++= Seq("org.jline" % "jline" % "3.5.1")
