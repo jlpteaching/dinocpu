@@ -13,6 +13,9 @@ object elaborate {
 
     val conf = new CPUConfig()
     conf.cpuType = args(0)
-    chisel3.Driver.execute(args, () => new Top(conf))
+    (new chisel3.stage.ChiselStage).execute(
+      args,
+      Seq(chisel3.stage.ChiselGeneratorAnnotation(() => new Top(conf)))
+    )
   }
 }
