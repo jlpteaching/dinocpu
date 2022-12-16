@@ -8,8 +8,8 @@ import dinocpu.memory.MemoryOperation._
 
 // A Bundle used for temporarily storing the necessary information for a  read/write in the data memory accessor.
 class OutstandingReq extends Bundle {
-  val address   = UInt(32.W)
-  val writedata = UInt(32.W)
+  val address   = UInt(64.W)
+  val writedata = UInt(64.W)
   val maskmode  = UInt(2.W)
   val operation = MemoryOperation()
   val sext      = Bool()
@@ -99,34 +99,39 @@ class DNonCombinMemPort extends BaseDMemPort {
 
     dmem_busy := false.B // No longer processing
     when (outstandingReq.bits.operation === MemoryOperation.Write) {
-      val writedata = Wire (UInt (32.W))
+      val writedata = Wire(UInt(64.W))
 
-      // When not writing a whole word
-      when (outstandingReq.bits.maskmode =/= 2.U) {
+      // When not writing a whole double-word
+      when (outstandingReq.bits.maskmode =/= 3.U) {
         // Read in the existing piece of data at the address, so we "overwrite" only part of it
-        val offset = outstandingReq.bits.address (1, 0)
-        val readdata = Wire (UInt (32.W))
+        val offset = outstandingReq.bits.address(1, 0)
+        val readdata = Wire(UInt(64.W))
+        val writedata_mask = Wire(UInt(64.W))
+        val writedata_mask_shifted = Wire(UInt(64.W))
+        val writedata_shifted = Wire(UInt(64.W))
+        val readdata_mask = Wire(UInt(64.W)) // readdata doesn't need to be shifted
+
         readdata := io.bus.response.bits.data
-        // Mask the portion of the existing data so it can be or'd with the writedata
-        when (io.pipeline.maskmode === 0.U) {
-          when(offset === 0.U) {
-            writedata := Cat(readdata(31,8), io.pipeline.writedata(7,0))
-          }.elsewhen(offset === 1.U) {
-            writedata := Cat(readdata(31,16), Cat(io.pipeline.writedata(15,8), readdata(7,0)))
-          }.elsewhen(offset === 2.U) {
-            writedata := Cat(readdata(31,24), Cat(io.pipeline.writedata(23,16),readdata(15,0)))
-          }.otherwise {
-            writedata := Cat(io.pipeline.writedata(31,24), readdata(23,0))
-          }
-        } .otherwise {
-          when (offset === 0.U) {
-            writedata := Cat(readdata(31,16),io.pipeline.writedata(15,0))
-          }.otherwise {
-            writedata := Cat(io.pipeline.writedata(31,16), readdata(15,0))
-          }
+
+        when (io.pipeline.maskmode === 0.U) { // Byte
+          writedata_mask := Cat(Fill(56, 0.U(1.W)), Fill(8, 1.U(1.W)))
+        } .elsewhen (io.pipeline.maskmode === 1.U) { // Half-word
+          writedata_mask := Cat(Fill(48, 0.U(1.W)), Fill(16, 1.U(1.W)))
+        } .elsewhen (io.pipeline.maskmode === 2.U) { // Word
+          writedata_mask := Cat(Fill(32, 0.U(1.W)), Fill(32, 1.U(1.W)))
+        } .otherwise { // Double-word
+          writedata_mask := Fill(64, 1.U(1.W))
         }
+
+        writedata_mask_shifted := writedata_mask << (offset * 8.U)
+        writedata_shifted := outstandingReq.bits.writedata << (offset * 8.U)
+
+        // The read bits and the write bits locations are mutually exclusive
+        readdata_mask := ~writedata_mask_shifted
+
+        writedata := (readdata & readdata_mask) | (writedata_shifted & writedata_mask_shifted)
       } .otherwise {
-        // Write the entire word
+        // Write the entire double-word
         writedata := outstandingReq.bits.writedata
       }
 
@@ -140,29 +145,36 @@ class DNonCombinMemPort extends BaseDMemPort {
     } .otherwise {
       // Response is valid and we don't have a stored write.
       // Perform masking and sign extension on read data when memory is outputting it
-      val readdata_mask      = Wire(UInt(32.W))
-      val readdata_mask_sext = Wire(UInt(32.W))
+      val readdata_mask      = Wire(UInt(64.W))
+      val readdata_mask_sext = Wire(UInt(64.W))
 
-      val offset = outstandingReq.bits.address(1,0)
+      val offset = outstandingReq.bits.address(1, 0)
       when (outstandingReq.bits.maskmode === 0.U) {
         // Byte
         readdata_mask := (io.bus.response.bits.data >> (offset * 8.U)) & 0xff.U
       } .elsewhen (outstandingReq.bits.maskmode === 1.U) {
         // Half-word
         readdata_mask := (io.bus.response.bits.data >> (offset * 8.U)) & 0xffff.U
+      } .elsewhen (outstandingReq.bits.maskmode === 2.U) {
+        // Word
+        readdata_mask := (io.bus.response.bits.data >> (offset * 8.U)) & 0xffffffffL.U
       } .otherwise {
+        // Double-word
         readdata_mask := io.bus.response.bits.data
       }
 
       when (outstandingReq.bits.sext) {
         when (outstandingReq.bits.maskmode === 0.U) {
           // Byte sign extension
-          readdata_mask_sext := Cat(Fill(24, readdata_mask(7)),  readdata_mask(7, 0))
+          readdata_mask_sext := Cat(Fill(56, readdata_mask(7)),  readdata_mask(7, 0))
         } .elsewhen (outstandingReq.bits.maskmode === 1.U) {
           // Half-word sign extension
-          readdata_mask_sext := Cat(Fill(16, readdata_mask(15)), readdata_mask(15, 0))
+          readdata_mask_sext := Cat(Fill(48, readdata_mask(15)), readdata_mask(15, 0))
+        } .elsewhen (outstandingReq.bits.maskmode === 2.U) {
+          // Word sign extension
+          readdata_mask_sext := Cat(Fill(32, readdata_mask(31)), readdata_mask(31, 0))
         } .otherwise {
-          // Word sign extension (does nothing)
+          // Double-word sign extension (does nothing)
           readdata_mask_sext := readdata_mask
         }
       } .otherwise {
