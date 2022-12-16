@@ -28,11 +28,13 @@ package dinocpu
 
 import chisel3._
 import chisel3.util._
+import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 ```
 
 These lines first say that the code you're writing are part of the `dinocpu` package (`package dinocpu`).
 By declaring the package, all other objects in the namespace become visible, and this makes it possible to run the main function we will create later.
 Next, we are going to import all of the objects from the Chisel library (`import chisel3._`) and the Chisel utilities (`import chisel3.util._`).
+Finally, we import the tester objects that can be used to drive a simulation.
 
 ## Creating an adder
 
