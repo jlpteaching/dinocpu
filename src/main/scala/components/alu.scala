@@ -16,10 +16,10 @@ import chisel3.util._
 class ALU extends Module {
   val io = IO(new Bundle {
     val operation = Input(UInt(4.W))
-    val inputx    = Input(UInt(32.W))
-    val inputy    = Input(UInt(32.W))
+    val inputx    = Input(UInt(64.W))
+    val inputy    = Input(UInt(64.W))
 
-    val result    = Output(UInt(32.W))
+    val result    = Output(UInt(64.W))
   })
 
   when (io.operation === "b0000".U) { // and

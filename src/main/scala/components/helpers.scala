@@ -14,10 +14,10 @@ import chisel3.util._
  */
 class Adder extends Module {
   val io = IO(new Bundle{
-    val inputx    = Input(UInt(32.W))
-    val inputy    = Input(UInt(32.W))
+    val inputx    = Input(UInt(64.W))
+    val inputy    = Input(UInt(64.W))
 
-    val result    = Output(UInt(32.W))
+    val result    = Output(UInt(64.W))
   })
 
   io.result := io.inputx + io.inputy
@@ -34,51 +34,64 @@ class Adder extends Module {
  */
 class ImmediateGenerator extends Module {
   val io = IO(new Bundle{
-    val instruction = Input(UInt(32.W))
+    val instruction = Input(UInt(64.W))
 
-    val sextImm     = Output(UInt(32.W))
+    val sextImm     = Output(UInt(64.W))
   })
 
   io.sextImm := 0.U
 
   val opcode = io.instruction(6,0)
+
   switch(opcode) {
     is("b0110111".U) { // U-type (lui)
+      // RV64I lui
+      // imm = cat(sign_extended_bits, imm[31:12], padding 0s)
+      //           (32 bits)           (20 bits)   (12 bits)
       val imm = io.instruction(31, 12)
-      io.sextImm := Cat(imm, Fill(12,0.U))
+      io.sextImm := Cat(Fill(32, imm(19)), imm, Fill(12, 0.U))
     }
     is("b0010111".U) { // U-type (auipc)
+      // RV64I auipc
+      // imm = cat(sign_extended_bits, imm[31:12], padding 0s)
+      //           (32 bits)           (20 bits)   (12 bits)
       val imm = io.instruction(31, 12)
-      io.sextImm := Cat(imm, Fill(12,0.U))
+      io.sextImm := Cat(Fill(32, imm(19)), imm, Fill(12, 0.U))
     }
     is("b1101111".U) { // J-type (jal)
+      // riscv-spec: JAL encodes the offset as a multiple of 2 bytes
+      // imm = sign_extends(2 * offset)
       val imm = Cat(io.instruction(31), io.instruction(19,12),
                     io.instruction(20), io.instruction(30,21))
-      io.sextImm := Cat(Fill(11,imm(19)), imm, 0.U)
+      io.sextImm := Cat(Fill(43, imm(19)), imm, 0.U)
     }
     is("b1100111".U) { // I-type (jalr)
       val imm = io.instruction(31, 20)
-      io.sextImm := Cat(Fill(20,imm(11)), imm)
+      io.sextImm := Cat(Fill(52,imm(11)), imm)
     }
     is("b1100011".U) { // B-type
       val imm = Cat(io.instruction(31), io.instruction(7),
                     io.instruction(30,25), io.instruction(11,8))
-      io.sextImm := Cat(Fill(19, imm(11)), imm, 0.U)
+      io.sextImm := Cat(Fill(51, imm(11)), imm, 0.U)
     }
     is("b0000011".U) { // I-type (ld)
       val imm = io.instruction(31, 20)
-      io.sextImm := Cat(Fill(20,imm(11)), imm)
+      io.sextImm := Cat(Fill(52, imm(11)), imm)
     }
     is("b0100011".U) { // S-type (st)
       val imm = Cat(io.instruction(31, 25), io.instruction(11,7))
-      io.sextImm := Cat(Fill(20,imm(11)), imm)
+      io.sextImm := Cat(Fill(52, imm(11)), imm)
     }
-    is("b0010011".U) { // I-type (immediate arith.)
+    is("b0010011".U) { // I-type (immediate arith.) 32-bit
       val imm = io.instruction(31, 20)
-      io.sextImm := Cat(Fill(20,imm(11)), imm)
+      io.sextImm := Cat(Fill(52,imm(11)), imm) // for instructions using shift amount, this imm is also valid as only the lower 5 bits (24, 20) are used
+    }
+    is("b0011011".U) { // I-type (immediate arith.)
+      val imm = io.instruction(31, 20)
+      io.sextImm := Cat(Fill(52,imm(11)), imm) // for instructions using shift amount, this imm is also valid as only the lower 6 bits (25, 20) are used
     }
     is("b1110011".U) { // zimm for csri
-      io.sextImm := Cat(Fill(27,0.U), io.instruction(19,15))
+      io.sextImm := Cat(Fill(59,0.U), io.instruction(19,15))
     }
   }
 }
