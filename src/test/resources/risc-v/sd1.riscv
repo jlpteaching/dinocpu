@@ -1,0 +1,29 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    sd t0, 0x400(zero)
+    nop
+    nop
+    nop
+    nop
+    ld t1, 0x400(zero)
+    nop
+    nop
+    nop
+    nop
+    li t3, 8
+    nop
+    nop
+    nop
+    nop
+    ld t2, 0x400(t3)
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
+
+  .data
+.byte 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF

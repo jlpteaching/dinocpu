@@ -4,7 +4,7 @@
 # Yunsup Lee (yunsup@cs.berkeley.edu)
 #
 
-XLEN ?= 32
+XLEN ?= 64
 
 default: all
 
@@ -23,8 +23,7 @@ bmarks = \
 	rsort \
 	towers \
 	vvadd \
-	multiply \
-	spmv
+	multiply 
 
 #--------------------------------------------------------------------
 # Build rules
@@ -32,11 +31,11 @@ bmarks = \
 
 RISCV_PREFIX ?= riscv$(XLEN)-unknown-elf-
 RISCV_GCC ?= $(RISCV_PREFIX)gcc
-RISCV_GCC_OPTS ?= -DPREALLOCATE=0 -mcmodel=medany -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf
+RISCV_GCC_OPTS ?= -DPREALLOCATE=0 -mcmodel=medany -static -std=gnu99 -O2 -ffast-math -fno-common -fno-builtin-printf  -march=rv64i -mabi=lp64
 RISCV_LINK ?= $(RISCV_GCC) -T $(src_dir)/common/test.ld $(incs)
 RISCV_LINK_OPTS ?= -static -nostdlib -nostartfiles -lm -lgcc -T $(src_dir)/common/test.ld
 RISCV_OBJDUMP ?= $(RISCV_PREFIX)objdump --disassemble-all --disassemble-zeroes
-RISCV_SIM ?= spike --isa=rv$(XLEN)gc
+RISCV_SIM ?= spike --isa=rv$(XLEN)i
 
 incs  += -I$(src_dir)/../env -I$(src_dir)/common $(addprefix -I$(src_dir)/, $(bmarks))
 objs  :=
