@@ -141,7 +141,11 @@ class PipelinedCPU(implicit val conf: CPUConfig) extends BaseCPU {
   io.imem.valid   := true.B
 
   // Fill the IF/ID register
-  if_id.io.in.instruction := io.imem.instruction
+  when ((pc % 8.U) === 4.U) {
+    if_id.io.in.instruction := io.imem.instruction(63, 32)
+  } .otherwise {
+    if_id.io.in.instruction := io.imem.instruction(31, 0)
+  }
   if_id.io.in.pc          := pc
 
   // Update during Part III when implementing branches/jump

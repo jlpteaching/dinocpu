@@ -33,7 +33,7 @@ class MemPortIO extends Bundle {
  *   Output: ready, true when the memory is ready to accept another request (used to un-stall the pipeline)
  */
 class IMemPortIO extends MemPortIO {
-  val instruction = Output(UInt(32.W))
+  val instruction = Output(UInt(64.W))
   val ready       = Output(Bool())
 }
 
