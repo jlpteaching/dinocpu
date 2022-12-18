@@ -16,7 +16,7 @@ import dinocpu._
  * Output: prediction, true if the branch is predicted to be taken, false otherwise
  */
 class BranchPredIO extends Bundle {
-  val pc         = Input(UInt(64.W))
+  val pc         = Input(UInt(32.W))
   val update     = Input(Bool())
   val taken      = Input(Bool())
 
@@ -73,7 +73,28 @@ class AlwaysTakenPredictor(implicit val conf: CPUConfig) extends BaseBranchPredi
  */
 class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
 
-  // Your code goes here
+  // Register to store the last branch predicted so we can update the tables.
+  // This will also work for back to back branches since we resolve them in
+  // execute (one cycle later)
+  val lastBranch = Reg(UInt())
+
+  when (io.update) {
+    when (io.taken) {
+      incrCounter(predictionTable(lastBranch))
+    } .otherwise {
+      decrCounter(predictionTable(lastBranch))
+    }
+  }
+
+  // The first bit for the table access is based on the number of entries.
+  // +2 since we ignore the bottom two bits
+  val tableIndex = io.pc(log2Floor(conf.branchPredTableEntries) + 2, 2)
+
+  // Return the high-order bit
+  io.prediction := predictionTable(tableIndex)(conf.saturatingCounterBits - 1)
+
+  // Remember the last pc to update the table later
+  lastBranch := tableIndex
 }
 
 /**
@@ -81,5 +102,23 @@ class LocalPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(c
  */
 class GlobalHistoryPredictor(implicit val conf: CPUConfig) extends BaseBranchPredictor(conf) {
 
-  // Your code goes here
+  // The length is based on the size of the branch history table
+  val historyBits = log2Floor(conf.branchPredTableEntries)
+  // Need one extra bit for the "last" history
+  val history = RegInit(0.U((historyBits+1).W))
+
+  val curhist = history(historyBits,0)
+  when(io.update) {
+    // Update the prediction for this branch history
+    // Use the last branch history.
+    when (io.taken) {
+      incrCounter(predictionTable(curhist))
+    } .otherwise {
+      decrCounter(predictionTable(curhist))
+    }
+
+    history := Cat(curhist, io.taken) // update the history register at the end of the cycle
+  }
+
+  io.prediction := predictionTable(curhist)(conf.saturatingCounterBits - 1)
 }
