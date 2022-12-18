@@ -13,6 +13,15 @@ class ControlUnitTester(c: Control) extends PeekPokeTester(c) {
     // Inputs,      itype, aluop, src1, src2, branch, jumptype, resultselect, memop, toreg, regwrite, validinst, wordinst      
     ( "b0110011".U,   0.U,   1.U,  0.U,  0.U,    0.U,      0.U,          0.U,   0.U,   0.U,      1.U,       1.U,      0.U), // R-type
     ( "b0111011".U,   0.U,   1.U,  0.U,  0.U,    0.U,      0.U,          0.U,   0.U,   0.U,      1.U,       1.U,      1.U), // R-type 32-bit
+    ( "b0010011".U,   1.U,   1.U,  0.U,  1.U,    0.U,      0.U,          0.U,   0.U,   0.U,      1.U,       1.U,      0.U), // I-type
+    ( "b0011011".U,   1.U,   1.U,  0.U,  1.U,    0.U,      0.U,          0.U,   0.U,   0.U,      1.U,       1.U,      1.U), // I-type 32-bit
+    ( "b0000011".U,   0.U,   0.U,  0.U,  1.U,    0.U,      0.U,          0.U,   2.U,   1.U,      1.U,       1.U,      0.U), // Load
+    ( "b0100011".U,   0.U,   0.U,  0.U,  1.U,    0.U,      0.U,          0.U,   3.U,   0.U,      0.U,       1.U,      0.U), // Store
+    ( "b1100011".U,   0.U,   0.U,  0.U,  0.U,    1.U,      0.U,          0.U,   0.U,   0.U,      0.U,       1.U,      0.U), // Branch
+    ( "b0110111".U,   0.U,   0.U,  0.U,  0.U,    0.U,      0.U,          1.U,   0.U,   0.U,      1.U,       1.U,      0.U), // lui
+    ( "b0010111".U,   0.U,   0.U,  1.U,  1.U,    0.U,      0.U,          0.U,   0.U,   0.U,      1.U,       1.U,      0.U), // auipc
+    ( "b1101111".U,   0.U,   0.U,  1.U,  2.U,    0.U,      2.U,          0.U,   0.U,   0.U,      1.U,       1.U,      0.U), // jal
+    ( "b1100111".U,   0.U,   0.U,  1.U,  2.U,    0.U,      3.U,          0.U,   0.U,   0.U,      1.U,       1.U,      0.U)  // jalr
   )
                       
   for (t <- tests) {
