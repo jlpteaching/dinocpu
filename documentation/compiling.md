@@ -1,5 +1,5 @@
 ---
-author: Jason Lowe-Power
+author: Jason Lowe-Power, Hoa Nguyen
 title: Compiling code to run on DINO CPU
 ---
 
@@ -22,14 +22,14 @@ _start:
 ```
 
 ## STEP 0: Install Toolchain
-Visit https://github.com/riscv/riscv-gnu-toolchain to install the cross-compiler toolchain. Configure the 32-bit version with `--with-abi=ilp32` (software emulated floating point) and `--with-arch=rv32i`(integer ISA only). You can add supported extensions if you've extended dinocpu to support those instructions. Make sure to install the 32-bit version.
+Visit https://github.com/riscv/riscv-gnu-toolchain to install the cross-compiler toolchain. Configure the 64-bit version with `--with-abi=lp64` (software emulated floating point) and `--with-arch=rv64i`(integer ISA only). You can add supported extensions if you've extended dinocpu to support those instructions. Make sure to install the 64-bit version.
 
 ## STEP 1: Assemble
 
 Now, to compile, first we have to assemble it.
 
 ```
-riscv32-unknown-elf-as -march=rv32i src/main/risc-v/test.riscv -o test.o
+riscv64-unknown-elf-as -march=rv64i src/main/risc-v/test.riscv -o test.o
 ```
 
 ### STEP 2: Link
@@ -40,7 +40,7 @@ We chose `0x400` arbitrarily.
 This can be anything within the size of memory (16 KB by default).
 
 ```
-riscv32-unknown-elf-ld  -Ttext 0x0 -Tdata 0x400 test.o -o test
+riscv64-unknown-elf-ld  -Ttext 0x0 -Tdata 0x400 test.o -o test
 ```
 
 ### STEP 3: Check output
@@ -48,7 +48,7 @@ riscv32-unknown-elf-ld  -Ttext 0x0 -Tdata 0x400 test.o -o test
 Finally, we can disassemble it to make sure it looks right.
 
 ```
-riscv32-unknown-elf-objdump -Dx test
+riscv64-unknown-elf-objdump -Dx test
 ```
 
 We get the following:

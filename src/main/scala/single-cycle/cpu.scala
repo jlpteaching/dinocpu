@@ -14,96 +14,65 @@ import dinocpu.components._
  */
 class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // All of the structures required
-  val pc         = dontTouch(RegInit(0.U(32.W)))
+  val pc         = dontTouch(RegInit(0.U))
   val control    = Module(new Control())
   val registers  = Module(new RegisterFile())
   val aluControl = Module(new ALUControl())
   val alu        = Module(new ALU())
   val immGen     = Module(new ImmediateGenerator())
-  val pcPlusFour = Module(new Adder())
-  val branchAdd  = Module(new Adder())
+  val nextpc     = Module(new NextPC())
   val (cycleCount, _) = Counter(true.B, 1 << 30)
 
   //FETCH
   io.imem.address := pc
   io.imem.valid := true.B
 
-  pcPlusFour.io.inputx := pc
-  pcPlusFour.io.inputy := 4.U
-
   val instruction = io.imem.instruction
-  val opcode = instruction(6,0)
+  val funct3 = instruction(14, 12)
 
-  //DECODE
-  control.io.opcode := opcode
+  control.io.opcode := instruction(6, 0)
 
-  registers.io.readreg1 := instruction(19,15)
-  registers.io.readreg2 := instruction(24,20)
-
-  registers.io.writereg := instruction(11,7)
-  registers.io.wen      := (control.io.regwrite) && (registers.io.writereg =/= 0.U)
+  registers.io.readreg1 := instruction(19, 15)
+  registers.io.readreg2 := instruction(24, 20)
+  registers.io.writereg := instruction(11, 7)
+  registers.io.writedata := Mux(control.io.toreg, io.dmem.readdata, Mux(control.io.resultselect, immGen.io.sextImm, alu.io.result))
+  when (registers.io.writereg =/= 0.U && control.io.regwrite) {
+    registers.io.wen := true.B
+  } .otherwise {
+    registers.io.wen := false.B
+  }
 
   immGen.io.instruction := instruction
-  val imm = immGen.io.sextImm
 
-  // EXECUTE
-  aluControl.io.aluop  := control.io.aluop
-  aluControl.io.itype  := control.io.itype
-  aluControl.io.funct7 := instruction(31,25)
-  aluControl.io.funct3 := instruction(14,12)
+  nextpc.io.branch := control.io.branch
+  nextpc.io.jumptype := control.io.jumptype
+  nextpc.io.inputx := registers.io.readdata1
+  nextpc.io.inputy := alu.io.inputy
+  nextpc.io.funct3 := funct3
+  nextpc.io.pc := pc
+  nextpc.io.imm := immGen.io.sextImm
+
+  aluControl.io.aluop := control.io.aluop
+  aluControl.io.itype := control.io.itype
+  aluControl.io.funct7 := instruction(31, 25)
+  aluControl.io.funct3 := instruction(14, 12)
+  aluControl.io.wordinst := control.io.wordinst
 
   alu.io.operation := aluControl.io.operation
+  alu.io.inputx := Mux(control.io.src1, pc, registers.io.readdata1)
+  alu.io.inputy := MuxCase(0.U, Array((control.io.src2 === 0.U) -> registers.io.readdata2,
+                                      (control.io.src2 === 1.U) -> immGen.io.sextImm,
+                                      (control.io.src2 === 2.U) -> 4.U))
 
-  when (control.io.pcadd) {
-    alu.io.inputx := pc
-  } .otherwise {
-    alu.io.inputx := registers.io.readdata1
-  }
-
-  when (control.io.alusrc) {
-    alu.io.inputy := imm
-  } .otherwise {
-    alu.io.inputy := registers.io.readdata2
-  }
-
-  val result = MuxCase(0.U, Array(
-                        (control.io.resultselect === 0.U) -> alu.io.result,
-                        (control.io.resultselect === 1.U) -> imm,
-                        (control.io.resultselect === 2.U) -> pcPlusFour.io.result))
-
-  //MEMORY
-  io.dmem.address   := alu.io.result
+  io.dmem.address := alu.io.result
+  io.dmem.memread := ~control.io.memop(0)
+  io.dmem.memwrite := control.io.memop(0)
+  io.dmem.valid := control.io.memop(1)
+  io.dmem.maskmode := funct3(1, 0)
+  io.dmem.sext := ~funct3(2)
   io.dmem.writedata := registers.io.readdata2
-  io.dmem.memread   := control.io.memread
-  io.dmem.memwrite  := control.io.memwrite
-  io.dmem.maskmode  := instruction(13,12)
-  io.dmem.sext      := ~instruction(14)
-  when(io.dmem.memread || io.dmem.memwrite) {
-    io.dmem.valid := true.B
-  } .otherwise {
-    io.dmem.valid := false.B
-  }
 
-  //WRITEBACK
-  registers.io.writedata := MuxCase(0.U, Array(
-                        (control.io.toreg === 0.U) -> result,
-                        (control.io.toreg === 1.U) -> io.dmem.readdata))
-
-
-  branchAdd.io.inputx := pc
-  branchAdd.io.inputy := imm
-
-  when (control.io.branch && alu.io.result(0)) {
-    pc := branchAdd.io.result
-  } .elsewhen (control.io.jump) {
-    when (control.io.pcfromalu) {
-      pc := alu.io.result & Cat(Fill(31, 1.U), 0.U)
-    } .otherwise {
-      pc := branchAdd.io.result
-    }
-  } .otherwise {
-    pc := pcPlusFour.io.result
-  }
+  pc := nextpc.io.nextpc
 }
 
 /*
@@ -120,9 +89,7 @@ object SingleCycleCPUInfo {
       "aluControl",
       "alu",
       "immGen",
-      "branchCtrl",
-      "pcPlusFour",
-      "branchAdd"
+      "nextpc"
     )
   }
 }

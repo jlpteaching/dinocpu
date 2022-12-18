@@ -133,8 +133,8 @@ class DNonCombinMemPort extends BaseDMemPort {
       } .otherwise {
         // Write the entire double-word
         writedata := outstandingReq.bits.writedata
-      }
-
+      } 
+      
       // Program the memory to issue a write.
       val request = Wire (new Request)
       request.address   := outstandingReq.bits.address

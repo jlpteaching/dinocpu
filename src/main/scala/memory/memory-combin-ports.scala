@@ -30,11 +30,6 @@ class ICombinMemPort extends BaseIMemPort {
 
   // When the memory is outputting a valid instruction
   io.pipeline.good := true.B
-  // This is not ideal. We'd want to make memory requests/responses to be
-  // 8-byte aligned for a more realistic setup.
-  // This is possible, because, even though the instruction length is 32 bits
-  // long, the .text section of the binary is 4-byte aligned implying it is
-  // also 8-byte aligned.
   io.pipeline.instruction := io.bus.response.bits.data(31, 0)
 }
 

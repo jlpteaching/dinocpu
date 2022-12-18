@@ -10,11 +10,11 @@ import dinocpu.test._
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly dinocpu.RTypeTesterLab3
+  * Lab3 / testOnly dinocpu.RTypeTesterLab3
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly dinocpu.RTypeTesterLab3'
+  * sbt 'Lab3 / testOnly dinocpu.RTypeTesterLab3'
   * }}}
   */
 class RTypeTesterLab3 extends CPUFlatSpec {
