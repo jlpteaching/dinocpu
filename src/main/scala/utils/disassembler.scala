@@ -30,14 +30,16 @@ class Instruction(instruction: Long){
   *
   * Example usage to print an instruction
   * {{{
-  * scala> print(Disassembler.disassemble(instruction)
+  * scala> print(Disassembler.disassemble(instruction))
   * }}}
   */
 object Disassembler {
 
   // opcode constants
   val R_TYPE_OPCODE = Integer.parseInt("0110011",2)
+  val R_TYPE_OPCODE_32 = Integer.parseInt("0111011",2)
   val I_TYPE_OPCODE = Integer.parseInt("0010011",2)
+  val I_TYPE_OPCODE_32 = Integer.parseInt("0011011",2)
   val STORE_OPCODE = Integer.parseInt("0100011",2)
   val LOAD_OPCODE = Integer.parseInt("0000011",2)
   val BRANCH_OPCODE = Integer.parseInt("1100011",2)
@@ -70,11 +72,30 @@ object Disassembler {
     instName + " x" + instr.rd + ", x" + instr.rs1 + ", x" + instr.rs2
   }
 
+  /** Decodes an R-type instruction
+    *
+    */
+  def parseRType32(instr:Instruction):String={
+    val instName = instr.funct3 match {
+      case 0 => instr.funct7 match {
+        case 0 => "addw"
+        case 32 => "subw"
+      }
+      case 1 => "sllw"
+      case 5 => instr.funct7 match {
+        case 0 => "srlw"
+        case 32 => "sraw"
+      }
+      case _ => "Bad R-type 32-bit"
+    }
+    instName + " x" + instr.rd + ", x" + instr.rs1 + ", x" + instr.rs2
+  }
+
   /** Decodes an I-type instruction
     *
     */
   def parseIType(instr:Instruction)={
-    val shamt = instr.slice(24,20)
+    val shamt = instr.slice(25,20)
     instr.funct3 match {
       case 0 => "addi" + " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
       case 2 => "slti" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
@@ -91,6 +112,22 @@ object Disassembler {
     }
   }
 
+  /** Decodes an I-type instruction
+    *
+    */
+  def parseIType32(instr:Instruction)={
+    val shamt = instr.slice(24,20)
+    instr.funct3 match {
+      case 0 => "addiw" + " x" + instr.rd + ", x" + instr.rs1 + ", " + instr.iImm
+      case 1 => "slliw" + " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
+      case 5 => instr.funct7 match {
+        case 0 => "srliw" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
+        case 8 => "sraiw" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
+      }
+      case _ => "Bad I-type 32-bit"
+    }
+  }
+
   /** Decodes store instructions
     *
     */
@@ -100,6 +137,7 @@ object Disassembler {
       case 0 => "sb"
       case 1 => "sh"
       case 2 => "sw"
+      case 3 => "sd"
       case _ => "Bad store"
     }
     instName + " x" + instr.rs2 + ", " + offset +"(x" + instr.rs1 +")"
@@ -113,8 +151,10 @@ object Disassembler {
       case 0 => "lb"
       case 1 => "lh"
       case 2 => "lw"
+      case 3 => "ld"
       case 4 => "lbu"
       case 5 => "lhu"
+      case 6 => "lwu"
       case _ => "Bad load"
     }
     instName + " x" + instr.rd + ", " + instr.iImm +"(x" + instr.rs1 +")"
@@ -172,7 +212,7 @@ object Disassembler {
     "lui x" + instr.rd + " " + instr.uImm
   }
 
-  /** Disassembles any of the RV32I instructions
+  /** Disassembles any of the RV64I instructions
     *
     * @param instruction the instruction as 32bit long
     * @return the disassembled instruction as a string
@@ -181,7 +221,9 @@ object Disassembler {
     val instr = new Instruction(instruction)
     instr.opcode match {
       case R_TYPE_OPCODE => parseRType(instr)
+      case R_TYPE_OPCODE_32 => parseRType32(instr)
       case I_TYPE_OPCODE => parseIType(instr)
+      case I_TYPE_OPCODE_32 => parseIType32(instr)
       case STORE_OPCODE => parseStore(instr)
       case LOAD_OPCODE => parseLoad(instr)
       case BRANCH_OPCODE => parseBranch(instr)
