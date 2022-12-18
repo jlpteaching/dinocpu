@@ -12,4 +12,9 @@ _start: #checks if v is a power of 2
     nop
     nop
     nop
+    nop
+    nop
+    nop
+    nop
+    nop
 _last:

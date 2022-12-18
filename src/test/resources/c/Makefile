@@ -45,7 +45,13 @@ $(1).riscv: $(wildcard $(src_dir)/$(1)/*) $(wildcard $(src_dir)/common/*)
 	$$(RISCV_GCC) $$(incs) $$(RISCV_GCC_OPTS) -o $$@ $(wildcard $(src_dir)/$(1)/*.c) $(wildcard $(src_dir)/common/*.c) $(wildcard $(src_dir)/common/*.S) $$(RISCV_LINK_OPTS)
 endef
 
+define compile_loop_unrolling_template
+$(1)-loops-unrolled.riscv: $(wildcard $(src_dir)/$(1)/*) $(wildcard $(src_dir)/common/*)
+	$$(RISCV_GCC) $$(incs) $$(RISCV_GCC_OPTS) -funroll-loops -o $$@ $(wildcard $(src_dir)/$(1)/*.c) $(wildcard $(src_dir)/common/*.c) $(wildcard $(src_dir)/common/*.S) $$(RISCV_LINK_OPTS)
+endef
+
 $(foreach bmark,$(bmarks),$(eval $(call compile_template,$(bmark))))
+$(foreach bmark,$(bmarks),$(eval $(call compile_loop_unrolling_template,$(bmark))))
 
 #------------------------------------------------------------
 # Build and run benchmarks on riscv simulator
@@ -54,16 +60,23 @@ bmarks_riscv_bin  = $(addsuffix .riscv,  $(bmarks))
 bmarks_riscv_dump = $(addsuffix .riscv.dump, $(bmarks))
 bmarks_riscv_out  = $(addsuffix .riscv.out,  $(bmarks))
 
+bmarks_riscv_loops_unrolled_bin  = $(addsuffix -loops-unrolled.riscv,  $(bmarks))
+bmarks_riscv_loops_unrolled_dump = $(addsuffix -loops-unrolled.riscv.dump, $(bmarks))
+bmarks_riscv_loops_unrolled_out  = $(addsuffix -loops-unrolled.riscv.out,  $(bmarks))
+
 $(bmarks_riscv_dump): %.riscv.dump: %.riscv
 	$(RISCV_OBJDUMP) $< > $@
 
 $(bmarks_riscv_out): %.riscv.out: %.riscv
 	$(RISCV_SIM) $< > $@
 
-riscv: $(bmarks_riscv_dump)
+$(bmarks_riscv_loops_unrolled_dump): %-loops-unrolled.riscv.dump: %-loops-unrolled.riscv
+	$(RISCV_OBJDUMP) $< > $@
+
+riscv: $(bmarks_riscv_dump) $(bmarks_riscv_loops_unrolled_dump)
 run: $(bmarks_riscv_out)
 
-junk += $(bmarks_riscv_bin) $(bmarks_riscv_dump) $(bmarks_riscv_hex) $(bmarks_riscv_out)
+junk += $(bmarks_riscv_bin) $(bmarks_riscv_dump) $(bmarks_riscv_hex) $(bmarks_riscv_out) $(bmarks_riscv_loops_unrolled_bin) $(bmarks_riscv_loops_unrolled_dump)
 
 #------------------------------------------------------------
 # Default

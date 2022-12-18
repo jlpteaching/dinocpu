@@ -1,0 +1,17 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    lui a1, 8      # testing immediate forwarding
+    add a0, a0, a1 # (reg[10] = reg[10] + reg[11])
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
