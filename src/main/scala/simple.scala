@@ -7,10 +7,10 @@ import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
 class SimpleAdder extends Module {
   val io = IO(new Bundle{
-    val inputx = Input(UInt(32.W))
-    val inputy = Input(UInt(32.W))
+    val inputx = Input(UInt(64.W))
+    val inputy = Input(UInt(64.W))
 
-    val result = Output(UInt(32.W))
+    val result = Output(UInt(64.W))
   })
 
   io.result := io.inputx + io.inputy

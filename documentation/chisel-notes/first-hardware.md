@@ -54,10 +54,10 @@ Chisel has a notion of `Bundle`s that group named hardware components together, 
 
 ```
 val io = IO(new Bundle{
-  val inputx = Input(UInt(32.W))
-  val inputy = Input(UInt(32.W))
+  val inputx = Input(UInt(64.W))
+  val inputy = Input(UInt(64.W))
 
-  val result = Output(UInt(32.W))
+  val result = Output(UInt(64.W))
 })
 ```
 
@@ -68,7 +68,7 @@ You must use the keyword `val` before each variable you declare.
 The type of the variable will be inferred by Scala's type system.
 **IMPORTANT**: Whenever you instantiate a module or other Chisel type and create a new variable for it, use the `=` operator.
 
-Note that these inputs and the output are unsigned integers that are 32 bits wide.
+Note that these inputs and the output are unsigned integers that are 64 bits wide.
 You always should declare the size of the input and output wires.
 
 Finally, all we have to do it implement the hardware for the adder.
@@ -77,10 +77,10 @@ Our final adder looks like the following:
 ```
 class SimpleAdder extends Module {
   val io = IO(new Bundle{
-    val inputx = Input(UInt(32.W))
-    val inputy = Input(UInt(32.W))
+    val inputx = Input(UInt(64.W))
+    val inputy = Input(UInt(64.W))
 
-    val result = Output(UInt(32.W))
+    val result = Output(UInt(64.W))
   })
 
   io.result := io.inputx + io.inputy
