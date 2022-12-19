@@ -7,8 +7,12 @@ _start:
     nop
     nop
     nop
-
     ld t0, 0x400(t1)
+    nop
+    nop
+    nop
+    nop
+    nop
     nop
     nop
     nop

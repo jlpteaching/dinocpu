@@ -44,6 +44,33 @@ class PipelinedCPUTester extends CPUFlatSpec {
   }
 }
 
+/** Just like [[SingleCycleCPUTester]], but for the dual-issue pipelined CPU */
+class PipelinedDualIssueCPUTester extends CPUFlatSpec {
+  behavior of "Dual-issue Pipelined CPU"
+  for ((group, tests) <- InstTests.tests) {
+    for (test <- tests) {
+      it should s"run $group ${test.binary}${test.extraName}" in {
+        CPUTesterDriver(test, "pipelined-dual-issue") should be(true)
+      }
+    }
+  }
+  for (test <- InstTests.dualIssue) {
+    it should s"run ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined-dual-issue") should be(true)
+    }
+  }
+  for (test <- InstTests.fullApplications) {
+    it should s"run ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined-dual-issue") should be(true)
+    }
+  }
+  for (test <- InstTests.loopsUnrolledFullApplications) {
+    it should s"run ${test.binary}${test.extraName}" in {
+      CPUTesterDriver(test, "pipelined-dual-issue") should be(true)
+    }
+  }
+}
+
 /** Just like [[SingleCycleCPUTester]], but for the pipelined CPU */
 class PipelinedBPTakenCPUTester extends CPUFlatSpec {
   val mytests = Map(

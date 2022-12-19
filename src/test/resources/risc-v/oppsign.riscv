@@ -12,4 +12,9 @@ _start: #checks if x and y have opposite sign (MSB of x and y are 0 and 1 or vic
     nop
     nop
     nop
+    nop
+    nop
+    nop
+    nop
+    nop
 _last:

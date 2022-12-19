@@ -9,6 +9,7 @@ import dinocpu.memory._
 import dinocpu.pipelined.PipelinedCPU
 import dinocpu.pipelined.PipelinedCPUBP
 import dinocpu.pipelined.PipelinedNonCombinCPU
+import dinocpu.pipelined.PipelinedDualIssueCPU
 
 /**
  * This class configures all of the dinocpus. It takes parameters for the type of CPU model
@@ -56,6 +57,7 @@ class CPUConfig
       case "pipelined" => new PipelinedCPU
       case "pipelined-bp" => new PipelinedCPUBP
       case "pipelined-non-combin" => new PipelinedNonCombinCPU
+      case "pipelined-dual-issue" => new PipelinedDualIssueCPU
       case _ => throw new IllegalArgumentException("Must specify known CPU model")
     }
   }

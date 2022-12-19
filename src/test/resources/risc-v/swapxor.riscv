@@ -10,4 +10,9 @@ _start: #swaps a and b without a temporary variable
     nop
     nop
     nop
+    nop
+    nop
+    nop
+    nop
+    nop
 _last:

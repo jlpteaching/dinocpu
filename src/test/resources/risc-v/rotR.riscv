@@ -17,4 +17,9 @@ _start: #right circular shift (RotR(X,shift_amount))
     nop
     nop
     nop
+    nop
+    nop
+    nop
+    nop
+    nop
 _last:

@@ -30,7 +30,7 @@ class ICombinMemPort extends BaseIMemPort {
 
   // When the memory is outputting a valid instruction
   io.pipeline.good := true.B
-  io.pipeline.instruction := io.bus.response.bits.data(31, 0)
+  io.pipeline.instruction := io.bus.response.bits.data
 }
 
 /**

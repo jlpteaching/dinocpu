@@ -1,0 +1,19 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    add x1, x1, x1 # (reg[1] = reg[1] + reg[1])
+    add x1, x1, x1
+    add x1, x1, x1
+    add x1, x1, x1
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:
