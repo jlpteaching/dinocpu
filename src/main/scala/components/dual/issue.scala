@@ -18,7 +18,7 @@ import chisel3.util._
  * Output: pipeB_inst     The first instruction issued to the pipeline
  * Output: pipeB_valid    Whether pipeB_inst will be executed by the pipeline; if not, pipeB_inst must be a nop
  */
-class IssueUnit extends Module {
+class DualIssueIssueUnit extends Module {
   val io = IO(new Bundle {
     val pc           = Input(UInt(64.W))
     val inst         = Input(UInt(64.W))

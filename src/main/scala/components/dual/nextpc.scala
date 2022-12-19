@@ -20,7 +20,7 @@ import chisel3._
  * Output: taken         True if the next pc is not pc+4
  *
  */
-class NextPC extends Module {
+class DualIssueNextPC extends Module {
   val io = IO(new Bundle {
     val branch      = Input(Bool())
     val jumptype    = Input(UInt(2.W))

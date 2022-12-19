@@ -5,6 +5,7 @@ package dinocpu.pipelined
 import chisel3._
 import chisel3.util._
 import dinocpu._
+import dinocpu.components._
 import dinocpu.components.dual._
 
 /**
@@ -95,7 +96,7 @@ class PipelinedDualIssueCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // All of the structures required
   // Fetch
   val pc                    = RegInit(0.U)
-  val issueUnit             = Module(new IssueUnit())
+  val issueUnit             = Module(new DualIssueIssueUnit())
   // Decode
   val registers             = Module(new DualIssueRegisterFile())
   val pipeA_control         = Module(new Control())
@@ -108,10 +109,10 @@ class PipelinedDualIssueCPU(implicit val conf: CPUConfig) extends BaseCPU {
   val pipeA_alu             = Module(new ALU())
   val pipeB_alu             = Module(new ALU())
   // Mem
-  val nextPCmod             = Module(new NextPC())
+  val nextPCmod             = Module(new DualIssueNextPC())
 
-  val forwarding            = Module(new ForwardingUnit())  //pipelined only
-  val hazard                = Module(new HazardUnit())      //pipelined only
+  val forwarding            = Module(new DualIssueForwardingUnit())  //pipelined only
+  val hazard                = Module(new DualIssueHazardUnit())      //pipelined only
   val (cycleCount, _)       = Counter(true.B, 1 << 30)
 
   // The four pipeline registers

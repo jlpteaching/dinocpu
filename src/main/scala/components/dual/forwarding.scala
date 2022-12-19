@@ -51,7 +51,7 @@ import chisel3._
  *                         This is used for the "readdata2" forwarding
  */
 
-class ForwardingUnit extends Module {
+class DualIssueForwardingUnit extends Module {
   val io = IO(new Bundle {
     val ex_pipeA_rs1 = Input(UInt(5.W))
     val ex_pipeA_rs2 = Input(UInt(5.W))

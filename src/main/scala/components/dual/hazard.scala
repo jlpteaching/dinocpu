@@ -34,7 +34,7 @@ import chisel3._
  * For more information, see Section 4.7 and beginning of 4.8 of Patterson and Hennessy
  * This follows the "Data hazards and stalls" section and the "Assume branch not taken" section
  */
-class HazardUnit extends Module {
+class DualIssueHazardUnit extends Module {
   val io = IO(new Bundle {
     val id_pipeA_rs1 = Input(UInt(5.W))
     val id_pipeA_rs2 = Input(UInt(5.W))
