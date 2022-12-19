@@ -19,19 +19,19 @@ import dinocpu.memory._
   */
 class CombinMemoryTestHarness(size: Int, memFile: String) extends Module {
   val io = IO(new Bundle {
-    val imem_address      = Input(UInt(32.W))
+    val imem_address      = Input(UInt(64.W))
     val imem_valid        = Input(Bool())
     val imem_instruction  = Output(UInt(32.W))
     val imem_good         = Output(Bool())
 
-    val dmem_address      = Input(UInt(32.W))
+    val dmem_address      = Input(UInt(64.W))
     val dmem_valid        = Input(Bool())
-    val dmem_writedata    = Input(UInt(32.W))
+    val dmem_writedata    = Input(UInt(64.W))
     val dmem_memread      = Input(Bool())
     val dmem_memwrite     = Input(Bool())
     val dmem_maskmode     = Input(UInt(2.W))
     val dmem_sext         = Input(Bool())
-    val dmem_readdata     = Output(UInt(32.W))
+    val dmem_readdata     = Output(UInt(64.W))
     val dmem_good         = Output(Bool())
   })
   io := DontCare
@@ -112,7 +112,7 @@ class CombinMemoryUnitTester$IMemWrite(m: CombinMemoryTestHarness, size: Int) ex
 
   // expect ascending bytes, the first size/8 of them being incremented by 100, on instruction port
   for (i <- 0 until size/4) {
-    poke(m.io.imem_address, i*4)
+    poke(m.io.imem_address, i*4) // get the lower half, an instruction only has 32 bits
     poke(m.io.imem_valid, 1)
 
     if (i < size/8) {
@@ -130,11 +130,11 @@ class CombinMemoryUnitTester$DMemZero(m: CombinMemoryTestHarness, size: Int) ext
   expect(m.io.dmem_good, 1)
 
   // Expect 0's on the data port
-  for (i <- 0 until size/4) {
-    poke(m.io.dmem_address, i*4)
+  for (i <- 0 until size/8) {
+    poke(m.io.dmem_address, i*8)
     poke(m.io.dmem_valid, 1)
     poke(m.io.dmem_memread, 1)
-    poke(m.io.dmem_maskmode, 2)
+    poke(m.io.dmem_maskmode, 3)
     poke(m.io.dmem_sext, 0)
 
     expect(m.io.dmem_readdata, 0)
@@ -147,11 +147,11 @@ class CombinMemoryUnitTester$DMemRead(m: CombinMemoryTestHarness, size: Int) ext
   expect(m.io.dmem_good, 1)
 
   // Expect ascending bytes on data port
-  for (i <- 0 until size/4) {
-    poke(m.io.dmem_address, i*4)
+  for (i <- 0 until size/8) {
+    poke(m.io.dmem_address, i*8)
     poke(m.io.dmem_valid, 1)
     poke(m.io.dmem_memread, 1)
-    poke(m.io.dmem_maskmode, 2)
+    poke(m.io.dmem_maskmode, 3)
     poke(m.io.dmem_sext, 0)
 
     expect(m.io.dmem_readdata, i)
@@ -163,11 +163,11 @@ class CombinMemoryUnitTester$DMemRead(m: CombinMemoryTestHarness, size: Int) ext
 class CombinMemoryUnitTester$DMemWrite(m: CombinMemoryTestHarness, size: Int) extends PeekPokeTester(m) {
   expect(m.io.dmem_good, 1)
   // write ascending data to memory
-  for (i <- 0 until size/8) {
-    poke(m.io.dmem_address, i*4)
+  for (i <- 0 until size/16) {
+    poke(m.io.dmem_address, i*8)
     poke(m.io.dmem_valid, 1)
     poke(m.io.dmem_memwrite, 1)
-    poke(m.io.dmem_maskmode, 2)
+    poke(m.io.dmem_maskmode, 3)
     poke(m.io.dmem_sext, 0)
     poke(m.io.dmem_writedata, i+100)
 
@@ -179,15 +179,15 @@ class CombinMemoryUnitTester$DMemWrite(m: CombinMemoryTestHarness, size: Int) ex
   poke (m.io.dmem_memwrite, 0)
   poke (m.io.dmem_valid, 1)
 
-  // expect ascending bytes, the first size/8 of them being incremented by 100, on instruction port
-  for (i <- 0 until size/4) {
-    poke(m.io.dmem_address, i*4)
+  // expect ascending bytes, the first size/16 of them being incremented by 100, on data port
+  for (i <- 0 until size/8) {
+    poke(m.io.dmem_address, i*8)
     poke(m.io.dmem_valid, 1)
     poke(m.io.dmem_memread, 1)
-    poke(m.io.dmem_maskmode, 2)
+    poke(m.io.dmem_maskmode, 3)
     poke(m.io.dmem_sext, 0)
 
-    if (i < size/8) {
+    if (i < size/16) {
       expect(m.io.dmem_readdata, i+100)
     } else {
       expect(m.io.dmem_readdata, i)
@@ -218,32 +218,34 @@ class CombinMemoryTester extends ChiselFlatSpec {
     } should be (true)
   }
   "DualPortedCombinMemory" should s"have increasing words in instruction port (with treadle)" in {
-    Driver(() => new CombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex"), "treadle") {
+    Driver(() => new CombinMemoryTestHarness(2048, "src/test/resources/raw/ascending-32.hex"), "treadle") {
       m => new CombinMemoryUnitTester$IMemRead(m, 2048)
     } should be (true)
   }
   "DualPortedCombinMemory" should s"store words with data port and load with instruction port (with treadle)" in {
-    Driver(() => new CombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex"), "treadle") {
+    Driver(() => new CombinMemoryTestHarness(2048, "src/test/resources/raw/ascending-32.hex"), "treadle") {
       m => new CombinMemoryUnitTester$IMemWrite(m, 2048)
     } should be (true)
   }
 
   // dmem side
   "DualPortedCombinMemory" should s"have all zeros in data port (with treadle)"  in {
-    Driver(() => new CombinMemoryTestHarness(2048, "src/test/resources/raw/zero.hex"), "treadle") {
-      m => new CombinMemoryUnitTester$DMemZero(m, 2048)
+    Driver(() => new CombinMemoryTestHarness(4096, "src/test/resources/raw/zero.hex"), "treadle") {
+      m => new CombinMemoryUnitTester$DMemZero(m, 4096)
     } should be (true)
   }
 
   "DualPortedCombinMemory" should s"have increasing words in data port (with treadle)" in {
-    Driver(() => new CombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex"), "treadle") {
-      m => new CombinMemoryUnitTester$DMemRead(m, 2048)
+    Driver(() => new CombinMemoryTestHarness(4096, "src/test/resources/raw/ascending.hex"), "treadle") {
+      m => new CombinMemoryUnitTester$DMemRead(m, 4096)
     } should be (true)
   }
 
   "DualPortedCombinMemory" should s"store words with data port and load with data port (with treadle)" in {
-    Driver(() => new CombinMemoryTestHarness(2048, "src/test/resources/raw/ascending.hex"), "treadle") {
-      m => new CombinMemoryUnitTester$DMemWrite(m, 2048)
+    Driver(() => new CombinMemoryTestHarness(4096, "src/test/resources/raw/ascending.hex"), "treadle") {
+      m => new CombinMemoryUnitTester$DMemWrite(m, 4096)
     } should be (true)
   }
+
+
 }

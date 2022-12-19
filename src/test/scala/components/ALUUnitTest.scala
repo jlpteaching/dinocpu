@@ -10,7 +10,7 @@ import dinocpu.components.ALU
 class ALURandomUnitTester(c: ALU) extends PeekPokeTester(c) {
   private val alu = c
 
-  val maxInt = BigInt("FFFFFFFF", 16)
+  val maxInt = BigInt("FFFFFFFFFFFFFFFF", 16)
 
   def test(op: UInt, f: (BigInt, BigInt) => BigInt) {
     for (i <- 0 until 10) {
@@ -20,8 +20,8 @@ class ALURandomUnitTester(c: ALU) extends PeekPokeTester(c) {
       poke(alu.io.inputx, x)
       poke(alu.io.inputy, y)
       step(1)
-      val expectOut = f(x, y).toInt & maxInt
-      expect(alu.io.result, expectOut, s"for operation ${op.toInt.toBinaryString}")
+      val expectOut = f(x, y).toLong & maxInt
+      expect(alu.io.result, expectOut, s"for operation ${op.toInt.toBinaryString}; inputx: ${x}; inputy: ${y}")
     }
   }
 
@@ -33,22 +33,41 @@ class ALURandomUnitTester(c: ALU) extends PeekPokeTester(c) {
     }
   }
 
-  test("b0000".U, (x: BigInt, y: BigInt) => (x & y))
-  test("b0001".U, (x: BigInt, y: BigInt) => (x | y))
-  test("b0010".U, (x: BigInt, y: BigInt) => (x + y))
-  test("b0011".U, (x: BigInt, y: BigInt) => twoscomp(x - y))
-  test("b0100".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x1f)))
-  test("b0101".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
-  test("b0110".U, (x: BigInt, y: BigInt) => (x ^ y))
-  test("b0111".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x1f)))
-  test("b1000".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
-  test("b1001".U, (x: BigInt, y: BigInt) => (x << (y.toInt & 0x1f)))
-  test("b1010".U, (x: BigInt, y: BigInt) => twoscomp(~(x | y)))
+  def to32bit(v: BigInt) : BigInt = {
+    return v & BigInt("FFFFFFFF", 16)
+  }
+
+  def signExtend32bitTo64bit(v: BigInt) : BigInt = {
+    val signBit = (v >> 31) & 1
+    val bitMask32 = BigInt("FFFFFFFF", 16)
+    if (signBit == 0) {
+      return v & bitMask32 // we only keep the lower half since the upper half must be all zeros
+    } else {
+      return v | (bitMask32 << 32) // the upper half must be all ones, the lower half must be preserved
+    }
+  }
+
+  test("b00000".U, (x: BigInt, y: BigInt) => (x & y))
+  test("b00001".U, (x: BigInt, y: BigInt) => (x | y))
+  test("b00010".U, (x: BigInt, y: BigInt) => (x + y))
+  test("b10010".U, (x: BigInt, y: BigInt) => (signExtend32bitTo64bit(to32bit(x) + to32bit(y)))) // 32-bit operands
+  test("b00011".U, (x: BigInt, y: BigInt) => twoscomp(x - y))
+  test("b10011".U, (x: BigInt, y: BigInt) => (signExtend32bitTo64bit(twoscomp(to32bit(x) - to32bit(y))))) // 32-bit operands
+  test("b00100".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x3f)))
+  test("b10100".U, (x: BigInt, y: BigInt) => (signExtend32bitTo64bit(to32bit(x) >> (y.toInt & 0x1f)))) // 32-bit operands
+  test("b00101".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
+  test("b00110".U, (x: BigInt, y: BigInt) => (x ^ y))
+  test("b00111".U, (x: BigInt, y: BigInt) => (x >> (y.toInt & 0x3f)))
+  test("b10111".U, (x: BigInt, y: BigInt) => (signExtend32bitTo64bit(to32bit(x) >> (y.toInt & 0x1f)))) // 32-bit operands
+  test("b01000".U, (x: BigInt, y: BigInt) => (if (x < y) 1 else 0))
+  test("b01001".U, (x: BigInt, y: BigInt) => (x << (y.toInt & 0x3f)))
+  test("b11001".U, (x: BigInt, y: BigInt) => (signExtend32bitTo64bit(to32bit(x) << (y.toInt & 0x1f)))) // 32-bit operands
+  test("b01010".U, (x: BigInt, y: BigInt) => twoscomp(~(x | y)))
 }
 
 class ALUDirectedUnitTester(c: ALU) extends PeekPokeTester(c) {
   private val alu = c
-  val maxInt = BigInt("FFFFFFFF", 16)
+  val maxInt = BigInt("FFFFFFFFFFFFFFFF", 16)
 
   def twoscomp(v: BigInt) : BigInt = {
     if (v < 0) {
@@ -59,21 +78,21 @@ class ALUDirectedUnitTester(c: ALU) extends PeekPokeTester(c) {
   }
 
   // signed <
-  poke(alu.io.operation, "b1000".U)
+  poke(alu.io.operation, "b01000".U)
   poke(alu.io.inputx, twoscomp(-1))
   poke(alu.io.inputy, 1)
   step(1)
   expect(alu.io.result, 1)
 
   // unsigned <
-  poke(alu.io.operation, "b0101".U)
+  poke(alu.io.operation, "b00101".U)
   poke(alu.io.inputx, maxInt)
   poke(alu.io.inputy, 1)
   step(1)
   expect(alu.io.result, 0)
 
   // signed >>
-  poke(alu.io.operation, "b0100".U)
+  poke(alu.io.operation, "b00100".U)
   poke(alu.io.inputx, twoscomp(-1024))
   poke(alu.io.inputy, 5)
   step(1)

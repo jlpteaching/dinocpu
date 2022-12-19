@@ -15,29 +15,22 @@ class ALUControlUnitRTypeTester(c: ALUControl) extends PeekPokeTester(c) {
 
   // Copied from Patterson and Waterman Figure 2.3
   val tests = List(
-    // alu,   itype,    Funct7,       Func3,    Control Input
-    (  0.U, false.B, "b0000000".U, "b000".U, "b0010".U, "load/store"),
-    (  0.U, false.B, "b1111111".U, "b111".U, "b0010".U, "load/store"),
-    (  0.U, false.B, "b0000000".U, "b000".U, "b0010".U, "load/store"),
-    (  2.U, false.B, "b0000000".U, "b000".U, "b0010".U, "add"),
-    (  2.U, false.B, "b0100000".U, "b000".U, "b0011".U, "sub"),
-    (  2.U, false.B, "b0000000".U, "b001".U, "b1001".U, "sll"),
-    (  2.U, false.B, "b0000000".U, "b010".U, "b1000".U, "slt"),
-    (  2.U, false.B, "b0000000".U, "b011".U, "b0101".U, "sltu"),
-    (  2.U, false.B, "b0000000".U, "b100".U, "b0110".U, "xor"),
-    (  2.U, false.B, "b0000000".U, "b101".U, "b0111".U, "srl"),
-    (  2.U, false.B, "b0100000".U, "b101".U, "b0100".U, "sra"),
-    (  2.U, false.B, "b0000000".U, "b110".U, "b0001".U, "or"),
-    (  2.U, false.B, "b0000000".U, "b111".U, "b0000".U, "and"),
-    (  2.U, true.B,  "b0000000".U, "b000".U, "b0010".U, "addi"),
-    (  2.U, true.B,  "b0000000".U, "b010".U, "b1000".U, "slti"),
-    (  2.U, true.B,  "b0000000".U, "b011".U, "b0101".U, "sltiu"),
-    (  2.U, true.B,  "b0000000".U, "b100".U, "b0110".U, "xori"),
-    (  2.U, true.B,  "b0000000".U, "b110".U, "b0001".U, "ori"),
-    (  2.U, true.B,  "b0000000".U, "b111".U, "b0000".U, "andi"),
-    (  2.U, true.B,  "b0000000".U, "b001".U, "b1001".U, "slli"),
-    (  2.U, true.B,  "b0000000".U, "b101".U, "b0111".U, "srli"),
-    (  2.U, true.B,  "b0100000".U, "b101".U, "b0100".U, "srai")
+    // alu,   itype,       Funct7,    Func3, Wordinst,   Control Input
+    (  1.U, false.B, "b0000000".U, "b000".U,      0.U, "b00111".U, "add"),
+    (  1.U, false.B, "b0100000".U, "b000".U,      0.U, "b00100".U, "sub"),
+    (  1.U, false.B, "b0000000".U, "b001".U,      0.U, "b01000".U, "sll"),
+    (  1.U, false.B, "b0000000".U, "b010".U,      0.U, "b01001".U, "slt"),
+    (  1.U, false.B, "b0000000".U, "b011".U,      0.U, "b00001".U, "sltu"),
+    (  1.U, false.B, "b0000000".U, "b100".U,      0.U, "b00000".U, "xor"),
+    (  1.U, false.B, "b0000000".U, "b101".U,      0.U, "b00010".U, "srl"),
+    (  1.U, false.B, "b0100000".U, "b101".U,      0.U, "b00011".U, "sra"),
+    (  1.U, false.B, "b0000000".U, "b110".U,      0.U, "b00101".U, "or"),
+    (  1.U, false.B, "b0000000".U, "b111".U,      0.U, "b00110".U, "and"),
+    (  1.U, false.B, "b0000000".U, "b000".U,      1.U, "b10111".U, "addw"),
+    (  1.U, false.B, "b0100000".U, "b000".U,      1.U, "b10100".U, "subw"),
+    (  1.U, false.B, "b0000000".U, "b001".U,      1.U, "b11000".U, "sllw"),
+    (  1.U, false.B, "b0000000".U, "b101".U,      1.U, "b10010".U, "srlw"),
+    (  1.U, false.B, "b0100000".U, "b101".U,      1.U, "b10011".U, "sraw"),
   )
 
   for (t <- tests) {
@@ -45,8 +38,9 @@ class ALUControlUnitRTypeTester(c: ALUControl) extends PeekPokeTester(c) {
     poke(ctl.io.itype, t._2)
     poke(ctl.io.funct7, t._3)
     poke(ctl.io.funct3, t._4)
+    poke(ctl.io.wordinst, t._5)
     step(1)
-    expect(ctl.io.operation, t._5, s"${t._6} wrong")
+    expect(ctl.io.operation, t._6, s"${t._7} wrong")
   }
 }
 
@@ -54,11 +48,11 @@ class ALUControlUnitRTypeTester(c: ALUControl) extends PeekPokeTester(c) {
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * Lab1 / testOnly dinocpu.ALUControlTesterLab1
+  * Lab1 / testOnly dinocpu.test.ALUControlTesterLab1
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'Lab1 / testOnly dinocpu.ALUControlTesterLab1'
+  * sbt 'Lab1 / testOnly dinocpu.test.ALUControlTesterLab1'
   * }}}
   */
 class ALUControlTesterLab1 extends ChiselFlatSpec {

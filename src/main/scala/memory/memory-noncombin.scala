@@ -51,7 +51,7 @@ class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extend
     // Check that address is pointing to a valid location in memory
     assert (outRequest.address < size.U)
     io.imem.response.valid        := true.B
-    io.imem.response.bits.data    := memory(outRequest.address >> 2)
+    io.imem.response.bits.data := Cat(Fill(32, 0.U(1.W)), memory(outRequest.address >> 2)(31, 0))
   } .otherwise {
     // The memory's response can't possibly be valid if the imem pipe isn't outputting a valid request
     io.imem.response.valid := false.B
@@ -82,10 +82,11 @@ class DualPortedNonCombinMemory(size: Int, memfile: String, latency: Int) extend
 
     when (outRequest.operation === Read) {
       io.dmem.response.valid        := true.B
-      io.dmem.response.bits.data    := memory(address)
+      io.dmem.response.bits.data    := Cat(memory(address + 1.U), memory(address))
     } .elsewhen (outRequest.operation === Write) {
       io.dmem.response.valid        := false.B
-      memory(address) := outRequest.writedata
+      memory(address) := outRequest.writedata(31, 0)
+      memory(address + 1.U) := outRequest.writedata(63, 32)
     }
   } .otherwise {
     // The memory's response can't possibly be valid if the dmem pipe isn't outputting a valid request

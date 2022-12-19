@@ -15,7 +15,7 @@ If you don't want to use your code from lab 1, but want to use my code to get st
 git checkout -b my-lab1-solution
 git add .
 git commit -m "Add my solution to lab 1"
-git checkout master
+git checkout main
 git pull
 ```
 
@@ -26,8 +26,8 @@ If you have already committed things to master you can use the following:
 
 ```
 git checkout -b my-lab1-solution
-git checkout master
-git reset --hard origin/master
+git checkout main
+git reset --hard origin/main
 git pull
 ```
 
@@ -40,7 +40,7 @@ If you want to use your own solution to lab 1 it's a little more complicated:
 git add .
 git commit -m "Add my lab1 solution"
 git fetch
-git merge origin/master
+git merge origin/main
 ```
 
 This will merge the updates in origin (jlpteaching/dinocpu) into your master branch.

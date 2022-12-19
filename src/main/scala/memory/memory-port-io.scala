@@ -17,7 +17,7 @@ import chisel3._
  */
 class MemPortIO extends Bundle {
   // Pipeline <=> Port
-  val address  = Input(UInt(32.W))
+  val address  = Input(UInt(64.W))
   val valid    = Input(Bool())
   val good     = Output(Bool())
 }
@@ -46,18 +46,18 @@ class IMemPortIO extends MemPortIO {
  *   Input:  valid, true when the address (and writedata during a write) specified is valid
  *   Input:  memread, true if we are reading from memory
  *   Input:  memwrite, true if we are writing to memory
- *   Input:  maskmode, mode to mask the result. 0 means byte, 1 means halfword, 2 means word
+ *   Input:  maskmode, mode to mask the result. 0 means byte, 1 means halfword, 2 means word, 3 means doubleword
  *   Input:  sext, true if we should sign extend the result
  *   Output: readdata, the data read and sign extended
  *   Output: good, true when memory is responding with a piece of data
  */
 class DMemPortIO extends MemPortIO {
   // Pipeline <=> Port
-  val writedata = Input(UInt(32.W))
+  val writedata = Input(UInt(64.W))
   val memread   = Input(Bool())
   val memwrite  = Input(Bool())
   val maskmode  = Input(UInt(2.W))
   val sext      = Input(Bool())
 
-  val readdata  = Output(UInt(32.W))
+  val readdata  = Output(UInt(64.W))
 }

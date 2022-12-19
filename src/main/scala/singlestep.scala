@@ -66,6 +66,7 @@ object singlestep {
     | p: print
     | d: display
     | s: step
+    | v: verbose step (print on each cycle)
     |
     |""".stripMargin
 
@@ -154,6 +155,24 @@ object singlestep {
     }
     if (cycles > 0) {
       driver.step(cycles)
+      true
+    } else {
+      false
+    }
+  }
+
+  def doVerboseStep(tokens: Array[String], displayList: Seq[Array[String]], driver: CPUTesterDriver): Boolean = {
+    val cycles = try {
+      if (tokens.length == 2) tokens(1).toInt else 1
+    } catch {
+      case e: NumberFormatException => 0
+    }
+    if (cycles > 0) {
+      var iter = 0
+      for (iter <- 1 to cycles) {
+        driver.verboseStep(1)
+        doDisplay(displayList, driver)
+      }
       true
     } else {
       false
@@ -250,6 +269,7 @@ object singlestep {
           node("all"),
           node("list")),
         node("step"),
+        node("verbose"),
         node("?"),
         node("q")))
       .build
@@ -275,6 +295,7 @@ object singlestep {
           case "?" => println(commands)
           case "q" | "Q" => done = true
           case "s" | "step" if doStep(tokens, driver) => doDisplay(displayList, driver)
+          case "v" | "verbose" if doVerboseStep(tokens, displayList, driver) =>
           case "p" | "print" => {
             if (tokens.length > 1) {
               if (!doPrint(tokens, driver)) println(commands)

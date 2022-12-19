@@ -1,0 +1,12 @@
+  .text
+  .align 2       # Make sure we're aligned to 4 bytes
+  .globl _start
+_start:
+    addiw x10, zero, -2047 # (reg[10] = 0 - 2047)
+
+    nop
+    nop
+    nop
+    nop
+    nop
+_last:

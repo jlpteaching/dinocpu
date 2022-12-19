@@ -3,6 +3,7 @@
 package dinocpu.memory
 
 import chisel3._
+import chisel3.util._
 import MemoryOperation._
 
 /**
@@ -18,6 +19,7 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
     // Combinational memory is inherently always ready for port requests
     portio.request.ready := true.B
   }
+
   // Instruction port
 
   wireMemPipe(io.imem)
@@ -34,7 +36,7 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
     // TODO: once CSR is integrated into CPU
     when (request.address < size.U) {
       io.imem.response.valid := true.B
-      io.imem.response.bits.data := memory(request.address >> 2)
+      io.imem.response.bits.data := Cat(Fill(32, 0.U), memory(request.address >> 2))
     } .otherwise {
       io.imem.response.valid := false.B
     }
@@ -58,12 +60,14 @@ class DualPortedCombinMemory(size: Int, memfile: String) extends BaseDualPortedM
     assert (request.address < size.U)
 
     // Read path
-    io.dmem.response.bits.data := memory.read(memAddress >> 2)
+    val baseAddress = memAddress >> 2.U
+    io.dmem.response.bits.data := Cat(memory(baseAddress + 1.U), memory(baseAddress))
     io.dmem.response.valid := true.B
 
     // Write path
     when (request.operation === ReadWrite) {
-      memory(memAddress >> 2) := memWriteData
+      memory(memAddress >> 2) := memWriteData(31, 0)
+      memory((memAddress >> 2) + 1.U) := memWriteData(63, 32)
     }
   } .otherwise {
     io.dmem.response.valid := false.B

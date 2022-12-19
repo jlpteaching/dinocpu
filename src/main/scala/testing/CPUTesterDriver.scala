@@ -238,6 +238,16 @@ class CPUTesterDriver(cpuType: String,
     println(s"Current cycle: ${cycle}")
   }
 
+  def verboseStep(cycles: Int = 0): Unit = {
+    val start = cycle
+    simulator.step(1)
+    cycle += 1
+    while (simulator.peek("cpu.pc") != endPC && cycle < start + cycles) {
+      simulator.step(1)
+      cycle += 1
+    }
+  }
+
   def run(cycles: Int): Unit = {
     while (cycle < cycles && simulator.peek("cpu.pc") != endPC) {
       if (cycle % 10000 == 0) println(s"${cycle} cycles simulated.")

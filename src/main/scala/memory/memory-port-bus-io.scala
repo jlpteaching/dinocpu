@@ -7,16 +7,16 @@ import chisel3.util._
 
 // A Bundle used for representing a memory access by instruction memory or data memory.
 class Request extends Bundle {
-  val address      = UInt(32.W)
-  val writedata    = UInt(32.W)
+  val address      = UInt(64.W)
+  val writedata    = UInt(64.W)
   val operation    = MemoryOperation()
 }
 
 // A bundle used for representing the memory's response to a memory read operation, which
 // is sent back to the issuing memory port.
 class Response extends Bundle {
-  // The 4-byte-wide block of data being returned by memory
-  val data         = UInt(32.W)
+  // The 8-byte-wide block of data being returned by memory
+  val data         = UInt(64.W)
 }
 
 /**

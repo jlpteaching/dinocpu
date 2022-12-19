@@ -39,18 +39,18 @@ class RegisterFile(implicit val conf: CPUConfig) extends Module {
     val readreg1  = Input(UInt(5.W))
     val readreg2  = Input(UInt(5.W))
     val writereg  = Input(UInt(5.W))
-    val writedata = Input(UInt(32.W))
+    val writedata = Input(UInt(64.W))
     val wen       = Input(Bool())
 
-    val readdata1 = Output(UInt(32.W))
-    val readdata2 = Output(UInt(32.W))
+    val readdata1 = Output(UInt(64.W))
+    val readdata2 = Output(UInt(64.W))
   })
 
   // Required so the compiler doesn't optimize things away when testing
   // incomplete designs.
   dontTouch(io)
 
-  val regs = Reg(Vec(32, UInt(32.W)))
+  val regs = Reg(Vec(32, UInt(64.W)))
 
   // When the write enable is high, write the data
   when (io.wen) {

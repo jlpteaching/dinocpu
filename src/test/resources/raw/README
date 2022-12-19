@@ -1,0 +1,7 @@
+`ascending.hex`: memory layout of a sequence of number from 0 to 511, each
+number is stored as a 64-bit data. Used for testing the dmem ports as
+the `.data` sections of riscv 64-bit binaries are 8-byte-aligned.
+`ascending-32.hex`: memory layout of a sequence of number from 0 to 511,
+each number is stored as a 32-bit data. Used for testing the imem ports as
+the `.text` sections of riscv 64-bit binaries are 4-byte-aligned.
+`zero.hex`: memory layout contains all zeros.
