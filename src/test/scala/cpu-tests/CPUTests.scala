@@ -7,17 +7,17 @@ package dinocpu.test
   * This is a trivial example of how to run this Specification
   * From within sbt use:
   * {{{
-  * testOnly dinocpu.SingleCycleCPUTester
+  * testOnly dinocpu.test.SingleCycleCPUTester
   * }}}
   * From a terminal shell use:
   * {{{
-  * sbt 'testOnly dinocpu.SingleCycleCPUTester'
+  * sbt 'testOnly dinocpu.test.SingleCycleCPUTester'
   * }}}
   *
   * To run a **single** test from this suite, you can use the -z option to sbt test.
   * The option after the `-z` is a string to search for in the test
   * {{{
-  * sbt> testOnly dinocpu.SingleCycleCPUTester -- -z beqFalse
+  * sbt> testOnly dinocpu.test.SingleCycleCPUTester -- -z beqFalse
   * }}}
   * Or, to run just the r-type instructions you can use `-z rtype`
   */
