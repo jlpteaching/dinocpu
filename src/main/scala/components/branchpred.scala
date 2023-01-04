@@ -16,7 +16,7 @@ import dinocpu._
  * Output: prediction, true if the branch is predicted to be taken, false otherwise
  */
 class BranchPredIO extends Bundle {
-  val pc         = Input(UInt(32.W))
+  val pc         = Input(UInt(64.W))
   val update     = Input(Bool())
   val taken      = Input(Bool())
 

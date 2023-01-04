@@ -14,7 +14,7 @@ import dinocpu.components._
  */
 class SingleCycleCPU(implicit val conf: CPUConfig) extends BaseCPU {
   // All of the structures required
-  val pc         = dontTouch(RegInit(0.U(32.W)))
+  val pc         = dontTouch(RegInit(0.U(64.W)))
   val control    = Module(new Control())
   val registers  = Module(new RegisterFile())
   val aluControl = Module(new ALUControl())
