@@ -1,3 +1,8 @@
 {
-    "image": "jlpteaching/dinocpu-wq23"
+    "image": "jlpteaching/dinocpu-wq23",
+    "hostRequirements": {
+        "cpus": 4,
+        "memory": "8gb",
+        "storage": "32gb" 
+     }
 }
