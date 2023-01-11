@@ -16,7 +16,7 @@ It may be a good idea to create a different file for each lab and update the Doc
 ### Updating the docker image
 
 ```
-docker build -f Dockerfile.gradescope -t jlpteaching/dino-grading:labX .
+docker build -f dockerfiles/Dockerfile.gradescope -t jlpteaching/dino-grading:labX .
 ```
 
 Make sure that you have checked out the labX branch before building the docker file so you only include the template code and not the answer.
