@@ -107,7 +107,7 @@ class CPUTesterDriver(cpuType: String,
     for (name <- modules) {
       for ((symbol, name) <- getIO(name)) {
         val v = simulator.peek(symbol)
-        println(s"${name.padTo(30, ' ')} ${v} (0x${v.toInt.toHexString})")
+        println(s"${name.padTo(30, ' ')} ${v} (0x${v.toLong.toHexString})")
       }
     }
   }
@@ -133,7 +133,7 @@ class CPUTesterDriver(cpuType: String,
   def dumpModule(module: String): Unit = {
     for ((symbol, name) <- getIO(module)) {
       val v = simulator.peek(symbol)
-      println(s"${name.padTo(30, ' ')} ${v} (0x${v.toInt.toHexString})")
+      println(s"${name.padTo(30, ' ')} ${v} (0x${v.toLong.toHexString})")
     }
   }
 
@@ -149,7 +149,7 @@ class CPUTesterDriver(cpuType: String,
     for (sym <- syms) {
       val name = s"${module}.${sym.split('.').last.drop(4)}"
       val v = simulator.peek(sym)
-      println(s"${name.padTo(39, ' ')} ${v} (0x${v.toInt.toHexString})")
+      println(s"${name.padTo(39, ' ')} ${v} (0x${v.toLong.toHexString})")
     }
 
    val inputs = simulator.engine.validNames.filter(
@@ -157,7 +157,7 @@ class CPUTesterDriver(cpuType: String,
     for (sym <- inputs) {
       val name = s"${module}.${sym.split('.').last.drop(4)}".dropRight(3) + " (input)"
       val v = simulator.peek(sym)
-      println(s"${name.padTo(40, ' ')}${v} (0x${v.toInt.toHexString})")
+      println(s"${name.padTo(40, ' ')}${v} (0x${v.toLong.toHexString})")
     }
 
   }
