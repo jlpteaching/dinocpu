@@ -106,7 +106,7 @@ object Disassembler {
       case 1 => "slli" + " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
       case 5 => instr.funct7 match {
         case 0 => "srli" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
-        case 8 => "srai" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
+        case 32 => "srai" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
       }
       case _ => "Bad I-type"
     }
@@ -122,7 +122,7 @@ object Disassembler {
       case 1 => "slliw" + " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
       case 5 => instr.funct7 match {
         case 0 => "srliw" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
-        case 8 => "sraiw" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
+        case 32 => "sraiw" +  " x" + instr.rd + ", x" + instr.rs1 + ", " + shamt
       }
       case _ => "Bad I-type 32-bit"
     }
