@@ -28,9 +28,9 @@ name := "dinocpu"
 version := "0.5"
 organization := "edu.ucdavis.cs"
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.12.12"
 
-crossScalaVersions := Seq("2.12.10", "2.11.12")
+crossScalaVersions := Seq("2.12.12", "2.11.12")
 
 resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
@@ -39,8 +39,8 @@ resolvers ++= Seq(
 
 // Provide a managed dependency on X if -DXVersion="" is supplied on the command line.
 val defaultVersions = Map(
-  "chisel3" -> "3.2.+",
-  "chisel-iotesters" -> "1.3.+"
+  "chisel3" -> "3.4.+",
+  "chisel-iotesters" -> "1.5.+"
   )
 
 libraryDependencies ++= Seq("chisel3","chisel-iotesters").map {
@@ -54,18 +54,18 @@ javacOptions ++= javacOptionsVersion(scalaVersion.value)
 
 // https://mvnrepository.com/artifact/junit/junit
 // For running the gradescope tests
-libraryDependencies += "junit" % "junit" % "4.12" % Test
+libraryDependencies += "junit" % "junit" % "4.13" % Test
 
 // https://mvnrepository.com/artifact/net.fornwall.jelf/jelf
 // For understanding elfs and directly running binary files
 libraryDependencies += "net.fornwall.jelf" % "jelf" % "0.4.1"
 
 // For visualization, figure out how to move this somewhere else
-libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "2.1.1"
+libraryDependencies += "org.scala-lang.modules" %% "scala-swing" % "3.0.0"
 
 // This sets it up so all tests that end in "Tester" will be run when you run sbt test
 // and all tests that end in "Grader" will run when you run stb Grader / test
-lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
+lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.8"
 lazy val Grader = config("grader") extend(Test)
 lazy val TestAll = config("testAll") extend(Test)
 lazy val Lab1 = config("lab1") extend(Test)
